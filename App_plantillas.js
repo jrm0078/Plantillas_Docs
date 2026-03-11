@@ -25,9 +25,16 @@ function inicializarEditor() {
         toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview fullscreen | table charmap emoticons',
         branding: false,
         setup: function(editor) {
-            editor.on('change input', function() {
-                // Detectar cambios y actualizar campos calculados
-                actualizarCamposCalculados();
+            editor.on('init', function() {
+                // Detectar cambios en el contenido
+                editor.on('change keyup paste input', function() {
+                    actualizarCamposCalculados();
+                });
+                
+                // También monitorear el contenteditable 
+                editor.contentDocument.addEventListener('keyup', function() {
+                    actualizarCamposCalculados();
+                });
             });
         }
     });
@@ -303,39 +310,51 @@ function actualizarCamposCalculados() {
     if (!tinymce.activeEditor || !plantillaActual) return;
     
     const contenido = tinymce.activeEditor.getContent();
-    let nuevoContenido = contenido;
-    
-    // Extraer valores de los campos entre guiones usando expresiones regulares
-    const extraerValor = (campo) => {
-        // Patrón: -fieldname- seguido de números/texto hasta el siguiente -fieldname- o fin
-        const patron = new RegExp(`-${campo}-([\\s\\S]*?)(?=-\\w+-|$)`);
-        const match = contenido.match(patron);
-        if (match && match[1]) {
-            // Extraer solo el primer número encontrado después del campo
-            const numMatch = match[1].match(/\d+(\.\d+)?/);
-            return numMatch ? parseFloat(numMatch[0]) : 0;
-        }
-        return 0;
-    };
     
     // Cálculos específicos para presupuesto
     if (plantillaActual.cod_plantilla === 'presupuesto_1') {
+        
+        // Función para extraer el valor numérico después de un campo
+        const extraerValor = (campo) => {
+            // Busca el patrón -campo- seguido de números
+            const regex = new RegExp(`-${campo}-([^<]*?)(?:<|$)`);
+            const match = contenido.match(regex);
+            
+            if (match && match[1]) {
+                // Limpia el texto y extrae el número
+                const texto = match[1].trim();
+                const numero = texto.match(/\d+([.,]\d+)?/);
+                return numero ? parseFloat(numero[0].replace(',', '.')) : 0;
+            }
+            return 0;
+        };
+        
+        // Extrae valores
         const cantidad = extraerValor('cantidad');
         const precio = extraerValor('precio_unitario');
         const descuento = extraerValor('descuento');
         
-        // Calcular totales
+        // Calcula
         const total = cantidad * precio;
         const totalDescuento = total * (descuento / 100);
         const totalFinal = total - totalDescuento;
         
-        // Reemplazar campos calculados con valores nuevos
-        let contenidoTemp = nuevoContenido;
-        contenidoTemp = contenidoTemp.replace(/-total-[\s\S]*?(?=-\w+-|<\/p>|-descuento-|$)/, `-total-${total.toFixed(2)}`);
-        contenidoTemp = contenidoTemp.replace(/-descuento_total-[\s\S]*?(?=-\w+-|<\/p>|-total_final-|$)/, `-descuento_total-${totalDescuento.toFixed(2)}`);
-        contenidoTemp = contenidoTemp.replace(/-total_final-[\s\S]*?(?=-\w+-|<\/p>|$)/, `-total_final-${totalFinal.toFixed(2)}`);
+        // Reemplaza campos calculados
+        let nuevoContenido = contenido;
         
-        nuevoContenido = contenidoTemp;
+        // Reemplazar -total- con el valor calculado
+        nuevoContenido = nuevoContenido.replace(/-total-([^<]*?)(?=<|-\w+-|$)/, `-total-${total.toFixed(2)}`);
+        
+        // Reemplazar -descuento_total- con el valor calculado
+        nuevoContenido = nuevoContenido.replace(/-descuento_total-([^<]*?)(?=<|-\w+-|$)/, `-descuento_total-${totalDescuento.toFixed(2)}`);
+        
+        // Reemplazar -total_final- con el valor calculado
+        nuevoContenido = nuevoContenido.replace(/-total_final-([^<]*?)(?=<|-\w+-|$)/, `-total_final-${totalFinal.toFixed(2)}`);
+        
+        // Solo actualiza si hay cambios
+        if (nuevoContenido !== contenido) {
+            tinymce.activeEditor.setContent(nuevoContenido, { no_events: true });
+        }
     }
 }
 

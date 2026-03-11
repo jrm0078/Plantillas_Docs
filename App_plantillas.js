@@ -247,15 +247,18 @@ function descargarPDF() {
     const contenido = tinymce.activeEditor.getContent();
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
     
-    // Crear div temporal con el contenido
+    // Crear div en el documento para capturarlo
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = contenido;
     tempDiv.style.padding = '20px';
     tempDiv.style.fontFamily = 'Arial, sans-serif';
     tempDiv.style.fontSize = '12px';
     tempDiv.style.lineHeight = '1.5';
-    tempDiv.style.color = '#000';
-    tempDiv.style.backgroundColor = '#fff';
+    tempDiv.style.width = '100%';
+    tempDiv.style.backgroundColor = 'white';
+    
+    // Agregar al DOM temporalmente
+    document.body.appendChild(tempDiv);
     
     const opt = {
         margin: 5,
@@ -264,17 +267,20 @@ function descargarPDF() {
         html2canvas: { 
             scale: 2, 
             useCORS: true, 
-            allowTaint: true, 
-            backgroundColor: '#ffffff',
-            windowHeight: tempDiv.scrollHeight,
-            windowWidth: tempDiv.scrollWidth
+            allowTaint: true,
+            backgroundColor: '#ffffff'
         },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
     };
     
-    html2pdf().set(opt).from(tempDiv).save();
-    mostrarAlerta('PDF descargado correctamente', 'success');
+    html2pdf().set(opt).from(tempDiv).save().then(() => {
+        // Eliminar el div después de generar el PDF
+        document.body.removeChild(tempDiv);
+        mostrarAlerta('PDF descargado correctamente', 'success');
+    }).catch(() => {
+        document.body.removeChild(tempDiv);
+        mostrarAlerta('Error al descargar PDF', 'danger');
+    });
 }
 
 

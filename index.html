@@ -140,18 +140,6 @@
       <div class="col-md-6 col-lg-4">
         <div class="card shadow-sm">
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Presupuestos</h5>
-            <p class="card-text flex-grow-1">Presupuestos para clientes</p>
-            <button class="btn btn-plantilla" onclick="irAPlantilla('presupuesto')">
-              <i class="fas fa-arrow-right"></i> Crear Presupuesto
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm">
-          <div class="card-body d-flex flex-column">
             <h5 class="card-title">Plantillas Personalizadas</h5>
             <p class="card-text flex-grow-1">Consentimientos, facturas, contratos y más</p>
             <button class="btn btn-plantilla" onclick="irAPlantillas()">
@@ -166,11 +154,6 @@
 </div>
 
 <script>
-function irAPlantilla(tipo){
-  localStorage.setItem("plantilla", tipo);
-  window.location.href = "formulario_presupuestos.html";
-}
-
 function irAPlantillas(){
   window.location.href = "formulario.html";
 }

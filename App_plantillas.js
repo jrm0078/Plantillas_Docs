@@ -246,45 +246,51 @@ function descargarPDF() {
     
     const contenido = tinymce.activeEditor.getContent();
     
-    // Crear contenedor con CSS para PDF
-    const elemento = document.createElement('div');
+    // Crear elemento HTML limpio para el PDF
+    const elemento = document.createElement('html');
     elemento.innerHTML = `
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            body {
-                font-family: Arial, sans-serif;
-                font-size: 12px;
-                line-height: 1.6;
-                color: #333;
-            }
-            p { margin-bottom: 10px; }
-            h2, h3, h4 { margin-top: 15px; margin-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f5f5f5; }
-            ul, ol { margin-left: 20px; margin-bottom: 10px; }
-            li { margin-bottom: 5px; }
-        </style>
-        <div style="padding: 20px;">
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                }
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 12px;
+                    line-height: 1.6;
+                    color: #000;
+                    padding: 20px;
+                }
+                p { margin-bottom: 12px; }
+                h1, h2, h3, h4 { margin: 15px 0 10px 0; }
+                table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                th, td { border: 1px solid #999; padding: 8px; }
+                th { background-color: #f0f0f0; }
+                ul, ol { margin-left: 20px; margin-bottom: 10px; }
+                li { margin-bottom: 5px; }
+            </style>
+        </head>
+        <body>
             ${contenido}
-        </div>
+        </body>
+        </html>
     `;
     
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
     
     const opt = {
-        margin: 10,
+        margin: 5,
         filename: `${nombreArchivo}_${new Date().getTime()}.pdf`,
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' },
         jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
     };
     
-    html2pdf().set(opt).from(elemento).save();
+    html2pdf().set(opt).from(elemento.innerHTML).save();
     mostrarAlerta('PDF descargado correctamente', 'success');
 }
 

@@ -239,44 +239,49 @@ function generarDocumento() {
 // DESCARGAR PDF
 
 function descargarPDF() {
+
     if (!tinymce.activeEditor) {
         mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
         return;
     }
-    
-    const contenido = tinymce.activeEditor.getContent();
+
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
-    
-    // Crear elemento HTML simple
-    const container = document.createElement('div');
-    container.innerHTML = `
-        <div style="font-family: Arial, sans-serif; font-size: 11px; line-height: 1.6; padding: 20px; color: #000;">
-            ${contenido}
-        </div>
-    `;
-    
-    // Agregar temporalmente al cuerpo para que html2pdf pueda procesarlo
-    container.style.position = 'absolute';
-    container.style.left = '-10000px';
-    container.style.width = '210mm';
-    container.style.backgroundColor = 'white';
+
+    // Crear contenedor
+    const container = document.createElement("div");
+
+    container.innerHTML = tinymce.activeEditor.getBody().innerHTML;
+
+    container.style.background = "white";
+    container.style.padding = "30px";
+    container.style.width = "210mm";
+    container.style.position = "fixed";
+    container.style.top = "0";
+    container.style.left = "0";
+    container.style.zIndex = "-1";
+
     document.body.appendChild(container);
-    
-    // Configurar opciones del PDF
-    const options = {
+
+    const opciones = {
         margin: 10,
-        filename: `${nombreArchivo}_${new Date().getTime()}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }
+        filename: nombreArchivo + ".pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true
+        },
+        jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait"
+        }
     };
-    
-    // Generar y descargar PDF
-    html2pdf().set(options).from(container).save().finally(() => {
-        // Limpiar el elemento añadido
-        document.body.removeChild(container);
-        mostrarAlerta('PDF descargado correctamente', 'success');
-    });
+
+    setTimeout(() => {
+        html2pdf().set(opciones).from(container).save().then(() => {
+            document.body.removeChild(container);
+        });
+    }, 300);
 }
 
 

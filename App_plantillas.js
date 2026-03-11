@@ -7,20 +7,23 @@ let plantillaActual = null;
 let datosFormulario = {};
 let editor = null;
 
+// Esperar a que jQuery esté disponible
+function esperarJQuery() {
+    if (typeof jQuery !== 'undefined') {
+        return Promise.resolve();
+    }
+    return new Promise(resolve => {
+        setTimeout(() => esperarJQuery().then(resolve), 100);
+    });
+}
+
 // INICIALIZACIÓN
 
 document.addEventListener('DOMContentLoaded', function() {
-    cargarPlantillasDisponibles();
-    inicializarEditor();
-    // Inicializar Select2 principal después de un pequeño delay
-    setTimeout(function() {
-        $('#selectPlantilla').select2({
-            theme: 'bootstrap-5',
-            width: '100%',
-            placeholder: '-- Seleccionar una plantilla --',
-            allowClear: true
-        });
-    }, 100);
+    esperarJQuery().then(() => {
+        cargarPlantillasDisponibles();
+        inicializarEditor();
+    });
 });
 
 // INICIALIZAR TINYMCE
@@ -61,6 +64,19 @@ function cargarPlantillasDisponibles() {
                     option.value = plantilla.cod_plantilla;
                     option.textContent = `${plantilla.nombre} - ${plantilla.descripcion || ''}`;
                     select.appendChild(option);
+                });
+                
+                // Inicializar Select2 después de cargar las opciones
+                $(select).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: '-- Seleccionar una plantilla --',
+                    allowClear: true,
+                    language: {
+                        noResults: function() {
+                            return 'No se encontraron resultados';
+                        }
+                    }
                 });
             } else {
                 mostrarAlerta('Error al cargar plantillas: ' + data.error, 'danger');
@@ -133,13 +149,26 @@ function mostrarFormularioDinamico() {
     
     // Inicializar Select2 en los select dinámicos
     setTimeout(function() {
-        $('#formularioDinamico').find('select').select2({
-            theme: 'bootstrap-5',
-            width: '100%',
-            placeholder: '-- Seleccionar --',
-            allowClear: true
+        const selectDinamicos = $('#formularioDinamico').find('select');
+        selectDinamicos.each(function() {
+            // Destruir Select2 anterior si existe
+            if ($(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2('destroy');
+            }
+            // Inicializar Select2 nuevo
+            $(this).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: '-- Seleccionar --',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return 'No se encontraron resultados';
+                    }
+                }
+            });
         });
-    }, 100);
+    }, 200);
     
     document.getElementById('formularioSection').style.display = 'block';
     document.getElementById('editorSection').style.display = 'block';

@@ -5,7 +5,6 @@ const API_PLANTILLAS = API_BASE + 'api_plantillas.php';
 
 let plantillaActual = null;
 let datosFormulario = {};
-let editor = null;
 
 // Esperar a que jQuery esté disponible
 function esperarJQuery() {
@@ -39,17 +38,7 @@ function inicializarEditor() {
         valid_elements: '*[*]',
         extended_valid_elements: '*[*]',
         setup: function(editor) {
-            editor.on('init', function() {
-                // Detectar cambios en el contenido
-                editor.on('change keyup paste input', function() {
-                    actualizarCamposCalculados();
-                });
-                
-                // También monitorear el contenteditable 
-                editor.contentDocument.addEventListener('keyup', function() {
-                    actualizarCamposCalculados();
-                });
-            });
+            // Setup adicional si se necesita en el futuro
         }
     });
 }
@@ -351,13 +340,6 @@ function guardarDocumento() {
         console.error('Error:', error);
         mostrarAlerta('Error al guardar documento', 'danger');
     });
-}
-
-// ACTUALIZAR CAMPOS CALCULADOS AUTOMÁTICAMENTE
-
-function actualizarCamposCalculados() {
-    
-    return;
 }
 
 // NUEVO DOCUMENTO

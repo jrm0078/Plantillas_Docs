@@ -18,7 +18,7 @@ function esperarJQuery() {
 
 // INICIALIZACIÓN
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     esperarJQuery().then(() => {
         cargarPlantillasDisponibles();
         inicializarEditor();
@@ -37,7 +37,7 @@ function inicializarEditor() {
         branding: false,
         valid_elements: '*[*]',
         extended_valid_elements: '*[*]',
-        setup: function(editor) {
+        setup: function (editor) {
             // Setup adicional si se necesita en el futuro
         }
     });
@@ -56,7 +56,7 @@ function cargarPlantillasDisponibles() {
                     option.textContent = `${plantilla.nombre} - ${plantilla.descripcion || ''}`;
                     select.appendChild(option);
                 });
-                
+
                 // Inicializar Select2 después de cargar las opciones
                 $(select).select2({
                     theme: 'bootstrap-5',
@@ -64,7 +64,7 @@ function cargarPlantillasDisponibles() {
                     placeholder: '-- Seleccionar una plantilla --',
                     allowClear: true,
                     language: {
-                        noResults: function() {
+                        noResults: function () {
                             return 'No se encontraron resultados';
                         }
                     }
@@ -82,25 +82,25 @@ function cargarPlantillasDisponibles() {
 // CARGAR PLANTILLA SELECCIONADA
 function cargarPlantilla() {
     const cod = document.getElementById('selectPlantilla').value;
-    
+
     if (!cod) {
         limpiar();
         return;
     }
-    
+
     fetch(API_PLANTILLAS + '?action=obtener&cod=' + cod)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 plantillaActual = data.data;
-                
+
                 // Cargar directamente el contenido en el editor con campos entre guiones
                 tinymce.activeEditor.setContent(plantillaActual.contenido);
-                
+
                 // Mostrar solo el editor
                 document.getElementById('formularioSection').style.display = 'none';
                 document.getElementById('editorSection').style.display = 'block';
-                
+
                 mostrarAlerta('Plantilla ' + plantillaActual.nombre + ' cargada', 'success');
             } else {
                 mostrarAlerta('Error: ' + data.error, 'danger');
@@ -117,12 +117,12 @@ function cargarPlantilla() {
 function mostrarFormularioDinamico() {
     const container = document.getElementById('formularioDinamico');
     container.innerHTML = '';
-    
+
     if (!plantillaActual.variables || plantillaActual.variables.length === 0) {
         mostrarAlerta('Esta plantilla no tienen campos configurados', 'warning');
         return;
     }
-    
+
     plantillaActual.variables.forEach(variable => {
         const div = document.createElement('div');
         div.className = 'row';
@@ -137,11 +137,11 @@ function mostrarFormularioDinamico() {
         `;
         container.appendChild(div);
     });
-    
+
     // Inicializar Select2 en los select dinámicos
-    setTimeout(function() {
+    setTimeout(function () {
         const selectDinamicos = $('#formularioDinamico').find('select');
-        selectDinamicos.each(function() {
+        selectDinamicos.each(function () {
             // Destruir Select2 anterior si existe
             if ($(this).hasClass('select2-hidden-accessible')) {
                 $(this).select2('destroy');
@@ -153,14 +153,14 @@ function mostrarFormularioDinamico() {
                 placeholder: '-- Seleccionar --',
                 allowClear: true,
                 language: {
-                    noResults: function() {
+                    noResults: function () {
                         return 'No se encontraron resultados';
                     }
                 }
             });
         });
     }, 200);
-    
+
     document.getElementById('formularioSection').style.display = 'block';
     document.getElementById('editorSection').style.display = 'block';
 }
@@ -168,25 +168,25 @@ function mostrarFormularioDinamico() {
 // CREAR CAMPO DE INPUT DINÁMICO
 function crearCampoInput(variable) {
     const id = 'var_' + variable.nombre_variable;
-    
+
     switch (variable.tipo) {
         case 'textarea':
             return `<textarea id="${id}" class="form-control" placeholder="${variable.etiqueta}"></textarea>`;
-        
+
         case 'number':
             return `<input type="number" id="${id}" class="form-control" placeholder="${variable.etiqueta}">`;
-        
+
         case 'date':
             return `<input type="date" id="${id}" class="form-control">`;
-        
+
         case 'email':
             return `<input type="email" id="${id}" class="form-control" placeholder="${variable.etiqueta}">`;
-        
+
         case 'select':
             return `<select id="${id}" class="form-control">
                         <option value="">-- Seleccionar --</option>
                     </select>`;
-        
+
         default:
             return `<input type="text" id="${id}" class="form-control" placeholder="${variable.etiqueta}">`;
     }
@@ -199,7 +199,7 @@ function generarDocumento() {
         mostrarAlerta('Selecciona una plantilla primero', 'warning');
         return;
     }
-    
+
     // Recopilar datos del formulario
     datosFormulario = {};
     plantillaActual.variables.forEach(variable => {
@@ -209,7 +209,7 @@ function generarDocumento() {
             datosFormulario[variable.nombre_variable] = input.value;
         }
     });
-    
+
     // Llamar API para reemplazar variables
     fetch(API_PLANTILLAS + '?action=reemplazar&cod=' + plantillaActual.cod_plantilla, {
         method: 'POST',
@@ -218,22 +218,22 @@ function generarDocumento() {
         },
         body: JSON.stringify(datosFormulario)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Cargar contenido reemplazado en TinyMCE
-            if (tinymce.activeEditor) {
-                tinymce.activeEditor.setContent(data.data.contenido);
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cargar contenido reemplazado en TinyMCE
+                if (tinymce.activeEditor) {
+                    tinymce.activeEditor.setContent(data.data.contenido);
+                }
+                mostrarAlerta('Documento generado correctamente', 'success');
+            } else {
+                mostrarAlerta('Error: ' + data.error, 'danger');
             }
-            mostrarAlerta('Documento generado correctamente', 'success');
-        } else {
-            mostrarAlerta('Error: ' + data.error, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarAlerta('Error al generar documento', 'danger');
-    });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al generar documento', 'danger');
+        });
 }
 
 // DESCARGAR PDF
@@ -248,21 +248,25 @@ function descargarPDF() {
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
     const contenido = tinymce.activeEditor.getContent();
 
-    // Crear contenedor limpio para el PDF
     const container = document.createElement("div");
 
     container.innerHTML = contenido;
+    
+    container.querySelectorAll("img").forEach(img => {
+        img.style.maxWidth = "100%";
+    });
 
-    // Estilos para PDF limpio
+    container.querySelectorAll("table").forEach(t => {
+        t.style.width = "100%";
+    });
+
     container.style.background = "#ffffff";
-    container.style.padding = "30px";
-    container.style.width = "210mm";
+    container.style.padding = "20px";
+    container.style.width = "190mm"; // 👈 ancho correcto
     container.style.margin = "0 auto";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.6";
-
-    // EXTRA para A4 perfecto
     container.style.boxSizing = "border-box";
     container.style.minHeight = "297mm";
 
@@ -307,7 +311,7 @@ function imprimirDocumento() {
         mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
         return;
     }
-    
+
     const contenido = tinymce.activeEditor.getContent();
     const ventana = window.open('', '', 'height=600,width=800');
     ventana.document.write('<html><head><title>Imprimir Documento</title>');
@@ -326,7 +330,7 @@ function copiarAlPortapapeles() {
         mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
         return;
     }
-    
+
     const contenido = tinymce.activeEditor.getContent();
     navigator.clipboard.writeText(contenido).then(() => {
         mostrarAlerta('Contenido copiado al portapapeles', 'success');
@@ -342,21 +346,21 @@ function guardarDocumento() {
         mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
         return;
     }
-    
+
     if (!plantillaActual) {
         mostrarAlerta('Selecciona una plantilla primero', 'warning');
         return;
     }
-    
+
     const contenidoFinal = tinymce.activeEditor.getContent();
-    
+
     const datos = {
         cod_plantilla: plantillaActual.cod_plantilla,
         id_cliente: null,
         contenido_final: contenidoFinal,
         datos: datosFormulario
     };
-    
+
     fetch(API_PLANTILLAS + '?action=guardar_documento', {
         method: 'POST',
         headers: {
@@ -364,18 +368,18 @@ function guardarDocumento() {
         },
         body: JSON.stringify(datos)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            mostrarAlerta('Documento guardado correctamente', 'success');
-        } else {
-            mostrarAlerta('Error: ' + data.error, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarAlerta('Error al guardar documento', 'danger');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarAlerta('Documento guardado correctamente', 'success');
+            } else {
+                mostrarAlerta('Error: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al guardar documento', 'danger');
+        });
 }
 
 // NUEVO DOCUMENTO
@@ -391,11 +395,11 @@ function limpiar() {
     document.getElementById('formularioDinamico').innerHTML = '';
     document.getElementById('formularioSection').style.display = 'none';
     document.getElementById('editorSection').style.display = 'none';
-    
+
     if (tinymce.activeEditor) {
         tinymce.activeEditor.setContent('');
     }
-    
+
     plantillaActual = null;
     datosFormulario = {};
 }
@@ -412,9 +416,9 @@ function mostrarAlerta(mensaje, tipo) {
         ${mensaje}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
-    
+
     document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.container-fluid').firstChild);
-    
+
     setTimeout(() => {
         const alerta = document.getElementById(alertId);
         if (alerta) alerta.remove();

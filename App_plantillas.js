@@ -11,7 +11,6 @@ let editor = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     cargarPlantillasDisponibles();
-    cargarClientesDisponibles();
     inicializarEditor();
 });
 
@@ -20,6 +19,7 @@ function inicializarEditor() {
     tinymce.init({
         selector: '#documento-editor',
         height: 600,
+        readonly: false,
         menubar: 'file edit view insert format tools table help',
         plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template paste textpattern',
         toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview fullscreen | table charmap emoticons',
@@ -69,8 +69,7 @@ function cargarPlantilla() {
                 // Cargar directamente el contenido en el editor con campos entre guiones
                 tinymce.activeEditor.setContent(plantillaActual.contenido);
                 
-                // Mostrar solo el editor y la sección de cliente
-                document.getElementById('clienteSection').style.display = 'block';
+                // Mostrar solo el editor
                 document.getElementById('formularioSection').style.display = 'none';
                 document.getElementById('editorSection').style.display = 'block';
                 
@@ -140,83 +139,6 @@ function crearCampoInput(variable) {
         default:
             return `<input type="text" id="${id}" class="form-control" placeholder="${variable.etiqueta}">`;
     }
-}
-
-// CARGAR CLIENTES
-
-function cargarClientesDisponibles() {
-    fetch(API_PLANTILLAS + '?action=clientes')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const select = document.getElementById('selectCliente');
-                data.data.forEach(cliente => {
-                    const option = document.createElement('option');
-                    option.value = cliente.id;
-                    option.textContent = `${cliente.nombre} (${cliente.nif})`;
-                    select.appendChild(option);
-                });
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-// MOSTRAR SECCIÓN CLIENTE
-
-function mostrarSeccionCliente() {
-    document.getElementById('clienteSection').style.display = 'block';
-}
-
-// CARGAR DATOS DE CLIENTE
-
-function cargarDatosCliente() {
-    const id = document.getElementById('selectCliente').value;
-    
-    if (!id) return;
-    
-    fetch(API_PLANTILLAS + '?action=cliente_datos&id=' + id)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const cliente = data.data;
-                
-                // Mapeo automático de datos del cliente a variables
-                const mapeo = {
-                    'nombre': cliente.nombre,
-                    'nif': cliente.nif,
-                    'cif': cliente.cif,
-                    'edad': cliente.edad,
-                    'email': cliente.email,
-                    'telefono': cliente.telefono,
-                    'domicilio': cliente.direccion,
-                    'provincia': cliente.provincia,
-                    'ciudad': cliente.city,
-                    'dni': cliente.nif,
-                    'col_num': cliente.col_num || '',
-                    'dentista': cliente.dentista || '',
-                    'enfermedad': cliente.enfermedad || '',
-                    'tratamiento': cliente.tratamiento || '',
-                    'descanto': cliente.descanto || ''
-                };
-                
-                // Reemplazar campos directamente en el TinyMCE
-                let contenido = plantillaActual.contenido;
-                
-                Object.keys(mapeo).forEach(key => {
-                    if (mapeo[key]) {
-                        contenido = contenido.replace(new RegExp('-' + key + '-', 'g'), mapeo[key]);
-                    }
-                });
-                
-                // Cargar el contenido reemplazado en el editor
-                if (tinymce.activeEditor) {
-                    tinymce.activeEditor.setContent(contenido);
-                }
-                
-                mostrarAlerta('Datos del cliente ' + cliente.nombre + ' cargados', 'success');
-            }
-        })
-        .catch(error => console.error('Error:', error));
 }
 
 // GENERAR DOCUMENTO

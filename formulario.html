@@ -170,26 +170,9 @@ margin-bottom:15px;
 </div>
 </div>
 
-<!-- SELECCIÓN DE CLIENTE -->
-<div class="section-card" id="clienteSection" style="display:none;">
-<h5><i class="fas fa-user"></i> 2. Seleccionar Cliente (Opcional)</h5>
-<div class="row">
-<div class="col-md-6">
-<label class="form-label fw-bold">Cliente</label>
-<select id="selectCliente" class="form-select" onchange="cargarDatosCliente()">
-<option value="">-- Seleccionar cliente --</option>
-</select>
-</div>
-<div class="col-md-6">
-<label class="form-label fw-bold">&nbsp;</label>
-<small class="d-block text-muted">Los datos del cliente se cargarán automáticamente en los campos correspondientes</small>
-</div>
-</div>
-</div>
-
 <!-- FORMULARIO DINÁMICO -->
 <div class="section-card" id="formularioSection" style="display:none;">
-<h5><i class="fas fa-edit"></i> 3. Completar Campos del Documento</h5>
+<h5><i class="fas fa-edit"></i> 2. Completar Campos del Documento</h5>
 <div id="formularioDinamico"></div>
 <div class="mt-3">
 <button class="btn btn-primary" onclick="generarDocumento()">
@@ -200,10 +183,7 @@ margin-bottom:15px;
 
 <!-- EDITOR DE DOCUMENTO -->
 <div class="section-card" id="editorSection" style="display:none;">
-<h5><i class="fas fa-document"></i> 4. Editor de Documento (Editable)</h5>
-<div class="alert-info-custom">
-<strong>Tip:</strong> Puedes editar el contenido aquí como si fuera un Word. Los cambios se reflejarán en la previsualización.
-</div>
+<h5><i class="fas fa-document"></i> 2. Editor de Documento</h5>
 <textarea id="documento-editor"></textarea>
 </div>
 

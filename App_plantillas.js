@@ -245,17 +245,42 @@ function descargarPDF() {
     }
     
     const contenido = tinymce.activeEditor.getContent();
+    
+    // Crear contenedor con CSS para PDF
     const elemento = document.createElement('div');
-    elemento.innerHTML = contenido;
-    elemento.style.padding = '20px';
+    elemento.innerHTML = `
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                line-height: 1.6;
+                color: #333;
+            }
+            p { margin-bottom: 10px; }
+            h2, h3, h4 { margin-top: 15px; margin-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f5f5f5; }
+            ul, ol { margin-left: 20px; margin-bottom: 10px; }
+            li { margin-bottom: 5px; }
+        </style>
+        <div style="padding: 20px;">
+            ${contenido}
+        </div>
+    `;
     
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
     
     const opt = {
-        margin: [10, 10, 10, 10],
+        margin: 10,
         filename: `${nombreArchivo}_${new Date().getTime()}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true },
         jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
     };
     

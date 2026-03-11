@@ -245,52 +245,35 @@ function descargarPDF() {
     }
     
     const contenido = tinymce.activeEditor.getContent();
-    
-    // Crear elemento HTML limpio para el PDF
-    const elemento = document.createElement('html');
-    elemento.innerHTML = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                * {
-                    margin: 0;
-                    padding: 0;
-                }
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 12px;
-                    line-height: 1.6;
-                    color: #000;
-                    padding: 20px;
-                }
-                p { margin-bottom: 12px; }
-                h1, h2, h3, h4 { margin: 15px 0 10px 0; }
-                table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-                th, td { border: 1px solid #999; padding: 8px; }
-                th { background-color: #f0f0f0; }
-                ul, ol { margin-left: 20px; margin-bottom: 10px; }
-                li { margin-bottom: 5px; }
-            </style>
-        </head>
-        <body>
-            ${contenido}
-        </body>
-        </html>
-    `;
-    
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
+    
+    // Crear div temporal con el contenido
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = contenido;
+    tempDiv.style.padding = '20px';
+    tempDiv.style.fontFamily = 'Arial, sans-serif';
+    tempDiv.style.fontSize = '12px';
+    tempDiv.style.lineHeight = '1.5';
+    tempDiv.style.color = '#000';
+    tempDiv.style.backgroundColor = '#fff';
     
     const opt = {
         margin: 5,
         filename: `${nombreArchivo}_${new Date().getTime()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            allowTaint: true, 
+            backgroundColor: '#ffffff',
+            windowHeight: tempDiv.scrollHeight,
+            windowWidth: tempDiv.scrollWidth
+        },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
     
-    html2pdf().set(opt).from(elemento.innerHTML).save();
+    html2pdf().set(opt).from(tempDiv).save();
     mostrarAlerta('PDF descargado correctamente', 'success');
 }
 

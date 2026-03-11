@@ -32,9 +32,9 @@ function inicializarEditor() {
         selector: '#documento-editor',
         height: 600,
         readonly: false,
-        menubar: 'file edit view insert format tools table help',
-        plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template paste textpattern',
-        toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview fullscreen | table charmap emoticons',
+        menubar: 'file edit view insert format tools table',
+        plugins: 'advlist autolink lists link image charmap anchor searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking table directionality',
+        toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | fullscreen | table charmap',
         branding: false,
         setup: function(editor) {
             editor.on('init', function() {

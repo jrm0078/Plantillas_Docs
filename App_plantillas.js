@@ -12,6 +12,15 @@ let editor = null;
 document.addEventListener('DOMContentLoaded', function() {
     cargarPlantillasDisponibles();
     inicializarEditor();
+    // Inicializar Select2 principal después de un pequeño delay
+    setTimeout(function() {
+        $('#selectPlantilla').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: '-- Seleccionar una plantilla --',
+            allowClear: true
+        });
+    }, 100);
 });
 
 // INICIALIZAR TINYMCE
@@ -121,6 +130,16 @@ function mostrarFormularioDinamico() {
         `;
         container.appendChild(div);
     });
+    
+    // Inicializar Select2 en los select dinámicos
+    setTimeout(function() {
+        $('#formularioDinamico').find('select').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: '-- Seleccionar --',
+            allowClear: true
+        });
+    }, 100);
     
     document.getElementById('formularioSection').style.display = 'block';
     document.getElementById('editorSection').style.display = 'block';
@@ -306,7 +325,7 @@ function guardarDocumento() {
 // ACTUALIZAR CAMPOS CALCULADOS AUTOMÁTICAMENTE
 
 function actualizarCamposCalculados() {
-    // Función deshabilitada - Los campos calculados se actualizarán manualmente
+    
     return;
 }
 

@@ -4,9 +4,7 @@ require_once 'config.php';
 
 $action = $_GET['action'] ?? '';
 
-// ============================================
 // Obtener lista de plantillas disponibles
-// ============================================
 if ($action === 'listar') {
     try {
         $stmt = $pdo->query("
@@ -21,9 +19,7 @@ if ($action === 'listar') {
     }
 }
 
-// ============================================
 // Obtener plantilla específica con variables
-// ============================================
 else if ($action === 'obtener') {
     $cod = $_GET['cod'] ?? '';
     
@@ -65,9 +61,7 @@ else if ($action === 'obtener') {
     }
 }
 
-// ============================================
 // Reemplazar variables en plantilla
-// ============================================
 else if ($action === 'reemplazar') {
     $cod = $_GET['cod'] ?? '';
     $data = json_decode(file_get_contents('php://input'), true);
@@ -104,9 +98,7 @@ else if ($action === 'reemplazar') {
     }
 }
 
-// ============================================
 // Guardar documento generado
-// ============================================
 else if ($action === 'guardar_documento') {
     $data = json_decode(file_get_contents('php://input'), true);
     
@@ -134,9 +126,8 @@ else if ($action === 'guardar_documento') {
     }
 }
 
-// ============================================
 // Obtener clientes (para selector)
-// ============================================
+
 else if ($action === 'clientes') {
     try {
         $stmt = $pdo->query("
@@ -151,9 +142,7 @@ else if ($action === 'clientes') {
     }
 }
 
-// ============================================
 // Obtener datos de cliente
-// ============================================
 else if ($action === 'cliente_datos') {
     $id = $_GET['id'] ?? '';
     

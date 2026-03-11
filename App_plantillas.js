@@ -57,7 +57,7 @@ function cargarPlantillasDisponibles() {
                     select.appendChild(option);
                 });
 
-                // Inicializar Select2 después de cargar las opciones
+                // Inicializar Select2 después de cargar
                 $(select).select2({
                     theme: 'bootstrap-5',
                     width: '100%',
@@ -254,7 +254,7 @@ function descargarPDF() {
 
     container.style.background = "#ffffff";
     container.style.padding = "20px";
-    container.style.width = "190mm"; // 👈 ancho correcto
+    container.style.width = "190mm"; 
     container.style.margin = "0 auto";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";

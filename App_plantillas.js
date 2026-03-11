@@ -23,8 +23,7 @@ function inicializarEditor() {
         menubar: 'file edit view insert format tools table help',
         plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template paste textpattern',
         toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview fullscreen | table charmap emoticons',
-        branding: false,
-        license_key: 'gpl'
+        branding: false
     });
 }
 

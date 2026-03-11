@@ -251,14 +251,6 @@ function descargarPDF() {
     const container = document.createElement("div");
 
     container.innerHTML = contenido;
-    
-    container.querySelectorAll("img").forEach(img => {
-        img.style.maxWidth = "100%";
-    });
-
-    container.querySelectorAll("table").forEach(t => {
-        t.style.width = "100%";
-    });
 
     container.style.background = "#ffffff";
     container.style.padding = "20px";

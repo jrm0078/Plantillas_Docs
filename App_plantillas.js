@@ -306,42 +306,8 @@ function guardarDocumento() {
 // ACTUALIZAR CAMPOS CALCULADOS AUTOMÁTICAMENTE
 
 function actualizarCamposCalculados() {
-    if (!tinymce.activeEditor || !plantillaActual) return;
-    
-    // Solo para presupuesto
-    if (plantillaActual.cod_plantilla !== 'presupuesto_1') return;
-    
-    const contenido = tinymce.activeEditor.getContent();
-    
-    // Extraer números después de cada campo
-    const getFieldValue = (fieldName) => {
-        const regex = new RegExp(`-${fieldName}-([^<]*?)(?:<|$)`);
-        const match = contenido.match(regex);
-        if (match) {
-            const num = parseFloat(match[1].match(/\d+([.,]\d+)?/)?.[0]?.replace(',', '.') || 0);
-            return num;
-        }
-        return 0;
-    };
-    
-    const cantidad = getFieldValue('cantidad');
-    const precio = getFieldValue('precio_unitario');
-    const descuento = getFieldValue('descuento');
-    
-    // Calcular
-    const total = cantidad * precio;
-    const totalDescuento = total * (descuento / 100);
-    const totalFinal = total - totalDescuento;
-    
-    // Actualizar en el contenido
-    let nuevo = contenido
-        .replace(/-total-[^<]*/g, `-total-${total.toFixed(2)}`)
-        .replace(/-descuento_total-[^<]*/g, `-descuento_total-${totalDescuento.toFixed(2)}`)
-        .replace(/-total_final-[^<]*/g, `-total_final-${totalFinal.toFixed(2)}`);
-    
-    if (nuevo !== contenido) {
-        tinymce.activeEditor.setContent(nuevo, {no_events: true});
-    }
+    // Función deshabilitada - Los campos calculados se actualizarán manualmente
+    return;
 }
 
 // NUEVO DOCUMENTO

@@ -247,39 +247,35 @@ function descargarPDF() {
     const contenido = tinymce.activeEditor.getContent();
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
     
-    // Crear div en el documento para capturarlo
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = contenido;
-    tempDiv.style.padding = '20px';
-    tempDiv.style.fontFamily = 'Arial, sans-serif';
-    tempDiv.style.fontSize = '12px';
-    tempDiv.style.lineHeight = '1.5';
-    tempDiv.style.width = '100%';
-    tempDiv.style.backgroundColor = 'white';
+    // Crear elemento HTML simple
+    const container = document.createElement('div');
+    container.innerHTML = `
+        <div style="font-family: Arial, sans-serif; font-size: 11px; line-height: 1.6; padding: 20px; color: #000;">
+            ${contenido}
+        </div>
+    `;
     
-    // Agregar al DOM temporalmente
-    document.body.appendChild(tempDiv);
+    // Agregar temporalmente al cuerpo para que html2pdf pueda procesarlo
+    container.style.position = 'absolute';
+    container.style.left = '-10000px';
+    container.style.width = '210mm';
+    container.style.backgroundColor = 'white';
+    document.body.appendChild(container);
     
-    const opt = {
-        margin: 5,
+    // Configurar opciones del PDF
+    const options = {
+        margin: 10,
         filename: `${nombreArchivo}_${new Date().getTime()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2, 
-            useCORS: true, 
-            allowTaint: true,
-            backgroundColor: '#ffffff'
-        },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }
     };
     
-    html2pdf().set(opt).from(tempDiv).save().then(() => {
-        // Eliminar el div después de generar el PDF
-        document.body.removeChild(tempDiv);
+    // Generar y descargar PDF
+    html2pdf().set(options).from(container).save().finally(() => {
+        // Limpiar el elemento añadido
+        document.body.removeChild(container);
         mostrarAlerta('PDF descargado correctamente', 'success');
-    }).catch(() => {
-        document.body.removeChild(tempDiv);
-        mostrarAlerta('Error al descargar PDF', 'danger');
     });
 }
 

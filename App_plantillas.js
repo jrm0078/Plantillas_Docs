@@ -236,8 +236,7 @@ function imprimirDocumento() {
     const contenido = tinymce.activeEditor.getContent();
     const ventana = window.open('', '', 'height=600,width=800');
     ventana.document.write('<html><head><title>Imprimir Documento</title>');
-    ventana.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">');
-    ventana.document.write('<style>body { padding: 20px; } table { border-collapse: collapse; }</style>');
+    ventana.document.write('<style>body { padding: 20px; font-family: Arial, sans-serif; }</style>');
     ventana.document.write('</head><body>');
     ventana.document.write(contenido);
     ventana.document.write('</body></html>');
@@ -309,52 +308,39 @@ function guardarDocumento() {
 function actualizarCamposCalculados() {
     if (!tinymce.activeEditor || !plantillaActual) return;
     
+    // Solo para presupuesto
+    if (plantillaActual.cod_plantilla !== 'presupuesto_1') return;
+    
     const contenido = tinymce.activeEditor.getContent();
     
-    // Cálculos específicos para presupuesto
-    if (plantillaActual.cod_plantilla === 'presupuesto_1') {
-        
-        // Función para extraer el valor numérico después de un campo
-        const extraerValor = (campo) => {
-            // Busca el patrón -campo- seguido de números
-            const regex = new RegExp(`-${campo}-([^<]*?)(?:<|$)`);
-            const match = contenido.match(regex);
-            
-            if (match && match[1]) {
-                // Limpia el texto y extrae el número
-                const texto = match[1].trim();
-                const numero = texto.match(/\d+([.,]\d+)?/);
-                return numero ? parseFloat(numero[0].replace(',', '.')) : 0;
-            }
-            return 0;
-        };
-        
-        // Extrae valores
-        const cantidad = extraerValor('cantidad');
-        const precio = extraerValor('precio_unitario');
-        const descuento = extraerValor('descuento');
-        
-        // Calcula
-        const total = cantidad * precio;
-        const totalDescuento = total * (descuento / 100);
-        const totalFinal = total - totalDescuento;
-        
-        // Reemplaza campos calculados
-        let nuevoContenido = contenido;
-        
-        // Reemplazar -total- con el valor calculado
-        nuevoContenido = nuevoContenido.replace(/-total-([^<]*?)(?=<|-\w+-|$)/, `-total-${total.toFixed(2)}`);
-        
-        // Reemplazar -descuento_total- con el valor calculado
-        nuevoContenido = nuevoContenido.replace(/-descuento_total-([^<]*?)(?=<|-\w+-|$)/, `-descuento_total-${totalDescuento.toFixed(2)}`);
-        
-        // Reemplazar -total_final- con el valor calculado
-        nuevoContenido = nuevoContenido.replace(/-total_final-([^<]*?)(?=<|-\w+-|$)/, `-total_final-${totalFinal.toFixed(2)}`);
-        
-        // Solo actualiza si hay cambios
-        if (nuevoContenido !== contenido) {
-            tinymce.activeEditor.setContent(nuevoContenido, { no_events: true });
+    // Extraer números después de cada campo
+    const getFieldValue = (fieldName) => {
+        const regex = new RegExp(`-${fieldName}-([^<]*?)(?:<|$)`);
+        const match = contenido.match(regex);
+        if (match) {
+            const num = parseFloat(match[1].match(/\d+([.,]\d+)?/)?.[0]?.replace(',', '.') || 0);
+            return num;
         }
+        return 0;
+    };
+    
+    const cantidad = getFieldValue('cantidad');
+    const precio = getFieldValue('precio_unitario');
+    const descuento = getFieldValue('descuento');
+    
+    // Calcular
+    const total = cantidad * precio;
+    const totalDescuento = total * (descuento / 100);
+    const totalFinal = total - totalDescuento;
+    
+    // Actualizar en el contenido
+    let nuevo = contenido
+        .replace(/-total-[^<]*/g, `-total-${total.toFixed(2)}`)
+        .replace(/-descuento_total-[^<]*/g, `-descuento_total-${totalDescuento.toFixed(2)}`)
+        .replace(/-total_final-[^<]*/g, `-total_final-${totalFinal.toFixed(2)}`);
+    
+    if (nuevo !== contenido) {
+        tinymce.activeEditor.setContent(nuevo, {no_events: true});
     }
 }
 

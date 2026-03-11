@@ -23,7 +23,13 @@ function inicializarEditor() {
         menubar: 'file edit view insert format tools table help',
         plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template paste textpattern',
         toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview fullscreen | table charmap emoticons',
-        branding: false
+        branding: false,
+        setup: function(editor) {
+            editor.on('change input', function() {
+                // Detectar cambios y actualizar campos calculados
+                actualizarCamposCalculados();
+            });
+        }
     });
 }
 
@@ -290,6 +296,48 @@ function guardarDocumento() {
         console.error('Error:', error);
         mostrarAlerta('Error al guardar documento', 'danger');
     });
+}
+
+// ACTUALIZAR CAMPOS CALCULADOS AUTOMÁTICAMENTE
+
+function actualizarCamposCalculados() {
+    if (!tinymce.activeEditor || !plantillaActual) return;
+    
+    const contenido = tinymce.activeEditor.getContent();
+    let nuevoContenido = contenido;
+    
+    // Extraer valores de los campos entre guiones usando expresiones regulares
+    const extraerValor = (campo) => {
+        // Patrón: -fieldname- seguido de números/texto hasta el siguiente -fieldname- o fin
+        const patron = new RegExp(`-${campo}-([\\s\\S]*?)(?=-\\w+-|$)`);
+        const match = contenido.match(patron);
+        if (match && match[1]) {
+            // Extraer solo el primer número encontrado después del campo
+            const numMatch = match[1].match(/\\d+(\\.\\d+)?/);
+            return numMatch ? parseFloat(numMatch[0]) : 0;
+        }
+        return 0;
+    };
+    
+    // Cálculos específicos para presupuesto
+    if (plantillaActual.cod_plantilla === 'presupuesto_1') {
+        const cantidad = extraerValor('cantidad');
+        const precio = extraerValor('precio_unitario');
+        const descuento = extraerValor('descuento');
+        
+        // Calcular totales
+        const total = cantidad * precio;
+        const totalDescuento = total * (descuento / 100);
+        const totalFinal = total - totalDescuento;
+        
+        // Reemplazar campos calculados con valores nuevos
+        let contenidoTemp = nuevoContenido;
+        contenidoTemp = contenidoTemp.replace(/-total-[\\s\\S]*?(?=-\\w+-|<\\/p>|-descuento-|$)/, `-total-${total.toFixed(2)}`);
+        contenidoTemp = contenidoTemp.replace(/-descuento_total-[\\s\\S]*?(?=-\\w+-|<\\/p>|-total_final-|$)/, `-descuento_total-${totalDescuento.toFixed(2)}`);
+        contenidoTemp = contenidoTemp.replace(/-total_final-[\\s\\S]*?(?=-\\w+-|<\\/p>|$)/, `-total_final-${totalFinal.toFixed(2)}`);
+        
+        nuevoContenido = contenidoTemp;
+    }
 }
 
 // NUEVO DOCUMENTO

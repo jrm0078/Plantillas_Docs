@@ -246,66 +246,57 @@ function descargarPDF() {
     }
 
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
-    let contenido = tinymce.activeEditor.getContent();
-    
-    // Remover solo los estilos de background y color del contenido
-    contenido = contenido.replace(/background(-color)?:[^;]*;?/gi, '');
+    const contenido = tinymce.activeEditor.getContent();
 
-    // Crear ventana nueva con el contenido para capturarlo
-    const printWindow = window.open('', '', 'height=600,width=900');
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { 
-                    font-family: Arial, sans-serif; 
-                    font-size: 12px; 
-                    line-height: 1.6;
-                    padding: 30px;
-                    background: white !important;
-                    color: #000;
-                }
-                * {
-                    background-color: white !important;
-                    color: #000 !important;
-                }
-                p { margin-bottom: 10px; }
-                h1, h2, h3, h4 { margin: 15px 0 10px 0; font-weight: bold; }
-                table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-                td, th { border: 1px solid #999; padding: 8px; background: white !important; }
-                th { background: #f5f5f5 !important; }
-                ul, ol { margin-left: 20px; margin-bottom: 10px; }
-                li { margin-bottom: 5px; }
-            </style>
-        </head>
-        <body>
-            ${contenido}
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
+    // Crear contenedor limpio para el PDF
+    const container = document.createElement("div");
 
-    setTimeout(() => {
-        const element = printWindow.document.body;
-        const options = {
-            margin: 10,
-            filename: nombreArchivo + '.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-        };
+    container.innerHTML = contenido;
 
-        html2pdf().set(options).from(element).save().then(() => {
-            printWindow.close();
+    // Estilos para PDF limpio
+    container.style.background = "#ffffff";
+    container.style.padding = "30px";
+    container.style.width = "210mm";
+    container.style.margin = "0 auto";
+    container.style.fontFamily = "Arial, sans-serif";
+    container.style.fontSize = "12px";
+    container.style.lineHeight = "1.6";
+
+    // EXTRA para A4 perfecto
+    container.style.boxSizing = "border-box";
+    container.style.minHeight = "297mm";
+
+    document.body.appendChild(container);
+
+    const options = {
+        margin: 10,
+        filename: nombreArchivo + ".pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff"
+        },
+        jsPDF: {
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4"
+        }
+    };
+
+    html2pdf()
+        .set(options)
+        .from(container)
+        .save()
+        .then(() => {
+            document.body.removeChild(container);
             mostrarAlerta('PDF descargado correctamente', 'success');
-        }).catch((error) => {
-            console.error('Error:', error);
-            printWindow.close();
+        })
+        .catch((error) => {
+            console.error(error);
+            document.body.removeChild(container);
             mostrarAlerta('Error al descargar PDF', 'danger');
         });
-    }, 500);
 }
 
 

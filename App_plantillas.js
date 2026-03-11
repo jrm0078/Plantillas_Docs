@@ -257,12 +257,17 @@ function descargarPDF() {
             <meta charset="UTF-8">
             <style>
                 * { margin: 0; padding: 0; }
+                html, body { 
+                    background-color: white !important;
+                    background: white !important;
+                }
                 body { 
                     font-family: Arial, sans-serif; 
                     font-size: 12px; 
                     line-height: 1.6;
                     padding: 30px;
-                    background: white;
+                    background: white !important;
+                    color: #000;
                 }
                 p { margin-bottom: 10px; }
                 h1, h2, h3, h4 { margin: 15px 0 10px 0; font-weight: bold; }
@@ -286,7 +291,7 @@ function descargarPDF() {
             margin: 10,
             filename: nombreArchivo + '.pdf',
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', allowTaint: true },
             jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
         };
 

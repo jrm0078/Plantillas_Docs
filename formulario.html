@@ -35,7 +35,7 @@ color:#333;
 font-weight:700;
 }
 
-.selector-presupuesto{
+.section-card{
 background:white;
 padding:20px;
 border-radius:8px;
@@ -43,9 +43,11 @@ margin-bottom:20px;
 box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
-.selector-presupuesto select{
-border:2px solid #667eea;
-color:#333;
+.section-card h5{
+color:#667eea;
+margin-bottom:15px;
+padding-bottom:10px;
+border-bottom:2px solid #667eea;
 }
 
 .btn-descargar{
@@ -84,6 +86,39 @@ background:#5568d3;
 color:white;
 }
 
+.campo-dinamico{
+margin-bottom:15px;
+}
+
+.campo-dinamico label{
+font-weight:600;
+color:#333;
+margin-bottom:5px;
+display:block;
+}
+
+.campo-dinamico input,
+.campo-dinamico textarea,
+.campo-dinamico select{
+width:100%;
+padding:8px 12px;
+border:1px solid #ddd;
+border-radius:4px;
+font-size:0.95rem;
+}
+
+.campo-dinamico textarea{
+min-height:80px;
+resize:vertical;
+}
+
+.badge-requerido{
+background:#dc3545;
+color:white;
+font-size:0.75rem;
+margin-left:5px;
+}
+
 #documento-editor{
 min-height:500px;
 background:white;
@@ -96,49 +131,12 @@ border:1px solid #e0e0e0 !important;
 border-radius:8px !important;
 }
 
-.doc-header{
-border-bottom:2px solid #667eea;
-margin-bottom:20px;
-padding-bottom:15px;
-}
-
-.doc-title{
-font-size:1.8rem;
-font-weight:700;
-color:#333;
-margin-bottom:5px;
-}
-
-.doc-subtitle{
-color:#666;
-font-size:0.9rem;
-}
-
-.form-section{
-background:white;
-padding:20px;
-border-radius:8px;
-margin-bottom:20px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-.form-section h5{
-color:#667eea;
-margin-bottom:15px;
-padding-bottom:10px;
-border-bottom:2px solid #667eea;
-}
-
 .alert-info-custom{
 background:#e7f3ff;
 border-left:4px solid #0066cc;
 padding:15px;
 border-radius:4px;
 margin-bottom:15px;
-}
-
-.spinner-loading{
-display:none;
 }
 
 </style>
@@ -149,112 +147,68 @@ display:none;
 
 <div class="container-fluid py-4" style="max-width:1400px; margin:0 auto;">
 
-<!-- SELECTOR DE PRESUPUESTOS -->
 <div class="card shadow-lg mb-4">
 <div class="card-body">
 <div class="form-header">
-<h2><i class="fas fa-file-invoice"></i> Generador de Documentos</h2>
+<h2> Generador de Documentos</h2>
 </div>
 
-<div class="selector-presupuesto">
-<div class="row align-items-end">
+<div class="section-card">
+<h5> 1. Seleccionar Plantilla</h5>
+<div class="row">
 <div class="col-md-8">
-<label class="form-label fw-bold">Seleccionar Presupuesto</label>
-<select id="selectPresupuesto" class="form-select form-select-lg" onchange="cargarPresupuesto()">
-<option value="">-- Seleccionar un presupuesto --</option>
+<label class="form-label fw-bold">Plantilla</label>
+<select id="selectPlantilla" class="form-select form-select-lg" onchange="cargarPlantilla()">
+<option value="">-- Seleccionar una plantilla --</option>
 </select>
-<small class="text-muted d-block mt-2">Se cargarán automáticamente los datos del presupuesto seleccionado</small>
 </div>
-<div class="col-md-4 text-end">
-<button class="btn btn-nuevo me-2" onclick="nuevoPresupuesto()">
-<i class="fas fa-plus"></i> Nuevo Presupuesto
-</button>
-<button class="btn btn-light" onclick="window.location.href='index.html'">
-<i class="fas fa-arrow-left"></i> Volver
+<div class="col-md-4">
+<button class="btn btn-nuevo mt-4" onclick="nuevoDocumento()">
+<i class="fas fa-file"></i> Nuevo Documento
 </button>
 </div>
 </div>
 </div>
 
-</div>
-</div>
-
-<!-- FORMULARIO DE DATOS -->
-<div class="card shadow-lg mb-4">
-<div class="card-header bg-light">
-<h5 class="mb-0"><i class="fas fa-edit"></i> Datos del Presupuesto</h5>
-</div>
-<div class="card-body">
-
-<div id="formulario">
+<!-- SELECCIÓN DE CLIENTE -->
+<div class="section-card" id="clienteSection" style="display:none;">
+<h5><i class="fas fa-user"></i> 2. Seleccionar Cliente (Opcional)</h5>
 <div class="row">
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
 <label class="form-label fw-bold">Cliente</label>
-<input type="text" id="cliente" class="form-control" placeholder="Nombre del cliente">
+<select id="selectCliente" class="form-select" onchange="cargarDatosCliente()">
+<option value="">-- Seleccionar cliente --</option>
+</select>
 </div>
-
-<div class="col-md-6 mb-3">
-<label class="form-label fw-bold">Número de Presupuesto</label>
-<input type="text" id="numPresupuesto" class="form-control" placeholder="PRE-001">
+<div class="col-md-6">
+<label class="form-label fw-bold">&nbsp;</label>
+<small class="d-block text-muted">Los datos del cliente se cargarán automáticamente en los campos correspondientes</small>
 </div>
-</div>
-
-<div class="row">
-<div class="col-md-6 mb-3">
-<label class="form-label fw-bold">Fecha</label>
-<input type="date" id="fecha" class="form-control">
-</div>
-
-<div class="col-md-6 mb-3">
-<label class="form-label fw-bold">Validez (días)</label>
-<input type="number" id="validez" class="form-control" value="30">
 </div>
 </div>
 
-<div class="mb-3">
-<label class="form-label fw-bold">Descripción del Servicio</label>
-<textarea id="descripcion" class="form-control" rows="3" placeholder="Detalle el servicio o producto..."></textarea>
-</div>
-
-<div class="row">
-<div class="col-md-4 mb-3">
-<label class="form-label fw-bold">Cantidad</label>
-<input type="number" id="cantidad" class="form-control" value="1">
-</div>
-
-<div class="col-md-4 mb-3">
-<label class="form-label fw-bold">Precio Unitario (€)</label>
-<input type="number" id="precioUnitario" class="form-control" placeholder="0.00" step="0.01">
-</div>
-
-<div class="col-md-4 mb-3">
-<label class="form-label fw-bold">Descuento (%)</label>
-<input type="number" id="descuento" class="form-control" value="0">
-</div>
-</div>
-
-<div class="d-flex gap-2 justify-content-center flex-wrap mt-3">
-<button class="btn btn-primary" onclick="guardarPresupuesto()">
-<i class="fas fa-save"></i> Guardar Cambios
+<!-- FORMULARIO DINÁMICO -->
+<div class="section-card" id="formularioSection" style="display:none;">
+<h5><i class="fas fa-edit"></i> 3. Completar Campos del Documento</h5>
+<div id="formularioDinamico"></div>
+<div class="mt-3">
+<button class="btn btn-primary" onclick="generarDocumento()">
+<i class="fas fa-refresh"></i> Actualizar Documento
 </button>
-</div>
-</div>
-
 </div>
 </div>
 
 <!-- EDITOR DE DOCUMENTO -->
-<div class="card shadow-lg mb-4">
-<div class="card-header bg-light">
-<h5 class="mb-0"><i class="fas fa-document"></i> Editor de Documento (Editable)</h5>
+<div class="section-card" id="editorSection" style="display:none;">
+<h5><i class="fas fa-document"></i> 4. Editor de Documento (Editable)</h5>
+<div class="alert-info-custom">
+<strong>Tip:</strong> Puedes editar el contenido aquí como si fuera un Word. Los cambios se reflejarán en la previsualización.
 </div>
-<div class="card-body p-0">
-<textarea id="documento-editor" class="form-control" style="border:0; border-radius:0;"></textarea>
-</div>
+<textarea id="documento-editor"></textarea>
 </div>
 
-<!-- BOTONES DE ACCIONES -->
-<div class="card shadow-lg mb-4">
+<!-- ACCIONES -->
+<div class="card shadow-lg">
 <div class="card-body">
 <div class="d-flex gap-2 justify-content-center flex-wrap">
 <button class="btn btn-descargar px-4" onclick="descargarPDF()">
@@ -265,8 +219,16 @@ display:none;
 <i class="fas fa-print"></i> Imprimir
 </button>
 
-<button class="btn btn-darkpx-4" onclick="copiarAlPortapapeles()" style="background:#666; border:none; color:white; font-weight:600;">
-<i class="fas fa-copy"></i> Copiar al Portapapeles
+<button class="btn btn-dark px-4" onclick="copiarAlPortapapeles()" style="background:#666; border:none; color:white; font-weight:600;">
+<i class="fas fa-copy"></i> Copiar
+</button>
+
+<button class="btn btn-success px-4" onclick="guardarDocumento()">
+<i class="fas fa-save"></i> Guardar
+</button>
+
+<button class="btn btn-light px-4" onclick="window.location.href='index.html'">
+<i class="fas fa-arrow-left"></i> Volver
 </button>
 </div>
 </div>
@@ -274,7 +236,7 @@ display:none;
 
 </div>
 
-<script src="App.js"></script>
+<script src="App_plantillas.js"></script>
 
 </body>
 </html>

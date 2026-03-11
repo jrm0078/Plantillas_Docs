@@ -246,42 +246,59 @@ function descargarPDF() {
     }
 
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
+    const contenido = tinymce.activeEditor.getContent();
 
-    // Crear contenedor
-    const container = document.createElement("div");
-
-    container.innerHTML = tinymce.activeEditor.getBody().innerHTML;
-
-    container.style.background = "white";
-    container.style.padding = "30px";
-    container.style.width = "210mm";
-    container.style.position = "fixed";
-    container.style.top = "0";
-    container.style.left = "0";
-    container.style.zIndex = "-1";
-
-    document.body.appendChild(container);
-
-    const opciones = {
-        margin: 10,
-        filename: nombreArchivo + ".pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-            scale: 2,
-            useCORS: true
-        },
-        jsPDF: {
-            unit: "mm",
-            format: "a4",
-            orientation: "portrait"
-        }
-    };
+    // Crear ventana nueva con el contenido para capturarlo
+    const printWindow = window.open('', '', 'height=600,width=900');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                * { margin: 0; padding: 0; }
+                body { 
+                    font-family: Arial, sans-serif; 
+                    font-size: 12px; 
+                    line-height: 1.6;
+                    padding: 30px;
+                    background: white;
+                }
+                p { margin-bottom: 10px; }
+                h1, h2, h3, h4 { margin: 15px 0 10px 0; font-weight: bold; }
+                table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                td, th { border: 1px solid #999; padding: 8px; }
+                th { background: #f0f0f0; }
+                ul, ol { margin-left: 20px; margin-bottom: 10px; }
+                li { margin-bottom: 5px; }
+            </style>
+        </head>
+        <body>
+            ${contenido}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
 
     setTimeout(() => {
-        html2pdf().set(opciones).from(container).save().then(() => {
-            document.body.removeChild(container);
+        const element = printWindow.document.body;
+        const options = {
+            margin: 10,
+            filename: nombreArchivo + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        };
+
+        html2pdf().set(options).from(element).save().then(() => {
+            printWindow.close();
+            mostrarAlerta('PDF descargado correctamente', 'success');
+        }).catch((error) => {
+            console.error('Error:', error);
+            printWindow.close();
+            mostrarAlerta('Error al descargar PDF', 'danger');
         });
-    }, 300);
+    }, 500);
 }
 
 

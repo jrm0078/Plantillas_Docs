@@ -246,7 +246,14 @@ function descargarPDF() {
     }
 
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
-    const contenido = tinymce.activeEditor.getContent();
+    let contenido = tinymce.activeEditor.getContent();
+    
+    // Limpiar estilos de fondo azul y otros problemas de estilo
+    contenido = contenido.replace(/style="[^"]*background[^"]*"/gi, '');
+    contenido = contenido.replace(/style="[^"]*color:[^"]*"/gi, '');
+    contenido = contenido.replace(/<(\w+)[^>]*style="[^"]*"[^>]*>/g, (match) => {
+        return match.replace(/background[^;]*;?/gi, '').replace(/color:[^;]*;?/gi, '');
+    });
 
     // Crear ventana nueva con el contenido para capturarlo
     const printWindow = window.open('', '', 'height=600,width=900');
@@ -256,7 +263,7 @@ function descargarPDF() {
         <head>
             <meta charset="UTF-8">
             <style>
-                * { margin: 0; padding: 0; }
+                * { margin: 0; padding: 0; background: transparent !important; }
                 html, body { 
                     background-color: white !important;
                     background: white !important;
@@ -267,15 +274,16 @@ function descargarPDF() {
                     line-height: 1.6;
                     padding: 30px;
                     background: white !important;
-                    color: #000;
+                    color: #000 !important;
                 }
-                p { margin-bottom: 10px; }
-                h1, h2, h3, h4 { margin: 15px 0 10px 0; font-weight: bold; }
+                p { margin-bottom: 10px; color: #000; }
+                h1, h2, h3, h4 { margin: 15px 0 10px 0; font-weight: bold; color: #000; }
                 table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-                td, th { border: 1px solid #999; padding: 8px; }
-                th { background: #f0f0f0; }
+                td, th { border: 1px solid #999; padding: 8px; background: white !important; color: #000 !important; }
+                th { background: #f0f0f0 !important; }
                 ul, ol { margin-left: 20px; margin-bottom: 10px; }
                 li { margin-bottom: 5px; }
+                div, span, section { background: transparent !important; }
             </style>
         </head>
         <body>

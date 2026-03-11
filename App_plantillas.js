@@ -268,11 +268,10 @@ function guardarDocumento() {
     }
     
     const contenidoFinal = tinymce.activeEditor.getContent();
-    const idCliente = document.getElementById('selectCliente').value || null;
     
     const datos = {
         cod_plantilla: plantillaActual.cod_plantilla,
-        id_cliente: idCliente,
+        id_cliente: null,
         contenido_final: contenidoFinal,
         datos: datosFormulario
     };
@@ -313,7 +312,7 @@ function actualizarCamposCalculados() {
         const match = contenido.match(patron);
         if (match && match[1]) {
             // Extraer solo el primer número encontrado después del campo
-            const numMatch = match[1].match(/\\d+(\\.\\d+)?/);
+            const numMatch = match[1].match(/\d+(\.\d+)?/);
             return numMatch ? parseFloat(numMatch[0]) : 0;
         }
         return 0;
@@ -332,9 +331,9 @@ function actualizarCamposCalculados() {
         
         // Reemplazar campos calculados con valores nuevos
         let contenidoTemp = nuevoContenido;
-        contenidoTemp = contenidoTemp.replace(/-total-[\\s\\S]*?(?=-\\w+-|<\\/p>|-descuento-|$)/, `-total-${total.toFixed(2)}`);
-        contenidoTemp = contenidoTemp.replace(/-descuento_total-[\\s\\S]*?(?=-\\w+-|<\\/p>|-total_final-|$)/, `-descuento_total-${totalDescuento.toFixed(2)}`);
-        contenidoTemp = contenidoTemp.replace(/-total_final-[\\s\\S]*?(?=-\\w+-|<\\/p>|$)/, `-total_final-${totalFinal.toFixed(2)}`);
+        contenidoTemp = contenidoTemp.replace(/-total-[\s\S]*?(?=-\w+-|<\/p>|-descuento-|$)/, `-total-${total.toFixed(2)}`);
+        contenidoTemp = contenidoTemp.replace(/-descuento_total-[\s\S]*?(?=-\w+-|<\/p>|-total_final-|$)/, `-descuento_total-${totalDescuento.toFixed(2)}`);
+        contenidoTemp = contenidoTemp.replace(/-total_final-[\s\S]*?(?=-\w+-|<\/p>|$)/, `-total_final-${totalFinal.toFixed(2)}`);
         
         nuevoContenido = contenidoTemp;
     }
@@ -344,7 +343,6 @@ function actualizarCamposCalculados() {
 
 function nuevoDocumento() {
     document.getElementById('selectPlantilla').value = '';
-    document.getElementById('selectCliente').value = '';
     limpiar();
 }
 
@@ -354,7 +352,6 @@ function limpiar() {
     document.getElementById('formularioDinamico').innerHTML = '';
     document.getElementById('formularioSection').style.display = 'none';
     document.getElementById('editorSection').style.display = 'none';
-    document.getElementById('clienteSection').style.display = 'none';
     
     if (tinymce.activeEditor) {
         tinymce.activeEditor.setContent('');

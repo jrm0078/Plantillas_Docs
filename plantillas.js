@@ -314,22 +314,6 @@ function imprimirDocumento() {
     ventana.print();
 }
 
-// COPIAR AL PORTAPAPELES
-
-function copiarAlPortapapeles() {
-    if (!tinymce.activeEditor) {
-        mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
-        return;
-    }
-
-    const contenido = tinymce.activeEditor.getContent();
-    navigator.clipboard.writeText(contenido).then(() => {
-        mostrarAlerta('Contenido copiado al portapapeles', 'success');
-    }).catch(err => {
-        mostrarAlerta('Error al copiar al portapapeles', 'danger');
-    });
-}
-
 // GUARDAR DOCUMENTO
 
 function guardarDocumento() {

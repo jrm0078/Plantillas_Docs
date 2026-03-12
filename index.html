@@ -6,130 +6,14 @@
 <title>Plantillas para documentos</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<style>
-  body {
-    background: linear-gradient(135deg, #283fa7 0%, #1a2d70 100%);
-    min-height: 100vh;
-    padding: 40px 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-
-  .header {
-    text-align: center;
-    color: white;
-    margin-bottom: 60px;
-  }
-
-  .header h1 {
-    font-weight: 700;
-    font-size: 2.8rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    margin-bottom: 10px;
-  }
-
-  .header p {
-    font-size: 1.1rem;
-    opacity: 0.95;
-  }
-
-  .card {
-    transition: all 0.4s ease;
-    border: none;
-    height: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  }
-
-  .card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  }
-
-  .card-icon {
-    font-size: 3rem;
-    text-align: center;
-    padding: 30px 0;
-    background: linear-gradient(135deg, #667eea 0%, #0c2697 100%);
-    color: white;
-  }
-
-  .card-body {
-    padding: 25px;
-  }
-
-  .card-title {
-    font-weight: 700;
-    font-size: 1.4rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-
-  .card-text {
-    color: #666;
-    font-size: 1rem;
-    margin-bottom: 20px;
-  }
-
-  .btn-plantilla {
-    background: linear-gradient(135deg, #667eea 0%, #0c2697 100%);
-    border: none;
-    color: white;
-    font-weight: 700;
-    padding: 12px 24px;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    width: 100%;
-  }
-
-  .btn-plantilla:hover {
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-  }
-
-  .row-container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .feature-section {
-    margin-top: 80px;
-    padding: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
-    color: white;
-  }
-
-  .feature-section h3 {
-    margin-bottom: 20px;
-    font-weight: 700;
-  }
-
-  .feature-list {
-    list-style: none;
-    padding: 0;
-  }
-
-  .feature-list li {
-    margin-bottom: 12px;
-    padding-left: 30px;
-    position: relative;
-  }
-
-  .feature-list li:before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: #03b42a;
-    font-weight: bold;
-  }
-
-</style>
+<link href="index.css" rel="stylesheet">
 </head>
 
 <body>
+<button class="theme-toggle" id="themeToggle">
+  <i class="fas fa-moon"></i> Oscuro
+</button>
+
 <div class="container">
   <div class="header">
     <h1> Plantillas de Documentos</h1>
@@ -158,6 +42,7 @@ function irAPlantillas(){
   window.location.href = "formulario.html";
 }
 </script>
+<script src="temaoscuro.js"></script>
 
 </body>
 </html>

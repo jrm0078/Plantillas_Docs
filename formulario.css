@@ -1,0 +1,516 @@
+/* ===== VARIABLES DE COLOR ===== */
+:root {
+  --bg-light: #283fa7;
+  --bg-dark: #0f0f1e;
+  --text-light: #333;
+  --text-dark: #f0f0f0;
+  --card-light: white;
+  --card-dark: #2a2a3e;
+  --border-light: #ddd;
+  --border-dark: #404050;
+  --primary: #667eea;
+  --primary-dark: #0c2697;
+  --success: #03b42a;
+  --info: #0066cc;
+}
+
+body {
+  background: var(--bg-light);
+  min-height: 100vh;
+  padding: 30px 15px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-light);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* ===== NAVBAR TOGGLE ===== */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.theme-toggle i {
+  font-size: 1.1rem;
+}
+
+/* ===== HEADER DEL FORMULARIO ===== */
+.form-header {
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 3px solid var(--primary);
+  padding-bottom: 20px;
+}
+
+.form-header h2 {
+  color: #333;
+  font-weight: 700;
+}
+
+.dark-mode .form-header h2 {
+  color: #f0f0f0;
+}
+
+.dark-mode .form-header {
+  border-bottom-color: #667eea;
+}
+
+/* ===== TARJETAS DE SECCIÓN ===== */
+.section-card {
+  background: var(--card-light);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  color: var(--text-light);
+}
+
+.dark-mode .section-card {
+  background: var(--card-dark);
+  color: var(--text-dark);
+}
+
+.section-card h5 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary);
+}
+
+.dark-mode .section-card h5 {
+  color: #8899ff;
+}
+
+.section-card label {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.dark-mode .section-card label {
+  color: var(--text-dark);
+}
+
+.section-card .form-label {
+  color: var(--text-light);
+}
+
+.dark-mode .section-card .form-label {
+  color: var(--text-dark);
+}
+
+/* ===== BOTONES ===== */
+.btn-descargar {
+  background: var(--success);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-descargar:hover {
+  background: #098023;
+  color: white;
+}
+
+.btn-imprimir {
+  background: var(--info);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-imprimir:hover {
+  background: #0052a3;
+  color: white;
+}
+
+.btn-nuevo {
+  background: var(--primary);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-nuevo:hover {
+  background: #5568d3;
+  color: white;
+}
+
+/* Botones de Bootstrap */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #5568d3;
+  border-color: #5568d3;
+}
+
+.btn-success {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.btn-success:hover {
+  background-color: #098023;
+  border-color: #098023;
+}
+
+.btn-dark {
+  background-color: #666;
+  border-color: #666;
+  color: white;
+}
+
+.btn-dark:hover {
+  background-color: #555;
+  border-color: #555;
+}
+
+.btn-light {
+  background-color: #e8e8e8;
+  border-color: #e8e8e8;
+  color: #333;
+}
+
+.dark-mode .btn-light {
+  background-color: #404050;
+  border-color: #404050;
+  color: #f0f0f0;
+}
+
+.btn-light:hover {
+  background-color: #d0d0d0;
+  border-color: #d0d0d0;
+}
+
+.dark-mode .btn-light:hover {
+  background-color: #505060;
+  border-color: #505060;
+}
+
+/* ===== CAMPOS DE FORMULARIO BOOTSTRAP ===== */
+.form-control,
+.form-select {
+  background: var(--card-light);
+  color: var(--text-light);
+  border-color: var(--border-light);
+}
+
+.dark-mode .form-control,
+.dark-mode .form-select {
+  background: var(--card-dark);
+  color: var(--text-dark);
+  border-color: var(--border-dark);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: var(--card-light);
+  color: var(--text-light);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+  background: var(--card-dark);
+  color: var(--text-dark);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+.campo-dinamico {
+  margin-bottom: 15px;
+}
+
+.campo-dinamico label {
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.dark-mode .campo-dinamico label {
+  color: var(--text-dark);
+}
+
+.campo-dinamico input,
+.campo-dinamico textarea,
+.campo-dinamico select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background: var(--card-light);
+  color: var(--text-light);
+  transition: all 0.3s ease;
+}
+
+.dark-mode .campo-dinamico input,
+.dark-mode .campo-dinamico textarea,
+.dark-mode .campo-dinamico select {
+  background: var(--card-dark);
+  color: var(--text-dark);
+  border-color: var(--border-dark);
+}
+
+.campo-dinamico input:focus,
+.campo-dinamico textarea:focus,
+.campo-dinamico select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+  outline: none;
+}
+
+.campo-dinamico textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.badge-requerido {
+  background: #dc3545;
+  color: white;
+  font-size: 0.75rem;
+  margin-left: 5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* ===== EDITOR TINYMCE ===== */
+#documento-editor {
+  min-height: 500px;
+  background: var(--card-light);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-light);
+}
+
+.dark-mode #documento-editor {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+
+.tox-tinymce {
+  border: 1px solid var(--border-light) !important;
+  border-radius: 8px !important;
+  background: var(--card-light) !important;
+}
+
+.dark-mode .tox-tinymce {
+  border-color: var(--border-dark) !important;
+  background-color: var(--card-dark) !important;
+}
+
+.tox .tox-editor-container {
+  background: var(--card-light);
+}
+
+.dark-mode .tox .tox-editor-container {
+  background: var(--card-dark);
+}
+
+.tox .tox-tbtn {
+  color: var(--text-light);
+}
+
+.dark-mode .tox .tox-tbtn {
+  color: var(--text-dark);
+}
+
+.tox-tinymce__body {
+  background: var(--card-light);
+  color: var(--text-light);
+}
+
+.dark-mode .tox-tinymce__body {
+  background: var(--card-dark);
+  color: var(--text-dark);
+}
+
+.tox-statusbar {
+  display: none !important;
+}
+
+/* ===== CARDS DE BOOTSTRAP ===== */
+.card {
+  background: var(--card-light);
+  color: var(--text-light);
+  border-color: var(--border-light);
+}
+
+.dark-mode .card {
+  background: var(--card-dark);
+  color: var(--text-dark);
+  border-color: var(--border-dark);
+}
+
+.card-body {
+  color: var(--text-light);
+}
+
+.dark-mode .card-body {
+  color: var(--text-dark);
+}
+
+/* ===== SELECT2 ===== */
+.select2-container--bootstrap-5 .select2-selection {
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 0;
+  min-height: 38px;
+  background: var(--card-light);
+  color: var(--text-light);
+}
+
+.dark-mode .select2-container--bootstrap-5 .select2-selection {
+  border-color: var(--border-dark);
+  background-color: var(--card-dark);
+  color: var(--text-dark);
+}
+
+.select2-container--bootstrap-5.select2-container--focus .select2-selection {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* ===== ALERTAS ===== */
+.alert {
+  border-radius: 6px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.alert-success {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.dark-mode .alert-success {
+  background: rgba(3, 180, 42, 0.2);
+  border-color: #03b42a;
+  color: #5ffb6f;
+}
+
+.alert-danger {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.dark-mode .alert-danger {
+  background: rgba(220, 53, 69, 0.2);
+  border-color: #dc3545;
+  color: #ff8fa3;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+}
+
+.dark-mode .alert-warning {
+  background: rgba(255, 193, 7, 0.2);
+  border-color: #ffc107;
+  color: #ffed4e;
+}
+
+/* ===== ELEMENTOS ADICIONALES ===== */
+h2, h3, h4, h5, h6 {
+  color: var(--text-light);
+}
+
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6 {
+  color: var(--text-dark);
+}
+
+p {
+  color: var(--text-light);
+}
+
+.dark-mode p {
+  color: var(--text-dark);
+}
+
+/* Placeholders */
+.form-control::placeholder,
+.form-select::placeholder {
+  color: #999;
+}
+
+.dark-mode .form-control::placeholder,
+.dark-mode .form-select::placeholder {
+  color: #888;
+}
+
+/* Text muted */
+.text-muted {
+  color: #666 !important;
+}
+
+.dark-mode .text-muted {
+  color: #aaa !important;
+}
+
+/* Select2 dropdown */
+.select2-dropdown {
+  background: var(--card-light);
+  color: var(--text-light);
+}
+
+.dark-mode .select2-dropdown {
+  background: var(--card-dark);
+  color: var(--text-dark);
+}
+
+.select2-results__option {
+  color: var(--text-light);
+}
+
+.dark-mode .select2-results__option {
+  color: var(--text-dark);
+}
+
+.select2-results__option--highlighted {
+  background-color: var(--primary) !important;
+  color: white !important;
+}

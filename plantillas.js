@@ -1,5 +1,4 @@
 // GENERADOR DE DOCUMENTOS CON PLANTILLAS
-
 const API_BASE = './';
 const API_PLANTILLAS = API_BASE + 'api_plantillas.php';
 

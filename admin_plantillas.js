@@ -13,7 +13,7 @@ function decodificarHTML(html) {
 function inicializarTinyMCEPreview() {
     tinymce.init({
         selector: '#previsualizacion',
-        height: 600,
+        height: 550,
         readonly: false,
         menubar: 'file edit view insert format tools',
         plugins: 'advlist autolink lists link image charmap anchor searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking table',

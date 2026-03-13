@@ -172,23 +172,34 @@ function aplicarFiltro() {
                 // Reemplazar variables en la plantilla
                 let contenido = plantillaActual.contenido;
                 
-                // Mapa de conversión de nombres de BD a nombres de plantilla
-                const mapeo = {
-                    'nombre': 'cliente',
-                    'nif': 'dni',
-                    'email': 'email',
-                    'edad': 'edad',
-                    'direccion': 'domicilio',
-                    'ciudad': 'ciudad',
-                    'provincia': 'provincia',
-                    'telefono': 'telefono',
-                    'cif': 'cif'
-                };
-                
-                // Reemplazar todas las variables
-                for (const [campobd, campoplantilla] of Object.entries(mapeo)) {
-                    const valor = data.data[campobd] || '';
-                    contenido = contenido.replaceAll('-' + campoplantilla + '-', valor);
+                // Reemplazar cada campo de la BD con sus equivalentes en todas las plantillas
+                if (data.data.nombre) {
+                    contenido = contenido.replaceAll('-nombre-', data.data.nombre);
+                    contenido = contenido.replaceAll('-cliente-', data.data.nombre);
+                }
+                if (data.data.nif) {
+                    contenido = contenido.replaceAll('-dni-', data.data.nif);
+                }
+                if (data.data.email) {
+                    contenido = contenido.replaceAll('-email-', data.data.email);
+                }
+                if (data.data.telefono) {
+                    contenido = contenido.replaceAll('-telefono-', data.data.telefono);
+                }
+                if (data.data.direccion) {
+                    contenido = contenido.replaceAll('-domicilio-', data.data.direccion);
+                }
+                if (data.data.provincia) {
+                    contenido = contenido.replaceAll('-provincia-', data.data.provincia);
+                }
+                if (data.data.edad) {
+                    contenido = contenido.replaceAll('-edad-', data.data.edad);
+                }
+                if (data.data.ciudad) {
+                    contenido = contenido.replaceAll('-ciudad-', data.data.ciudad);
+                }
+                if (data.data.cif) {
+                    contenido = contenido.replaceAll('-cif-', data.data.cif);
                 }
                 
                 // Cargar en el editor

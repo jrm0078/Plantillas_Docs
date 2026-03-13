@@ -44,7 +44,7 @@ function inicializarEditor() {
 
 // CARGAR PLANTILLAS
 function cargarPlantillasDisponibles() {
-    fetch(API_PLANTILLAS + '?action=listar')
+    fetch(API_PLANTILLAS + '?action=listar_activas')
         .then(response => response.json())
         .then(data => {
             if (data.success) {

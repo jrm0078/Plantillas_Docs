@@ -116,10 +116,6 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('nombre').value = data.data.nombre;
                 document.getElementById('descripcion').value = data.data.descripcion || '';
                 document.getElementById('tipo_documento').value = data.data.tipo_documento || '';
-                document.getElementById('tabla_origen').value = data.data.tabla_origen || '';
-                document.getElementById('campo_clave').value = data.data.campo_clave || '';
-                document.getElementById('sql_consulta').value = data.data.sql_consulta || '';
-                // Decodificar las entidades HTML
                 document.getElementById('contenido').value = decodificarHTML(data.data.contenido || '');
                 document.getElementById('estado').checked = data.data.estado == 1;
                 
@@ -153,9 +149,9 @@ function guardarPlantilla() {
         nombre: document.getElementById('nombre').value,
         descripcion: document.getElementById('descripcion').value,
         tipo_documento: document.getElementById('tipo_documento').value,
-        tabla_origen: document.getElementById('tabla_origen').value,
-        campo_clave: document.getElementById('campo_clave').value,
-        sql_consulta: document.getElementById('sql_consulta').value,
+        tabla_origen: 'clientes',
+        campo_clave: 'id',
+        sql_consulta: 'SELECT * FROM clientes WHERE id = ?',
         contenido: document.getElementById('contenido').value,
         estado: document.getElementById('estado').checked ? 1 : 0
     };
@@ -216,9 +212,6 @@ function limpiarFormulario() {
     document.getElementById('nombre').value = '';
     document.getElementById('descripcion').value = '';
     document.getElementById('tipo_documento').value = '';
-    document.getElementById('tabla_origen').value = '';
-    document.getElementById('campo_clave').value = '';
-    document.getElementById('sql_consulta').value = '';
     document.getElementById('contenido').value = '';
     document.getElementById('estado').checked = true;
     

@@ -19,6 +19,22 @@ if ($action === 'listar') {
     }
 }
 
+// Obtener lista de plantillas activas
+else if ($action === 'listar_activas') {
+    try {
+        $stmt = $pdo->query("
+            SELECT cod_plantilla, nombre, descripcion, tipo_documento 
+            FROM plantillas 
+            WHERE estado = 1
+            ORDER BY nombre
+        ");
+        $plantillas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'data' => $plantillas]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
 // Obtener plantilla específica con variables
 else if ($action === 'obtener') {
     $cod = $_GET['cod'] ?? '';

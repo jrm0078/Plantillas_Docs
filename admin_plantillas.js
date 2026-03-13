@@ -136,22 +136,52 @@ function abrirFormularioEditar(cod) {
 
 // GUARDAR PLANTILLA
 function guardarPlantilla() {
-    const cod = document.getElementById('cod_plantilla').value;
+    const cod = document.getElementById('cod_plantilla').value.trim();
+    const nombre = document.getElementById('nombre').value.trim();
+    const contenido = document.getElementById('contenido').value.trim();
     
-    if (!cod || !document.getElementById('nombre').value) {
-        mostrarAlerta('Codigo y nombre son requeridos', 'warning');
+    // Validaciones
+    if (!cod) {
+        mostrarAlerta('El código de plantilla es obligatorio', 'warning');
+        document.getElementById('cod_plantilla').focus();
+        return;
+    }
+    
+    if (!nombre) {
+        mostrarAlerta('El nombre de plantilla es obligatorio', 'warning');
+        document.getElementById('nombre').focus();
+        return;
+    }
+    
+    if (!contenido) {
+        mostrarAlerta('El contenido HTML de la plantilla es obligatorio', 'warning');
+        document.getElementById('contenido').focus();
+        return;
+    }
+    
+    // Validar que el código no contenga espacios
+    if (cod.includes(' ')) {
+        mostrarAlerta('El código de plantilla no puede contener espacios', 'warning');
+        document.getElementById('cod_plantilla').focus();
+        return;
+    }
+    
+    // Validar que el nombre tenga mínimo 3 caracteres
+    if (nombre.length < 3) {
+        mostrarAlerta('El nombre debe tener mínimo 3 caracteres', 'warning');
+        document.getElementById('nombre').focus();
         return;
     }
     
     const datos = {
         cod_plantilla: cod,
-        nombre: document.getElementById('nombre').value,
+        nombre: nombre,
         descripcion: document.getElementById('descripcion').value,
         tipo_documento: document.getElementById('tipo_documento').value,
         tabla_origen: 'clientes',
         campo_clave: 'id',
         sql_consulta: 'SELECT * FROM clientes WHERE id = ?',
-        contenido: document.getElementById('contenido').value,
+        contenido: contenido,
         estado: document.getElementById('estado').checked ? 1 : 0
     };
     

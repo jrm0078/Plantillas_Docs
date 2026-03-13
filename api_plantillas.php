@@ -209,6 +209,120 @@ else if ($action === 'obtener_datos') {
     }
 }
 
+// Crear nueva plantilla
+else if ($action === 'crear') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$data['cod_plantilla'] || !$data['nombre']) {
+        echo json_encode(['success' => false, 'error' => 'Código y nombre de plantilla requeridos']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO plantillas (cod_plantilla, nombre, descripcion, tipo_documento, contenido, tabla_origen, campo_clave, sql_consulta, estado)
+            VALUES (:cod, :nombre, :desc, :tipo, :contenido, :tabla, :campo, :sql, :estado)
+        ");
+        
+        $stmt->execute([
+            ':cod' => $data['cod_plantilla'],
+            ':nombre' => $data['nombre'],
+            ':desc' => $data['descripcion'] ?? '',
+            ':tipo' => $data['tipo_documento'] ?? '',
+            ':contenido' => $data['contenido'] ?? '',
+            ':tabla' => $data['tabla_origen'] ?? '',
+            ':campo' => $data['campo_clave'] ?? '',
+            ':sql' => $data['sql_consulta'] ?? '',
+            ':estado' => $data['estado'] ?? 1
+        ]);
+        
+        echo json_encode(['success' => true, 'message' => 'Plantilla creada correctamente']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+// Editar plantilla
+else if ($action === 'editar') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $cod = $_GET['cod'] ?? '';
+    
+    if (!$cod) {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE plantillas 
+            SET nombre = :nombre, descripcion = :desc, tipo_documento = :tipo, 
+                contenido = :contenido, tabla_origen = :tabla, campo_clave = :campo, 
+                sql_consulta = :sql, estado = :estado
+            WHERE cod_plantilla = :cod
+        ");
+        
+        $stmt->execute([
+            ':cod' => $cod,
+            ':nombre' => $data['nombre'] ?? '',
+            ':desc' => $data['descripcion'] ?? '',
+            ':tipo' => $data['tipo_documento'] ?? '',
+            ':contenido' => $data['contenido'] ?? '',
+            ':tabla' => $data['tabla_origen'] ?? '',
+            ':campo' => $data['campo_clave'] ?? '',
+            ':sql' => $data['sql_consulta'] ?? '',
+            ':estado' => $data['estado'] ?? 1
+        ]);
+        
+        echo json_encode(['success' => true, 'message' => 'Plantilla actualizada correctamente']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+// Eliminar plantilla
+else if ($action === 'eliminar') {
+    $cod = $_GET['cod'] ?? '';
+    
+    if (!$cod) {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("DELETE FROM plantillas WHERE cod_plantilla = :cod");
+        $stmt->execute([':cod' => $cod]);
+        
+        echo json_encode(['success' => true, 'message' => 'Plantilla eliminada correctamente']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+// Obtener plantilla completa para editar
+else if ($action === 'obtener_completa') {
+    $cod = $_GET['cod'] ?? '';
+    
+    if (!$cod) {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM plantillas WHERE cod_plantilla = :cod");
+        $stmt->execute([':cod' => $cod]);
+        $plantilla = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$plantilla) {
+            echo json_encode(['success' => false, 'error' => 'Plantilla no encontrada']);
+            exit;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $plantilla]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
 else {
     echo json_encode(['success' => false, 'error' => 'Acción no válida']);
 }

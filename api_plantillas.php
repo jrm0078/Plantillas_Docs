@@ -8,7 +8,7 @@ $action = $_GET['action'] ?? '';
 if ($action === 'listar') {
     try {
         $stmt = $pdo->query("
-            SELECT cod_plantilla, nombre, descripcion, tipo_documento 
+            SELECT cod_plantilla, nombre, descripcion, tipo_documento, estado
             FROM plantillas 
             ORDER BY nombre
         ");

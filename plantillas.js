@@ -172,8 +172,23 @@ function aplicarFiltro() {
                 // Reemplazar variables en la plantilla
                 let contenido = plantillaActual.contenido;
                 
-                for (const [campo, valor] of Object.entries(data.data)) {
-                    contenido = contenido.replaceAll('{{' + campo + '}}', valor || '');
+                // Mapa de conversión de nombres de BD a nombres de plantilla
+                const mapeo = {
+                    'nombre': 'nombre',
+                    'nif': 'dni',
+                    'email': 'email',
+                    'edad': 'edad',
+                    'direccion': 'domicilio',
+                    'ciudad': 'ciudad',
+                    'provincia': 'provincia',
+                    'telefono': 'telefono',
+                    'cif': 'cif'
+                };
+                
+                // Reemplazar todas las variables
+                for (const [campobd, campoplantilla] of Object.entries(mapeo)) {
+                    const valor = data.data[campobd] || '';
+                    contenido = contenido.replaceAll('-' + campoplantilla + '-', valor);
                 }
                 
                 // Cargar en el editor

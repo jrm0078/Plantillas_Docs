@@ -14,6 +14,7 @@ function inicializarTinyMCEPreview() {
         branding: false,
         valid_elements: '*[*]',
         extended_valid_elements: '*[*]',
+        entity_encoding: 'raw',
         setup: function (editor) {
             editor.on('change', function() {
                 actualizarDesdePreview();

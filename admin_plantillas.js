@@ -15,12 +15,32 @@ function actualizarPreview() {
     preview.innerHTML = contenido;
 }
 
+// ACTUALIZAR HTML DESDE LA PREVISUALIZACIÓN
+function actualizarDesdePreview() {
+    const preview = document.getElementById('previsualizacion');
+    const htmlContenido = preview.innerHTML;
+    document.getElementById('contenido').value = htmlContenido;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     cargarPlantillas();
     
-    // Evento para actualizar previsualización en vivo
+    // Evento para actualizar previsualización en vivo desde el HTML
     document.getElementById('contenido').addEventListener('input', function() {
         actualizarPreview();
+    });
+    
+    // Evento para actualizar HTML desde la previsualización
+    document.getElementById('previsualizacion').addEventListener('input', function() {
+        actualizarDesdePreview();
+    });
+    
+    // También capturar cambios al pegar o borrar con teclas
+    document.getElementById('previsualizacion').addEventListener('keyup', function() {
+        actualizarDesdePreview();
+    });
+    document.getElementById('previsualizacion').addEventListener('paste', function() {
+        setTimeout(actualizarDesdePreview, 100);
     });
 });
 

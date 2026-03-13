@@ -57,52 +57,52 @@ Crear Plantilla
 
 <div class="row mb-3">
 <div class="col-md-6">
-<label class="form-label">Codigo Plantilla</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Codigo Plantilla</label>
 <input type="text" id="cod_plantilla" class="form-control" placeholder="Ej: presupuesto_1">
 </div>
 <div class="col-md-6">
-<label class="form-label">Nombre</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Nombre</label>
 <input type="text" id="nombre" class="form-control" placeholder="Ej: Presupuesto Estandar">
 </div>
 </div>
 
 <div class="row mb-3">
 <div class="col-md-6">
-<label class="form-label">Descripcion</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Descripcion</label>
 <input type="text" id="descripcion" class="form-control" placeholder="">
 </div>
 <div class="col-md-6">
-<label class="form-label">Tipo de Documento</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Tipo de Documento</label>
 <input type="text" id="tipo_documento" class="form-control" placeholder="Ej: presupuesto">
 </div>
 </div>
 
 <div class="row mb-3">
 <div class="col-md-6">
-<label class="form-label">Tabla Origen</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Tabla Origen</label>
 <input type="text" id="tabla_origen" class="form-control" placeholder="Ej: clientes">
 </div>
 <div class="col-md-6">
-<label class="form-label">Campo Clave</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Campo Clave</label>
 <input type="text" id="campo_clave" class="form-control" placeholder="Ej: id">
 </div>
 </div>
 
 <div class="mb-3">
-<label class="form-label">Consulta SQL</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Consulta SQL</label>
 <input type="text" id="sql_consulta" class="form-control" placeholder="Ej: SELECT * FROM clientes WHERE id = ?">
 </div>
 
 <div class="mb-3">
-<label class="form-label">HTML Plantilla</label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">HTML Plantilla</label>
 <div class="row">
 <div class="col-md-6">
-<label class="form-label" style="font-size: 0.9rem;">Editor (Escribe aqui)</label>
+<label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor (Escriba aqui el HTML)</label>
 <textarea id="contenido" class="form-control" rows="15" placeholder="Pegue el HTML con variables entre guiones -variable-"></textarea>
 </div>
 <div class="col-md-6">
-<label class="form-label" style="font-size: 0.9rem;">Vista Previa</label>
-<div id="previsualizacion" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: white; min-height: 400px; max-height: 600px; overflow-y: auto;">
+<label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Vista Previa (Puede editar aqui)</label>
+<div id="previsualizacion" contenteditable="true" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: white; min-height: 400px; max-height: 600px; overflow-y: auto; outline: none;">
 <p style="color: #999;">La previsualización aparecerá aqui...</p>
 </div>
 </div>
@@ -110,7 +110,7 @@ Crear Plantilla
 </div>
 
 <div class="mb-3">
-<label>
+<label class="form-label fw-bold" style="font-size: 1.05rem;">
 <input type="checkbox" id="estado" checked> Plantilla Activa
 </label>
 </div>

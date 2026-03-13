@@ -2,45 +2,50 @@ const API_PLANTILLAS = './api_plantillas.php';
 
 let plantillaEnEdicion = null;
 
+// INICIALIZAR TINYMCE PARA PREVISUALIZACIÓN
+function inicializarTinyMCEPreview() {
+    tinymce.init({
+        selector: '#previsualizacion',
+        height: 600,
+        readonly: false,
+        menubar: 'file edit view insert format tools',
+        plugins: 'advlist autolink lists link image charmap anchor searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking table',
+        toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | fullscreen | table',
+        branding: false,
+        valid_elements: '*[*]',
+        extended_valid_elements: '*[*]',
+        setup: function (editor) {
+            editor.on('change', function() {
+                actualizarDesdePreview();
+            });
+        }
+    });
+}
+
 // ACTUALIZAR PREVISUALIZACION EN VIVO
 function actualizarPreview() {
     const contenido = document.getElementById('contenido').value;
-    const preview = document.getElementById('previsualizacion');
     
-    if (contenido.trim() === '') {
-        preview.innerHTML = '<p style="color: #999;">La previsualización aparecerá aqui...</p>';
-        return;
+    if (tinymce.get('previsualizacion')) {
+        tinymce.get('previsualizacion').setContent(contenido);
     }
-    
-    preview.innerHTML = contenido;
 }
 
 // ACTUALIZAR HTML DESDE LA PREVISUALIZACIÓN
 function actualizarDesdePreview() {
-    const preview = document.getElementById('previsualizacion');
-    const htmlContenido = preview.innerHTML;
-    document.getElementById('contenido').value = htmlContenido;
+    if (tinymce.get('previsualizacion')) {
+        const htmlContenido = tinymce.get('previsualizacion').getContent();
+        document.getElementById('contenido').value = htmlContenido;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     cargarPlantillas();
+    inicializarTinyMCEPreview();
     
     // Evento para actualizar previsualización en vivo desde el HTML
     document.getElementById('contenido').addEventListener('input', function() {
         actualizarPreview();
-    });
-    
-    // Evento para actualizar HTML desde la previsualización
-    document.getElementById('previsualizacion').addEventListener('input', function() {
-        actualizarDesdePreview();
-    });
-    
-    // También capturar cambios al pegar o borrar con teclas
-    document.getElementById('previsualizacion').addEventListener('keyup', function() {
-        actualizarDesdePreview();
-    });
-    document.getElementById('previsualizacion').addEventListener('paste', function() {
-        setTimeout(actualizarDesdePreview, 100);
     });
 });
 
@@ -109,8 +114,10 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('contenido').value = data.data.contenido || '';
                 document.getElementById('estado').checked = data.data.estado == 1;
                 
-                // Actualizar previsualización
-                actualizarPreview();
+                // Actualizar previsualización con TinyMCE
+                if (tinymce.get('previsualizacion')) {
+                    tinymce.get('previsualizacion').setContent(data.data.contenido || '');
+                }
                 
                 ocultarTabla();
             } else {
@@ -205,7 +212,11 @@ function limpiarFormulario() {
     document.getElementById('sql_consulta').value = '';
     document.getElementById('contenido').value = '';
     document.getElementById('estado').checked = true;
-    document.getElementById('previsualizacion').innerHTML = '<p style="color: #999;">La previsualización aparecerá aqui...</p>';
+    
+    if (tinymce.get('previsualizacion')) {
+        tinymce.get('previsualizacion').setContent('');
+    }
+    
     plantillaEnEdicion = null;
 }
 

@@ -167,6 +167,47 @@ else if ($action === 'cliente_datos') {
     }
 }
 
+// Obtener datos filtrados para una plantilla
+else if ($action === 'obtener_datos') {
+    $cod_plantilla = $_GET['cod'] ?? '';
+    $filtro = $_GET['filtro'] ?? '';
+    
+    if (!$cod_plantilla || !$filtro) {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla y filtro requeridos']);
+        exit;
+    }
+    
+    try {
+        // Obtener configuración de la plantilla
+        $stmt = $pdo->prepare("
+            SELECT sql_consulta, campo_clave, tabla_origen 
+            FROM plantillas 
+            WHERE cod_plantilla = :cod
+        ");
+        $stmt->execute([':cod' => $cod_plantilla]);
+        $plantilla = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$plantilla) {
+            echo json_encode(['success' => false, 'error' => 'Plantilla no encontrada']);
+            exit;
+        }
+        
+        // Ejecutar la query con el filtro
+        $stmt = $pdo->prepare($plantilla['sql_consulta']);
+        $stmt->execute([':id' => $filtro]);
+        $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$datos) {
+            echo json_encode(['success' => false, 'error' => 'No se encontraron datos']);
+            exit;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $datos]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
 else {
     echo json_encode(['success' => false, 'error' => 'Acción no válida']);
 }

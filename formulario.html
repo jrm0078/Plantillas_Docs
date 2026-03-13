@@ -51,19 +51,35 @@
 </div>
 </div>
 
+<div class="section-card" id="filtroSection" style="display:none;">
+<h5>2. Seleccionar Cliente</h5>
+<div class="row">
+<div class="col-md-8">
+<label class="form-label fw-bold">Cliente</label>
+<select id="selectCliente" class="form-select form-select-lg">
+<option value="">-- Seleccionar cliente --</option>
+</select>
+</div>
+<div class="col-md-4">
+<button class="btn btn-primary mt-4" onclick="aplicarFiltro()">
+Cargar Documento
+</button>
+</div>
+</div>
+</div>
+
 <div class="section-card" id="formularioSection" style="display:none;">
-<h5><i class="fas fa-edit"></i> 2. Completar Campos del Documento</h5>
+<h5>3. Completar Campos del Documento</h5>
 <div id="formularioDinamico"></div>
 <div class="mt-3">
 <button class="btn btn-primary" onclick="generarDocumento()">
-<i class="fas fa-refresh"></i> Actualizar Documento
+Actualizar Documento
 </button>
 </div>
 </div>
 
-
 <div class="section-card" id="editorSection" style="display:none;">
-<h5><i class="fas fa-document"></i> 2. Editor de Documento</h5>
+<h5>3. Editor de Documento</h5>
 <textarea id="documento-editor"></textarea>
 </div>
 

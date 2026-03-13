@@ -28,7 +28,6 @@ body.dark-mode {
   color: var(--text-dark);
 }
 
-/* ===== NAVBAR TOGGLE ===== */
 .theme-toggle {
   position: fixed;
   top: 20px;
@@ -58,7 +57,6 @@ body.dark-mode {
   font-size: 1.1rem;
 }
 
-/* ===== HEADER DEL FORMULARIO ===== */
 .form-header {
   text-align: center;
   margin-bottom: 30px;
@@ -79,7 +77,6 @@ body.dark-mode {
   border-bottom-color: #667eea;
 }
 
-/* ===== TARJETAS DE SECCIÓN ===== */
 .section-card {
   background: var(--card-light);
   padding: 20px;
@@ -123,7 +120,6 @@ body.dark-mode {
   color: var(--text-dark);
 }
 
-/* ===== BOTONES ===== */
 .btn-descargar {
   background: var(--success);
   border: none;
@@ -166,7 +162,6 @@ body.dark-mode {
   color: white;
 }
 
-/* Botones de Bootstrap */
 .btn-primary {
   background-color: var(--primary);
   border-color: var(--primary);
@@ -221,7 +216,6 @@ body.dark-mode {
   border-color: #505060;
 }
 
-/* ===== CAMPOS DE FORMULARIO BOOTSTRAP ===== */
 .form-control,
 .form-select {
   background: var(--card-light);
@@ -309,7 +303,6 @@ body.dark-mode {
   border-radius: 3px;
 }
 
-/* ===== EDITOR TINYMCE ===== */
 #documento-editor {
   min-height: 500px;
   background: var(--card-light);
@@ -365,7 +358,6 @@ body.dark-mode {
   display: none !important;
 }
 
-/* ===== CARDS DE BOOTSTRAP ===== */
 .card {
   background: var(--card-light);
   color: var(--text-light);
@@ -386,7 +378,6 @@ body.dark-mode {
   color: var(--text-dark);
 }
 
-/* ===== SELECT2 ===== */
 .select2-container--bootstrap-5 .select2-selection {
   border: 1px solid var(--border-light);
   border-radius: 4px;
@@ -507,7 +498,6 @@ body.dark-mode {
   color: white !important;
 }
 
-/* ===== ALERTAS ===== */
 .alert {
   border-radius: 6px;
   margin-bottom: 15px;
@@ -550,7 +540,6 @@ body.dark-mode {
   color: #ffed4e;
 }
 
-/* ===== ELEMENTOS ADICIONALES ===== */
 h2, h3, h4, h5, h6 {
   color: var(--text-light);
 }
@@ -571,7 +560,6 @@ p {
   color: var(--text-dark);
 }
 
-/* Placeholders */
 .form-control::placeholder,
 .form-select::placeholder {
   color: #999;
@@ -582,7 +570,6 @@ p {
   color: #888;
 }
 
-/* Text muted */
 .text-muted {
   color: #666 !important;
 }
@@ -591,7 +578,6 @@ p {
   color: #aaa !important;
 }
 
-/* Select2 dropdown */
 .select2-dropdown {
   background: var(--card-light) !important;
   color: var(--text-light) !important;

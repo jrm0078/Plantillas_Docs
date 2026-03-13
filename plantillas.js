@@ -92,15 +92,16 @@ function cargarPlantilla() {
         .then(data => {
             if (data.success) {
                 plantillaActual = data.data;
-
-                // Cargar directamente el contenido en el editor con campos entre guiones
-                tinymce.activeEditor.setContent(plantillaActual.contenido);
-
-                // Mostrar solo el editor
+                
+                // Cargar clientes disponibles
+                cargarClientes();
+                
+                // Mostrar solo el selector de cliente
+                document.getElementById('filtroSection').style.display = 'block';
                 document.getElementById('formularioSection').style.display = 'none';
-                document.getElementById('editorSection').style.display = 'block';
-
-                mostrarAlerta('Plantilla ' + plantillaActual.nombre + ' cargada', 'success');
+                document.getElementById('editorSection').style.display = 'none';
+                
+                mostrarAlerta('Plantilla ' + plantillaActual.nombre + ' seleccionada', 'success');
             } else {
                 mostrarAlerta('Error: ' + data.error, 'danger');
             }
@@ -108,6 +109,91 @@ function cargarPlantilla() {
         .catch(error => {
             console.error('Error:', error);
             mostrarAlerta('Error al cargar la plantilla', 'danger');
+        });
+}
+
+// CARGAR CLIENTES
+function cargarClientes() {
+    fetch(API_PLANTILLAS + '?action=clientes')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('selectCliente');
+                select.innerHTML = '<option value="">-- Seleccionar cliente --</option>';
+                
+                data.data.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id;
+                    option.textContent = cliente.nombre + ' (' + cliente.nif + ')';
+                    select.appendChild(option);
+                });
+                
+                // Inicializar Select2
+                if ($(select).hasClass('select2-hidden-accessible')) {
+                    $(select).select2('destroy');
+                }
+                $(select).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: '-- Seleccionar cliente --',
+                    allowClear: true
+                });
+            } else {
+                mostrarAlerta('Error al cargar clientes: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión', 'danger');
+        });
+}
+
+// APLICAR FILTRO Y OBTENER DATOS
+function aplicarFiltro() {
+    const idCliente = document.getElementById('selectCliente').value;
+    
+    if (!idCliente) {
+        mostrarAlerta('Selecciona un cliente', 'warning');
+        return;
+    }
+    
+    if (!plantillaActual) {
+        mostrarAlerta('Selecciona una plantilla primero', 'warning');
+        return;
+    }
+    
+    fetch(API_PLANTILLAS + '?action=obtener_datos&cod=' + plantillaActual.cod_plantilla + '&filtro=' + idCliente)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Guardar datos del cliente
+                datosFormulario = data.data;
+                
+                // Reemplazar variables en la plantilla
+                let contenido = plantillaActual.contenido;
+                
+                for (const [campo, valor] of Object.entries(data.data)) {
+                    contenido = contenido.replaceAll('{{' + campo + '}}', valor || '');
+                }
+                
+                // Cargar en el editor
+                if (tinymce.activeEditor) {
+                    tinymce.activeEditor.setContent(contenido);
+                }
+                
+                // Mostrar el editor
+                document.getElementById('filtroSection').style.display = 'none';
+                document.getElementById('formularioSection').style.display = 'none';
+                document.getElementById('editorSection').style.display = 'block';
+                
+                mostrarAlerta('Documento cargado correctamente', 'success');
+            } else {
+                mostrarAlerta('Error: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al obtener datos', 'danger');
         });
 }
 
@@ -367,7 +453,9 @@ function nuevoDocumento() {
 // LIMPIAR
 
 function limpiar() {
+    document.getElementById('selectCliente').value = '';
     document.getElementById('formularioDinamico').innerHTML = '';
+    document.getElementById('filtroSection').style.display = 'none';
     document.getElementById('formularioSection').style.display = 'none';
     document.getElementById('editorSection').style.display = 'none';
 

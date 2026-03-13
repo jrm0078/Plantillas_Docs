@@ -2,6 +2,13 @@ const API_PLANTILLAS = './api_plantillas.php';
 
 let plantillaEnEdicion = null;
 
+// DECODIFICAR ENTIDADES HTML
+function decodificarHTML(html) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = html;
+    return txt.value;
+}
+
 // INICIALIZAR TINYMCE PARA PREVISUALIZACIÓN
 function inicializarTinyMCEPreview() {
     tinymce.init({
@@ -112,12 +119,13 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('tabla_origen').value = data.data.tabla_origen || '';
                 document.getElementById('campo_clave').value = data.data.campo_clave || '';
                 document.getElementById('sql_consulta').value = data.data.sql_consulta || '';
-                document.getElementById('contenido').value = data.data.contenido || '';
+                // Decodificar las entidades HTML
+                document.getElementById('contenido').value = decodificarHTML(data.data.contenido || '');
                 document.getElementById('estado').checked = data.data.estado == 1;
                 
                 // Actualizar previsualización con TinyMCE
                 if (tinymce.get('previsualizacion')) {
-                    tinymce.get('previsualizacion').setContent(data.data.contenido || '');
+                    tinymce.get('previsualizacion').setContent(decodificarHTML(data.data.contenido || ''));
                 }
                 
                 ocultarTabla();

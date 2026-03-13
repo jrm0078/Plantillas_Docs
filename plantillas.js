@@ -174,7 +174,7 @@ function aplicarFiltro() {
                 
                 // Mapa de conversión de nombres de BD a nombres de plantilla
                 const mapeo = {
-                    'nombre': 'nombre',
+                    'nombre': 'cliente',
                     'nif': 'dni',
                     'email': 'email',
                     'edad': 'edad',

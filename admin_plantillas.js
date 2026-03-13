@@ -74,7 +74,6 @@ function cargarPlantillas() {
                         <td>${plantilla.nombre}</td>
                         <td>${plantilla.descripcion || ''}</td>
                         <td>${plantilla.tipo_documento || ''}</td>
-                        <td>${plantilla.tabla_origen || ''}</td>
                         <td>${estado}</td>
                         <td>
                             <button class="btn btn-sm btn-primary" onclick="abrirFormularioEditar('${plantilla.cod_plantilla}')">Editar</button>

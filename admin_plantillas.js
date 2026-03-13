@@ -2,8 +2,26 @@ const API_PLANTILLAS = './api_plantillas.php';
 
 let plantillaEnEdicion = null;
 
+// ACTUALIZAR PREVISUALIZACION EN VIVO
+function actualizarPreview() {
+    const contenido = document.getElementById('contenido').value;
+    const preview = document.getElementById('previsualizacion');
+    
+    if (contenido.trim() === '') {
+        preview.innerHTML = '<p style="color: #999;">La previsualización aparecerá aqui...</p>';
+        return;
+    }
+    
+    preview.innerHTML = contenido;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     cargarPlantillas();
+    
+    // Evento para actualizar previsualización en vivo
+    document.getElementById('contenido').addEventListener('input', function() {
+        actualizarPreview();
+    });
 });
 
 // CARGAR TABLA DE PLANTILLAS
@@ -70,6 +88,9 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('sql_consulta').value = data.data.sql_consulta || '';
                 document.getElementById('contenido').value = data.data.contenido || '';
                 document.getElementById('estado').checked = data.data.estado == 1;
+                
+                // Actualizar previsualización
+                actualizarPreview();
                 
                 ocultarTabla();
             } else {
@@ -164,6 +185,7 @@ function limpiarFormulario() {
     document.getElementById('sql_consulta').value = '';
     document.getElementById('contenido').value = '';
     document.getElementById('estado').checked = true;
+    document.getElementById('previsualizacion').innerHTML = '<p style="color: #999;">La previsualización aparecerá aqui...</p>';
     plantillaEnEdicion = null;
 }
 

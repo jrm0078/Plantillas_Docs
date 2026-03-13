@@ -193,8 +193,9 @@ else if ($action === 'obtener_datos') {
         }
         
         // Ejecutar la query con el filtro
+        // Usar prepared statement con placeholder posicional
         $stmt = $pdo->prepare($plantilla['sql_consulta']);
-        $stmt->execute([':id' => $filtro]);
+        $stmt->execute([$filtro]);
         $datos = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$datos) {

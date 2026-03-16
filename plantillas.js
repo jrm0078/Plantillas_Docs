@@ -364,7 +364,7 @@ function descargarPDF() {
     container.innerHTML = contenido;
 
     container.style.background = "#ffffff";
-    container.style.padding = "20px";
+    container.style.padding = "0";
     container.style.width = "190mm"; 
     container.style.margin = "0 auto";
     container.style.fontFamily = "Arial, sans-serif";
@@ -376,7 +376,7 @@ function descargarPDF() {
     document.body.appendChild(container);
 
     const options = {
-        margin: 10,
+        margin: 5,
         filename: nombreArchivo + ".pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {

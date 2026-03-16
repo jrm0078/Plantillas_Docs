@@ -364,8 +364,9 @@ function descargarPDF() {
     container.innerHTML = contenido;
 
     container.style.background = "#ffffff";
-    container.style.padding = "0";
-    container.style.width = "100%";
+    container.style.padding = "15px";
+    container.style.width = "190mm"; 
+    container.style.margin = "0 auto";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.6";
@@ -374,14 +375,13 @@ function descargarPDF() {
     document.body.appendChild(container);
 
     const options = {
-        margin: [5, 5, 5, 5],
+        margin: 7,
         filename: nombreArchivo + ".pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
             scale: 2,
             useCORS: true,
-            backgroundColor: "#ffffff",
-            allowTaint: true
+            backgroundColor: "#ffffff"
         },
         jsPDF: {
             orientation: "portrait",

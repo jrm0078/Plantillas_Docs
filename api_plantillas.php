@@ -261,6 +261,26 @@ else if ($action === 'crear') {
         exit;
     }
     
+    if (!$data['tabla_origen'] || trim($data['tabla_origen']) === '') {
+        echo json_encode(['success' => false, 'error' => 'La tabla origen es requerida']);
+        exit;
+    }
+    
+    if (!$data['campo_clave'] || trim($data['campo_clave']) === '') {
+        echo json_encode(['success' => false, 'error' => 'El campo clave es requerido']);
+        exit;
+    }
+    
+    if (!$data['sql_consulta'] || trim($data['sql_consulta']) === '') {
+        echo json_encode(['success' => false, 'error' => 'La sentencia SQL es requerida']);
+        exit;
+    }
+    
+    if (strpos($data['sql_consulta'], '?') === false) {
+        echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
+        exit;
+    }
+    
     if (strpos($data['cod_plantilla'], ' ') !== false) {
         echo json_encode(['success' => false, 'error' => 'El código de plantilla no puede contener espacios']);
         exit;
@@ -316,6 +336,26 @@ else if ($action === 'editar') {
         exit;
     }
     
+    if (!$data['tabla_origen'] || trim($data['tabla_origen']) === '') {
+        echo json_encode(['success' => false, 'error' => 'La tabla origen es requerida']);
+        exit;
+    }
+    
+    if (!$data['campo_clave'] || trim($data['campo_clave']) === '') {
+        echo json_encode(['success' => false, 'error' => 'El campo clave es requerido']);
+        exit;
+    }
+    
+    if (!$data['sql_consulta'] || trim($data['sql_consulta']) === '') {
+        echo json_encode(['success' => false, 'error' => 'La sentencia SQL es requerida']);
+        exit;
+    }
+    
+    if (strpos($data['sql_consulta'], '?') === false) {
+        echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
+        exit;
+    }
+    
     try {
         $stmt = $pdo->prepare("
             UPDATE plantillas 
@@ -331,9 +371,9 @@ else if ($action === 'editar') {
             ':desc' => $data['descripcion'] ?? '',
             ':tipo' => $data['tipo_documento'] ?? '',
             ':contenido' => $data['contenido'],
-            ':tabla' => $data['tabla_origen'] ?? '',
-            ':campo' => $data['campo_clave'] ?? '',
-            ':sql' => $data['sql_consulta'] ?? '',
+            ':tabla' => $data['tabla_origen'],
+            ':campo' => $data['campo_clave'],
+            ':sql' => $data['sql_consulta'],
             ':estado' => $data['estado'] ?? 1
         ]);
         

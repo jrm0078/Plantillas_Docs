@@ -91,6 +91,24 @@ Crear Plantilla
 </div>
 </div>
 
+<div class="row mb-3">
+<div class="col-md-4">
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Tabla Origen <span style="color: red; font-weight: bold;">*</span></label>
+<input type="text" id="tabla_origen" class="form-control" placeholder="Ej: clientes" required>
+<small class="form-text text-muted">Tabla de la base de datos origen</small>
+</div>
+<div class="col-md-4">
+<label class="form-label fw-bold" style="font-size: 1.05rem;">Campo Clave <span style="color: red; font-weight: bold;">*</span></label>
+<input type="text" id="campo_clave" class="form-control" placeholder="Ej: id" required>
+<small class="form-text text-muted">Campo identificador único</small>
+</div>
+<div class="col-md-4">
+<label class="form-label fw-bold" style="font-size: 1.05rem;">SQL Consulta <span style="color: red; font-weight: bold;">*</span></label>
+<input type="text" id="sql_consulta" class="form-control" placeholder="Ej: SELECT * FROM clientes WHERE id = ?" required>
+<small class="form-text text-muted">Usar ? como parámetro</small>
+</div>
+</div>
+
 <div class="mb-3">
 <label class="form-label fw-bold" style="font-size: 1.05rem;">
 <input type="checkbox" id="estado" checked> Plantilla Activa

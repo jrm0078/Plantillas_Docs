@@ -115,6 +115,9 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('nombre').value = data.data.nombre;
                 document.getElementById('descripcion').value = data.data.descripcion || '';
                 document.getElementById('tipo_documento').value = data.data.tipo_documento || '';
+                document.getElementById('tabla_origen').value = data.data.tabla_origen || 'clientes';
+                document.getElementById('campo_clave').value = data.data.campo_clave || 'id';
+                document.getElementById('sql_consulta').value = data.data.sql_consulta || 'SELECT * FROM clientes WHERE id = ?';
                 document.getElementById('contenido').value = decodificarHTML(data.data.contenido || '');
                 document.getElementById('estado').checked = data.data.estado == 1;
                 
@@ -139,6 +142,9 @@ function guardarPlantilla() {
     const cod = document.getElementById('cod_plantilla').value.trim();
     const nombre = document.getElementById('nombre').value.trim();
     const contenido = document.getElementById('contenido').value.trim();
+    const tabla_origen = document.getElementById('tabla_origen').value.trim();
+    const campo_clave = document.getElementById('campo_clave').value.trim();
+    const sql_consulta = document.getElementById('sql_consulta').value.trim();
     
     // Validaciones
     if (!cod) {
@@ -159,6 +165,24 @@ function guardarPlantilla() {
         return;
     }
     
+    if (!tabla_origen) {
+        mostrarAlerta('La tabla origen es obligatoria', 'warning');
+        document.getElementById('tabla_origen').focus();
+        return;
+    }
+    
+    if (!campo_clave) {
+        mostrarAlerta('El campo clave es obligatorio', 'warning');
+        document.getElementById('campo_clave').focus();
+        return;
+    }
+    
+    if (!sql_consulta) {
+        mostrarAlerta('La sentencia SQL es obligatoria', 'warning');
+        document.getElementById('sql_consulta').focus();
+        return;
+    }
+    
     // Validar que el código no contenga espacios
     if (cod.includes(' ')) {
         mostrarAlerta('El código de plantilla no puede contener espacios', 'warning');
@@ -173,14 +197,21 @@ function guardarPlantilla() {
         return;
     }
     
+    // Validar que sql_consulta contenga ?
+    if (!sql_consulta.includes('?')) {
+        mostrarAlerta('La sentencia SQL debe contener ? como parámetro', 'warning');
+        document.getElementById('sql_consulta').focus();
+        return;
+    }
+    
     const datos = {
         cod_plantilla: cod,
         nombre: nombre,
         descripcion: document.getElementById('descripcion').value,
         tipo_documento: document.getElementById('tipo_documento').value,
-        tabla_origen: 'clientes',
-        campo_clave: 'id',
-        sql_consulta: 'SELECT * FROM clientes WHERE id = ?',
+        tabla_origen: tabla_origen,
+        campo_clave: campo_clave,
+        sql_consulta: sql_consulta,
         contenido: contenido,
         estado: document.getElementById('estado').checked ? 1 : 0
     };
@@ -241,6 +272,9 @@ function limpiarFormulario() {
     document.getElementById('nombre').value = '';
     document.getElementById('descripcion').value = '';
     document.getElementById('tipo_documento').value = '';
+    document.getElementById('tabla_origen').value = 'clientes';
+    document.getElementById('campo_clave').value = 'id';
+    document.getElementById('sql_consulta').value = 'SELECT * FROM clientes WHERE id = ?';
     document.getElementById('contenido').value = '';
     document.getElementById('estado').checked = true;
     

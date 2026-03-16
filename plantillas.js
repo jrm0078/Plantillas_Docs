@@ -470,6 +470,12 @@ function guardarDocumento() {
     }
 
     const contenidoFinal = tinymce.activeEditor.getContent();
+    
+    // Validar que el contenido no esté vacío
+    if (!contenidoFinal || contenidoFinal.trim() === '' || contenidoFinal === '<p></p>') {
+        mostrarAlerta('El documento está vacío. Por favor genera un documento con datos válidos', 'warning');
+        return;
+    }
 
     const datos = {
         cod_plantilla: plantillaActual.cod_plantilla,

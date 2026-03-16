@@ -118,6 +118,17 @@ else if ($action === 'reemplazar') {
 else if ($action === 'guardar_documento') {
     $data = json_decode(file_get_contents('php://input'), true);
     
+    // Validaciones
+    if (!$data['cod_plantilla'] || trim($data['cod_plantilla']) === '') {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    if (!$data['contenido_final'] || trim($data['contenido_final']) === '' || $data['contenido_final'] === '<p></p>') {
+        echo json_encode(['success' => false, 'error' => 'El contenido del documento no puede estar vacío']);
+        exit;
+    }
+    
     try {
         $stmt = $pdo->prepare("
             INSERT INTO documentos_generados 
@@ -130,9 +141,9 @@ else if ($action === 'guardar_documento') {
         ");
         
         $stmt->execute([
-            ':cod' => $data['cod_plantilla'] ?? null,
+            ':cod' => $data['cod_plantilla'],
             ':cliente' => $data['id_cliente'] ?? null,
-            ':contenido' => $data['contenido_final'] ?? '',
+            ':contenido' => $data['contenido_final'],
             ':datos' => json_encode($data['datos'] ?? [])
         ]);
         
@@ -229,8 +240,29 @@ else if ($action === 'obtener_datos') {
 else if ($action === 'crear') {
     $data = json_decode(file_get_contents('php://input'), true);
     
-    if (!$data['cod_plantilla'] || !$data['nombre']) {
-        echo json_encode(['success' => false, 'error' => 'Código y nombre de plantilla requeridos']);
+    // Validaciones
+    if (!$data['cod_plantilla'] || trim($data['cod_plantilla']) === '') {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    if (!$data['nombre'] || trim($data['nombre']) === '') {
+        echo json_encode(['success' => false, 'error' => 'Nombre de plantilla requerido']);
+        exit;
+    }
+    
+    if (strlen($data['nombre']) < 3) {
+        echo json_encode(['success' => false, 'error' => 'El nombre debe tener mínimo 3 caracteres']);
+        exit;
+    }
+    
+    if (!$data['contenido'] || trim($data['contenido']) === '') {
+        echo json_encode(['success' => false, 'error' => 'El contenido HTML de la plantilla es requerido']);
+        exit;
+    }
+    
+    if (strpos($data['cod_plantilla'], ' ') !== false) {
+        echo json_encode(['success' => false, 'error' => 'El código de plantilla no puede contener espacios']);
         exit;
     }
     
@@ -245,7 +277,7 @@ else if ($action === 'crear') {
             ':nombre' => $data['nombre'],
             ':desc' => $data['descripcion'] ?? '',
             ':tipo' => $data['tipo_documento'] ?? '',
-            ':contenido' => $data['contenido'] ?? '',
+            ':contenido' => $data['contenido'],
             ':tabla' => $data['tabla_origen'] ?? '',
             ':campo' => $data['campo_clave'] ?? '',
             ':sql' => $data['sql_consulta'] ?? '',
@@ -263,8 +295,24 @@ else if ($action === 'editar') {
     $data = json_decode(file_get_contents('php://input'), true);
     $cod = $_GET['cod'] ?? '';
     
-    if (!$cod) {
+    // Validaciones
+    if (!$cod || trim($cod) === '') {
         echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    if (!$data['nombre'] || trim($data['nombre']) === '') {
+        echo json_encode(['success' => false, 'error' => 'Nombre de plantilla requerido']);
+        exit;
+    }
+    
+    if (strlen($data['nombre']) < 3) {
+        echo json_encode(['success' => false, 'error' => 'El nombre debe tener mínimo 3 caracteres']);
+        exit;
+    }
+    
+    if (!$data['contenido'] || trim($data['contenido']) === '') {
+        echo json_encode(['success' => false, 'error' => 'El contenido HTML de la plantilla es requerido']);
         exit;
     }
     
@@ -279,10 +327,10 @@ else if ($action === 'editar') {
         
         $stmt->execute([
             ':cod' => $cod,
-            ':nombre' => $data['nombre'] ?? '',
+            ':nombre' => $data['nombre'],
             ':desc' => $data['descripcion'] ?? '',
             ':tipo' => $data['tipo_documento'] ?? '',
-            ':contenido' => $data['contenido'] ?? '',
+            ':contenido' => $data['contenido'],
             ':tabla' => $data['tabla_origen'] ?? '',
             ':campo' => $data['campo_clave'] ?? '',
             ':sql' => $data['sql_consulta'] ?? '',

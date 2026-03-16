@@ -375,71 +375,50 @@ function descargarPDF() {
     const contenidoEditor = tinymce.activeEditor.getContent();
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
 
-    // Debug: ver qué contenido se extrae
-    console.log('Contenido extraído:', contenidoEditor);
-    console.log('Longitud:', contenidoEditor.length);
-
     // Crear contenedor
     const container = document.createElement("div");
     container.id = "pdf-container-temp";
     container.innerHTML = contenidoEditor;
 
     // Estilos de presentación
-    container.style.padding = "20mm";
+    container.style.padding = "15mm";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.5";
     container.style.color = "#000000";
     container.style.backgroundColor = "#ffffff";
 
-    // Agregar al DOM para que html2pdf pueda leerlo
+    // Agregar al DOM
     document.body.appendChild(container);
 
-    console.log('Contenedor agregado al DOM');
-
-    // Configuración de html2pdf
-    const options = {
-        margin: [15, 15, 15, 15],  // márgenes en mm
-        filename: nombreArchivo + ".pdf",
-        image: { 
-            type: "jpeg", 
-            quality: 0.98 
-        },
-        html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            logging: true,
-            allowTaint: true
-        },
-        jsPDF: {
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4",
-            compress: false
-        }
+    // Usar html2canvas y jsPDF directamente para más control
+    const element = container;
+    const opt = {
+        margin: 15,
+        filename: nombreArchivo + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
     };
 
-    // Generar PDF
-    html2pdf()
-        .set(options)
-        .from(container)
-        .save()
-        .finally(() => {
-            // Eliminar contenedor después de todo
+    // Generar el PDF usando html2pdf de forma sincrónica
+    try {
+        html2pdf(element, opt);
+        mostrarAlerta('PDF descargado correctamente', 'success');
+        
+        // Limpiar
+        setTimeout(() => {
             if (document.body.contains(container)) {
                 document.body.removeChild(container);
             }
-            console.log('Contenedor eliminado');
-            mostrarAlerta('PDF descargado correctamente', 'success');
-        })
-        .catch((error) => {
-            console.error('Error al generar PDF:', error);
-            if (document.body.contains(container)) {
-                document.body.removeChild(container);
-            }
-            mostrarAlerta('Error al descargar PDF: ' + error.message, 'danger');
-        });
+        }, 1000);
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        if (document.body.contains(container)) {
+            document.body.removeChild(container);
+        }
+        mostrarAlerta('Error al descargar PDF', 'danger');
+    }
 }
 
 

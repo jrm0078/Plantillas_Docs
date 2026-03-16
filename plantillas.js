@@ -372,42 +372,58 @@ function descargarPDF() {
         return;
     }
 
+    const contenidoEditor = tinymce.activeEditor.getContent();
+    
+    // Validar que el documento no esté vacío
+    if (!contenidoEditor || contenidoEditor.trim() === '') {
+        mostrarAlerta('El documento está vacío. Por favor, agrega contenido.', 'warning');
+        return;
+    }
+
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
-    const contenido = tinymce.activeEditor.getContent();
 
+    // Crear contenedor con estilos de presentación SOLO (sin dimensiones de página)
     const container = document.createElement("div");
+    container.innerHTML = contenidoEditor;
 
-    container.innerHTML = contenido;
-
-    container.style.background = "#ffffff";
-    container.style.padding = "20mm";
-    container.style.width = "210mm"; 
-    container.style.height = "297mm";
-    container.style.margin = "0 auto";
+    // Aplicar solo estilos de presentación, NO dimensiones de página
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
-    container.style.lineHeight = "1.6";
-    container.style.boxSizing = "border-box";
-    container.style.pageBreakAfter = "always";
+    container.style.lineHeight = "1.5";
+    container.style.color = "#000000";
+    container.style.backgroundColor = "#ffffff";
 
+    // Agregar al DOM temporalmente (html2pdf lo necesita)
     document.body.appendChild(container);
 
+    // Configuración de html2pdf con márgenes correctos
     const options = {
-        margin: 10,
+        margin: [20, 20, 20, 20],  // top, left, bottom, right en mm (márgenes físicos A4)
         filename: nombreArchivo + ".pdf",
-        image: { type: "jpeg", quality: 0.98 },
+        image: { 
+            type: "jpeg", 
+            quality: 0.98 
+        },
         html2canvas: {
             scale: 2,
             useCORS: true,
-            backgroundColor: "#ffffff"
+            backgroundColor: "#ffffff",
+            logging: false,
+            windowHeight: document.documentElement.scrollHeight + 500  // Altura suficiente para todo
         },
         jsPDF: {
             orientation: "portrait",
             unit: "mm",
-            format: "a4"
+            format: "a4",
+            compress: true
+        },
+        pagebreak: { 
+            mode: ["css", "legacy"],  // Respeta page-break-after del CSS
+            before: ".page-break"
         }
     };
 
+    // Generar y descargar PDF
     html2pdf()
         .set(options)
         .from(container)
@@ -417,9 +433,11 @@ function descargarPDF() {
             mostrarAlerta('PDF descargado correctamente', 'success');
         })
         .catch((error) => {
-            console.error(error);
-            document.body.removeChild(container);
-            mostrarAlerta('Error al descargar PDF', 'danger');
+            console.error('Error al generar PDF:', error);
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
+            mostrarAlerta('Error al descargar PDF: ' + error.message, 'danger');
         });
 }
 

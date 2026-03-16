@@ -311,6 +311,11 @@ function generarDocumento() {
         return;
     }
 
+    if (!document.getElementById('selectCliente').value) {
+        mostrarAlerta('Selecciona un cliente primero', 'warning');
+        return;
+    }
+
     // Recopilar datos del formulario
     datosFormulario = {};
     plantillaActual.variables.forEach(variable => {
@@ -350,6 +355,16 @@ function generarDocumento() {
 // DESCARGAR PDF
 
 function descargarPDF() {
+
+    if (!plantillaActual) {
+        mostrarAlerta('Selecciona una plantilla primero', 'warning');
+        return;
+    }
+
+    if (!document.getElementById('selectCliente').value) {
+        mostrarAlerta('Selecciona un cliente primero', 'warning');
+        return;
+    }
 
     if (!tinymce.activeEditor) {
         mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
@@ -410,6 +425,16 @@ function descargarPDF() {
 // IMPRIMIR DOCUMENTO
 
 function imprimirDocumento() {
+    if (!plantillaActual) {
+        mostrarAlerta('Selecciona una plantilla primero', 'warning');
+        return;
+    }
+
+    if (!document.getElementById('selectCliente').value) {
+        mostrarAlerta('Selecciona un cliente primero', 'warning');
+        return;
+    }
+
     if (!tinymce.activeEditor) {
         mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
         return;
@@ -429,13 +454,18 @@ function imprimirDocumento() {
 // GUARDAR DOCUMENTO
 
 function guardarDocumento() {
-    if (!tinymce.activeEditor) {
-        mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
+    if (!plantillaActual) {
+        mostrarAlerta('Selecciona una plantilla primero', 'warning');
         return;
     }
 
-    if (!plantillaActual) {
-        mostrarAlerta('Selecciona una plantilla primero', 'warning');
+    if (!document.getElementById('selectCliente').value) {
+        mostrarAlerta('Selecciona un cliente primero', 'warning');
+        return;
+    }
+
+    if (!tinymce.activeEditor) {
+        mostrarAlerta('Por favor espera a que se cargue el editor', 'warning');
         return;
     }
 

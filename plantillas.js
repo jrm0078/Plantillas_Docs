@@ -373,32 +373,33 @@ function descargarPDF() {
     }
 
     const contenidoEditor = tinymce.activeEditor.getContent();
-    
-    // Validar que el documento no esté vacío
-    if (!contenidoEditor || contenidoEditor.trim() === '') {
-        mostrarAlerta('El documento está vacío. Por favor, agrega contenido.', 'warning');
-        return;
-    }
-
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
 
-    // Crear contenedor con estilos de presentación SOLO (sin dimensiones de página)
+    // Debug: ver qué contenido se extrae
+    console.log('Contenido extraído:', contenidoEditor);
+    console.log('Longitud:', contenidoEditor.length);
+
+    // Crear contenedor
     const container = document.createElement("div");
+    container.id = "pdf-container-temp";
     container.innerHTML = contenidoEditor;
 
-    // Aplicar solo estilos de presentación, NO dimensiones de página
+    // Estilos de presentación
+    container.style.padding = "20mm";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.5";
     container.style.color = "#000000";
     container.style.backgroundColor = "#ffffff";
 
-    // Agregar al DOM temporalmente (html2pdf lo necesita)
+    // Agregar al DOM para que html2pdf pueda leerlo
     document.body.appendChild(container);
 
-    // Configuración de html2pdf con márgenes correctos
+    console.log('Contenedor agregado al DOM');
+
+    // Configuración de html2pdf
     const options = {
-        margin: [20, 20, 20, 20],  // top, left, bottom, right en mm (márgenes físicos A4)
+        margin: [15, 15, 15, 15],  // márgenes en mm
         filename: nombreArchivo + ".pdf",
         image: { 
             type: "jpeg", 
@@ -408,28 +409,28 @@ function descargarPDF() {
             scale: 2,
             useCORS: true,
             backgroundColor: "#ffffff",
-            logging: false,
-            windowHeight: document.documentElement.scrollHeight + 500  // Altura suficiente para todo
+            logging: true,
+            allowTaint: true
         },
         jsPDF: {
             orientation: "portrait",
             unit: "mm",
             format: "a4",
-            compress: true
-        },
-        pagebreak: { 
-            mode: ["css", "legacy"],  // Respeta page-break-after del CSS
-            before: ".page-break"
+            compress: false
         }
     };
 
-    // Generar y descargar PDF
+    // Generar PDF
     html2pdf()
         .set(options)
         .from(container)
         .save()
-        .then(() => {
-            document.body.removeChild(container);
+        .finally(() => {
+            // Eliminar contenedor después de todo
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
+            console.log('Contenedor eliminado');
             mostrarAlerta('PDF descargado correctamente', 'success');
         })
         .catch((error) => {

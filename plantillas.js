@@ -363,20 +363,28 @@ function descargarPDF() {
 
     container.innerHTML = contenido;
 
+    // Eliminar todos los márgenes y estilos que generan espacio en blanco
+    const allElements = container.querySelectorAll('*');
+    allElements.forEach(el => {
+        el.style.marginTop = '0';
+        el.style.marginBottom = '0';
+        el.style.paddingTop = '0';
+        el.style.paddingBottom = '0';
+    });
+
     container.style.background = "#ffffff";
-    container.style.padding = "10px";
+    container.style.padding = "5mm";
     container.style.width = "190mm"; 
-    container.style.margin = "0 auto";
+    container.style.margin = "0";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
-    container.style.lineHeight = "1.6";
+    container.style.lineHeight = "1.4";
     container.style.boxSizing = "border-box";
-    container.style.minHeight = "297mm";
 
     document.body.appendChild(container);
 
     const options = {
-        margin: 8,
+        margin: 5,
         filename: nombreArchivo + ".pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {

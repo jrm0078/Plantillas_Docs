@@ -30,6 +30,8 @@ function inicializarEditor() {
         selector: '#documento-editor',
         height: 600,
         readonly: false,
+        language: 'es',
+        language_url: 'https://cdn.jsdelivr.net/npm/tinymce@6/langs/es.js',
         menubar: 'file edit view insert format tools',
         plugins: 'advlist autolink lists link image charmap anchor searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking table',
         toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | fullscreen | table',
@@ -379,14 +381,15 @@ function descargarPDF() {
     container.innerHTML = contenido;
 
     container.style.background = "#ffffff";
-    container.style.padding = "20px";
-    container.style.width = "190mm"; 
+    container.style.padding = "20mm";
+    container.style.width = "210mm"; 
+    container.style.height = "297mm";
     container.style.margin = "0 auto";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.6";
     container.style.boxSizing = "border-box";
-    container.style.minHeight = "297mm";
+    container.style.pageBreakAfter = "always";
 
     document.body.appendChild(container);
 

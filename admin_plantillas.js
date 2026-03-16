@@ -15,6 +15,8 @@ function inicializarTinyMCEPreview() {
         selector: '#previsualizacion',
         height: 550,
         readonly: false,
+        language: 'es',
+        language_url: 'https://cdn.jsdelivr.net/npm/tinymce@6/langs/es.js',
         menubar: 'file edit view insert format tools',
         plugins: 'advlist autolink lists link image charmap anchor searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking table',
         toolbar: 'undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | fullscreen | table',

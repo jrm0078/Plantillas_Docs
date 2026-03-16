@@ -207,8 +207,8 @@ function aplicarFiltro() {
                     tinymce.activeEditor.setContent(contenido);
                 }
                 
-                // Mostrar el editor
-                document.getElementById('filtroSection').style.display = 'none';
+                // Mostrar el editor y mantener visible el selector de cliente
+                document.getElementById('filtroSection').style.display = 'block';
                 document.getElementById('formularioSection').style.display = 'none';
                 document.getElementById('editorSection').style.display = 'block';
                 

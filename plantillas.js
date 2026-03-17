@@ -384,6 +384,8 @@ function descargarPDF() {
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.5";
     container.style.color = "#333333";
+    container.style.width = "800px";
+    container.style.margin = "0";
     container.innerHTML = contenidoEditor;
 
     // Agregar al DOM temporalmente
@@ -391,7 +393,7 @@ function descargarPDF() {
 
     // Usar html2canvas para convertir el contenedor a imagen
     html2canvas(container, {
-        scale: 2,
+        scale: 3,
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,

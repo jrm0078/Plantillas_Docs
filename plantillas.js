@@ -375,9 +375,10 @@ function descargarPDF() {
     const nombreArchivo = (plantillaActual ? plantillaActual.nombre : 'documento').replace(/\s+/g, '_');
     const contenidoEditor = tinymce.activeEditor.getContent();
 
-    // Crear contenedor temporal con el contenido
+    // Crear contenedor con el contenido
     const container = document.createElement("div");
-    container.style.padding = "15mm";
+    container.id = "pdf-export-container";
+    container.style.padding = "20px";
     container.style.backgroundColor = "#ffffff";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
@@ -385,46 +386,66 @@ function descargarPDF() {
     container.style.color = "#333333";
     container.innerHTML = contenidoEditor;
 
-    // Agregar al DOM para que html2pdf pueda acceder
+    // Agregar al DOM temporalmente
     document.body.appendChild(container);
 
-    // Usar html2pdf que ya incluye todo lo necesario
-    const options = {
-        margin: 15,
-        filename: nombreArchivo + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#ffffff'
-        },
-        jsPDF: { 
-            orientation: 'portrait', 
-            unit: 'mm', 
-            format: 'a4' 
-        }
-    };
-
-    // Generar PDF
-    html2pdf()
-        .set(options)
-        .from(container)
-        .save()
-        .finally(() => {
-            // Limpiar
-            if (document.body.contains(container)) {
-                document.body.removeChild(container);
-            }
-            mostrarAlerta('PDF descargado correctamente', 'success');
-        })
-        .catch((error) => {
-            console.error('Error en PDF:', error);
-            if (document.body.contains(container)) {
-                document.body.removeChild(container);
-            }
-            mostrarAlerta('Error al generar PDF', 'danger');
+    // Usar html2canvas para convertir el contenedor a imagen
+    html2canvas(container, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+    }).then((canvas) => {
+        // Crear PDF con jsPDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
         });
+
+        // Obtener dimensiones del PDF
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        
+        // Calcular dimensiones de la imagen con márgenes
+        const margin = 15; // 15mm de margen
+        const imgWidth = pageWidth - (margin * 2);
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        // Convertir canvas a imagen
+        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+        // Agregar primera página
+        let yPosition = margin;
+        pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, imgHeight);
+
+        // Si hay contenido que no cabe, agregar páginas adicionales
+        let heightLeft = imgHeight - (pageHeight - (margin * 2));
+        yPosition = yPosition + imgHeight;
+
+        while (heightLeft > 0) {
+            pdf.addPage();
+            yPosition = margin;
+            pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, imgHeight);
+            heightLeft -= (pageHeight - (margin * 2));
+        }
+
+        // Descargar el PDF
+        pdf.save(nombreArchivo + '.pdf');
+        mostrarAlerta('PDF descargado correctamente', 'success');
+
+        // Limpiar
+        document.body.removeChild(container);
+
+    }).catch((error) => {
+        console.error('Error al generar PDF:', error);
+        if (document.body.contains(container)) {
+            document.body.removeChild(container);
+        }
+        mostrarAlerta('Error al descargar PDF: ' + error.message, 'danger');
+    });
 }
 
 

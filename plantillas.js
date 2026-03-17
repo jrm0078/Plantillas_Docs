@@ -372,7 +372,7 @@ function descargarPDF() {
         return;
     }
 
-    const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
+    const nombreArchivo = (plantillaActual ? plantillaActual.nombre : 'documento').replace(/\s+/g, '_');
     const contenidoEditor = tinymce.activeEditor.getContent();
 
     // Decodificar entidades HTML
@@ -380,82 +380,86 @@ function descargarPDF() {
     textarea.innerHTML = contenidoEditor;
     const contenidoDecodificado = textarea.value;
 
-    // Crear contenedor visible
-    const container = document.createElement("div");
-    container.id = "pdf-container-html2pdf";
-    
-    // Usar textContent para asegurar que se renderice correctamente
-    container.innerHTML = contenidoDecodificado;
+    // Crear HTML completo para el documento
+    const htmlCompleto = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { 
+                    font-family: Arial, sans-serif; 
+                    font-size: 12px; 
+                    line-height: 1.5; 
+                    color: #333333;
+                    background: #ffffff;
+                    padding: 15mm;
+                }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                td, th { border: 1px solid #ddd; padding: 10px; }
+                h1 { font-size: 24px; margin: 20px 0; }
+                h2 { font-size: 18px; margin: 15px 0; }
+                p { margin: 10px 0; }
+                hr { margin: 20px 0; border: none; border-top: 1px solid #ddd; }
+                img { max-width: 100%; height: auto; }
+            </style>
+        </head>
+        <body>
+            ${contenidoDecodificado}
+        </body>
+        </html>
+    `;
 
-    // Estilos críticos
-    container.style.display = "block";
-    container.style.width = "210mm";
-    container.style.backgroundColor = "#ffffff";
-    container.style.padding = "15mm";
-    container.style.margin = "0";
-    container.style.fontFamily = "Arial, sans-serif";
-    container.style.fontSize = "12px";
-    container.style.lineHeight = "1.5";
-    container.style.color = "#333333";
-    container.style.visibility = "visible";
-    container.style.textAlign = "left";
-    container.style.boxSizing = "border-box";
+    // Usar html2canvas directamente para mejor control
+    html2canvas(document.body, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        async: true,
+        letterRendering: true,
+        removeContainer: true
+    }).then(canvas => {
+        // Convertir canvas a imagen
+        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        
+        // Crear PDF
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
 
-    // Agregar al DOM de forma visible
-    document.body.appendChild(container);
+        // Calcular dimensiones
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pdfWidth - 30; // 15mm margen izq + 15mm margen der
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    // Pequeña espera para que el navegador lo renderice
-    setTimeout(() => {
-        try {
-            // Usar html2pdf con la configuración más simple y directa
-            const elemento = document.getElementById('pdf-container-html2pdf');
-            
-            if (!elemento) {
-                throw new Error('Contenedor no encontrado en el DOM');
-            }
+        // Agregar imagen al PDF
+        pdf.addImage(imgData, 'JPEG', 15, 15, imgWidth, imgHeight);
 
-            html2pdf()
-                .set({
-                    margin: 0,                    // Sin margen adicional (ya tiene padding)
-                    filename: nombreArchivo + '.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2,
-                        useCORS: true,
-                        backgroundColor: '#ffffff',
-                        logging: false,
-                        allowTaint: true,
-                        ignoreElements: function(element) {
-                            return element.id === 'pdf-container-html2pdf' ? false : true;
-                        }
-                    },
-                    jsPDF: { 
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
-                    }
-                })
-                .from(elemento)
-                .save()
-                .then(() => {
-                    console.log('PDF generado exitosamente');
-                    document.body.removeChild(container);
-                    mostrarAlerta('PDF descargado correctamente', 'success');
-                })
-                .catch((error) => {
-                    console.error('Error en html2pdf:', error);
-                    document.body.removeChild(container);
-                    mostrarAlerta('Error al generar PDF: ' + error.message, 'danger');
-                });
+        // Verificar si se necesitan páginas adicionales
+        let heightLeft = imgHeight - (pdfHeight - 30);
+        let position = pdfHeight - 15;
 
-        } catch (error) {
-            console.error('Error capturado:', error);
-            if (document.body.contains(container)) {
-                document.body.removeChild(container);
-            }
-            mostrarAlerta('Error: ' + error.message, 'danger');
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 15, position, imgWidth, imgHeight);
+            heightLeft -= (pdfHeight - 30);
         }
-    }, 100);
+
+        // Descargar
+        pdf.save(nombreArchivo + '.pdf');
+        mostrarAlerta('PDF descargado correctamente', 'success');
+
+    }).catch(error => {
+        console.error('Error en html2canvas:', error);
+        mostrarAlerta('Error al generar PDF: ' + error.message, 'danger');
+    });
 }
 
 

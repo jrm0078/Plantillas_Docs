@@ -372,53 +372,90 @@ function descargarPDF() {
         return;
     }
 
-    const contenidoEditor = tinymce.activeEditor.getContent();
     const nombreArchivo = plantillaActual ? plantillaActual.nombre : 'documento';
+    const contenidoEditor = tinymce.activeEditor.getContent();
 
-    // Crear contenedor
+    // Decodificar entidades HTML
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = contenidoEditor;
+    const contenidoDecodificado = textarea.value;
+
+    // Crear contenedor visible
     const container = document.createElement("div");
-    container.id = "pdf-container-temp";
-    container.innerHTML = contenidoEditor;
+    container.id = "pdf-container-html2pdf";
+    
+    // Usar textContent para asegurar que se renderice correctamente
+    container.innerHTML = contenidoDecodificado;
 
-    // Estilos de presentación
+    // Estilos críticos
+    container.style.display = "block";
+    container.style.width = "210mm";
+    container.style.backgroundColor = "#ffffff";
     container.style.padding = "15mm";
+    container.style.margin = "0";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";
     container.style.lineHeight = "1.5";
-    container.style.color = "#000000";
-    container.style.backgroundColor = "#ffffff";
+    container.style.color = "#333333";
+    container.style.visibility = "visible";
+    container.style.textAlign = "left";
+    container.style.boxSizing = "border-box";
 
-    // Agregar al DOM
+    // Agregar al DOM de forma visible
     document.body.appendChild(container);
 
-    // Usar html2canvas y jsPDF directamente para más control
-    const element = container;
-    const opt = {
-        margin: 15,
-        filename: nombreArchivo + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-    };
+    // Pequeña espera para que el navegador lo renderice
+    setTimeout(() => {
+        try {
+            // Usar html2pdf con la configuración más simple y directa
+            const elemento = document.getElementById('pdf-container-html2pdf');
+            
+            if (!elemento) {
+                throw new Error('Contenedor no encontrado en el DOM');
+            }
 
-    // Generar el PDF usando html2pdf de forma sincrónica
-    try {
-        html2pdf(element, opt);
-        mostrarAlerta('PDF descargado correctamente', 'success');
-        
-        // Limpiar
-        setTimeout(() => {
+            html2pdf()
+                .set({
+                    margin: 0,                    // Sin margen adicional (ya tiene padding)
+                    filename: nombreArchivo + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        allowTaint: true,
+                        ignoreElements: function(element) {
+                            return element.id === 'pdf-container-html2pdf' ? false : true;
+                        }
+                    },
+                    jsPDF: { 
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    }
+                })
+                .from(elemento)
+                .save()
+                .then(() => {
+                    console.log('PDF generado exitosamente');
+                    document.body.removeChild(container);
+                    mostrarAlerta('PDF descargado correctamente', 'success');
+                })
+                .catch((error) => {
+                    console.error('Error en html2pdf:', error);
+                    document.body.removeChild(container);
+                    mostrarAlerta('Error al generar PDF: ' + error.message, 'danger');
+                });
+
+        } catch (error) {
+            console.error('Error capturado:', error);
             if (document.body.contains(container)) {
                 document.body.removeChild(container);
             }
-        }, 1000);
-    } catch (error) {
-        console.error('Error al generar PDF:', error);
-        if (document.body.contains(container)) {
-            document.body.removeChild(container);
+            mostrarAlerta('Error: ' + error.message, 'danger');
         }
-        mostrarAlerta('Error al descargar PDF', 'danger');
-    }
+    }, 100);
 }
 
 

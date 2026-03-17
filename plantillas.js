@@ -378,7 +378,7 @@ function descargarPDF() {
     // Crear contenedor con el contenido
     const container = document.createElement("div");
     container.id = "pdf-export-container";
-    container.style.padding = "20px";
+    container.style.padding = "15mm";
     container.style.backgroundColor = "#ffffff";
     container.style.fontFamily = "Arial, sans-serif";
     container.style.fontSize = "12px";

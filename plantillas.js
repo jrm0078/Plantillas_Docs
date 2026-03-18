@@ -280,32 +280,6 @@ function aplicarFiltro() {
                     }
                 }
                 
-                    contenido = contenido.replaceAll('-cantidad-', data.data.cantidad);
-                }
-                if (data.data.precio_unitario) {
-                    contenido = contenido.replaceAll('-precio_unitario-', data.data.precio_unitario);
-                }
-                if (data.data.valor_total) {
-                    contenido = contenido.replaceAll('-valor_total-', data.data.valor_total);
-                }
-                if (data.data.vigencia_dias) {
-                    contenido = contenido.replaceAll('-vigencia_dias-', data.data.vigencia_dias);
-                }
-                if (data.data.observaciones_oferta) {
-                    contenido = contenido.replaceAll('-observaciones_oferta-', data.data.observaciones_oferta);
-                }
-                
-                // Reemplazar campos agregados por JOINs (cliente_nombre, ano_nombre, departamento_nombre)
-                if (data.data.cliente_nombre) {
-                    contenido = contenido.replaceAll('-cliente_nombre-', data.data.cliente_nombre);
-                }
-                if (data.data.ano_nombre) {
-                    contenido = contenido.replaceAll('-ano_nombre-', data.data.ano_nombre);
-                }
-                if (data.data.departamento_nombre) {
-                    contenido = contenido.replaceAll('-departamento_nombre-', data.data.departamento_nombre);
-                }
-                
                 // Cargar en el editor
                 if (tinymce.activeEditor) {
                     tinymce.activeEditor.setContent(contenido);

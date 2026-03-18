@@ -460,10 +460,21 @@ else if ($action === 'obtener_filtros') {
                 $campo_clave = preg_replace('/[^a-zA-Z0-9_]/', '', $campo_clave);
                 $campo_valor = preg_replace('/[^a-zA-Z0-9_]/', '', $campo_valor);
                 
-                // Ejecutar query
+                // Intentar primero con WHERE activo = 1, si falla, sin WHERE
                 $sql = "SELECT {$campo_clave} as id, {$campo_valor} as valor FROM {$tabla} WHERE activo = 1 ORDER BY {$campo_valor}";
-                $stmt_valores = $pdo->query($sql);
-                $filtro['valores'] = $stmt_valores->fetchAll(PDO::FETCH_ASSOC);
+                try {
+                    $stmt_valores = $pdo->query($sql);
+                    $filtro['valores'] = $stmt_valores->fetchAll(PDO::FETCH_ASSOC);
+                } catch (Exception $e1) {
+                    // Si falla por columna 'activo' no existe, intentar sin WHERE
+                    if (strpos($e1->getMessage(), 'activo') !== false) {
+                        $sql = "SELECT {$campo_clave} as id, {$campo_valor} as valor FROM {$tabla} ORDER BY {$campo_valor}";
+                        $stmt_valores = $pdo->query($sql);
+                        $filtro['valores'] = $stmt_valores->fetchAll(PDO::FETCH_ASSOC);
+                    } else {
+                        throw $e1;
+                    }
+                }
             } catch (Exception $e) {
                 $filtro['valores'] = [];
                 $filtro['error'] = $e->getMessage();

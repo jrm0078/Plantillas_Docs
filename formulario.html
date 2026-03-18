@@ -60,16 +60,13 @@ Administrar
 </div>
 
 <div class="section-card" id="filtroSection" style="display:none;">
-<h5>2. Seleccionar Cliente</h5>
-<div class="row">
-<div class="col-md-8">
-<label class="form-label fw-bold">Cliente</label>
-<select id="selectCliente" class="form-select form-select-lg">
-<option value="">-- Seleccionar cliente --</option>
-</select>
+<h5>2. Seleccionar Filtros</h5>
+<div class="row" id="filtrosContainer">
+<!-- Los filtros se cargan dinámicamente aquí -->
 </div>
-<div class="col-md-4">
-<button class="btn btn-primary mt-4" onclick="aplicarFiltro()">
+<div class="row">
+<div class="col-12">
+<button class="btn btn-primary mt-3" onclick="aplicarFiltro()">
 Cargar Documento
 </button>
 </div>

@@ -427,6 +427,114 @@ else if ($action === 'obtener_completa') {
     }
 }
 
+// NUEVO: Obtener filtros configurados para una plantilla con sus valores posibles
+else if ($action === 'obtener_filtros') {
+    $cod_plantilla = $_GET['cod'] ?? '';
+    
+    if (!$cod_plantilla) {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    try {
+        // Obtener filtros configurados para esta plantilla
+        $stmt = $pdo->prepare("
+            SELECT id, nombre_filtro, etiqueta, tabla_datos, campo_clave, campo_valor, orden, requerido
+            FROM plantillas_filtros
+            WHERE cod_plantilla = :cod AND activo = 1
+            ORDER BY orden
+        ");
+        $stmt->execute([':cod' => $cod_plantilla]);
+        $filtros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Para cada filtro, cargar los valores posibles de su tabla
+        foreach ($filtros as &$filtro) {
+            try {
+                // Construir SQL dinámico para obtener valores
+                $tabla = $filtro['tabla_datos'];
+                $campo_clave = $filtro['campo_clave'];
+                $campo_valor = $filtro['campo_valor'];
+                
+                // Sanitizar nombres de tabla y campos
+                $tabla = preg_replace('/[^a-zA-Z0-9_]/', '', $tabla);
+                $campo_clave = preg_replace('/[^a-zA-Z0-9_]/', '', $campo_clave);
+                $campo_valor = preg_replace('/[^a-zA-Z0-9_]/', '', $campo_valor);
+                
+                // Ejecutar query
+                $sql = "SELECT {$campo_clave} as id, {$campo_valor} as valor FROM {$tabla} WHERE activo = 1 ORDER BY {$campo_valor}";
+                $stmt_valores = $pdo->query($sql);
+                $filtro['valores'] = $stmt_valores->fetchAll(PDO::FETCH_ASSOC);
+            } catch (Exception $e) {
+                $filtro['valores'] = [];
+                $filtro['error'] = $e->getMessage();
+            }
+        }
+        
+        echo json_encode(['success' => true, 'data' => $filtros]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+// NUEVO: Obtener datos con múltiples filtros (modificación mejorada)
+else if ($action === 'obtener_datos_filtrados') {
+    $cod_plantilla = $_GET['cod'] ?? '';
+    $filtros_json = $_GET['filtros'] ?? '{}';
+    
+    if (!$cod_plantilla) {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla requerido']);
+        exit;
+    }
+    
+    try {
+        $filtros = json_decode($filtros_json, true);
+        if (!$filtros || empty($filtros)) {
+            echo json_encode(['success' => false, 'error' => 'Filtros requeridos']);
+            exit;
+        }
+        
+        // Obtener configuración de la plantilla
+        $stmt = $pdo->prepare("
+            SELECT sql_consulta, campo_clave, tabla_origen 
+            FROM plantillas 
+            WHERE cod_plantilla = :cod
+        ");
+        $stmt->execute([':cod' => $cod_plantilla]);
+        $plantilla = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$plantilla) {
+            echo json_encode(['success' => false, 'error' => 'Plantilla no encontrada']);
+            exit;
+        }
+        
+        // Contar placeholders en la SQL
+        $sql_consulta = $plantilla['sql_consulta'];
+        $placeholder_count = substr_count($sql_consulta, '?');
+        
+        // Preparar valores en orden de los ?
+        $valores_array = array_values($filtros); // Los valores deben estar en orden
+        
+        if (count($valores_array) !== $placeholder_count) {
+            echo json_encode(['success' => false, 'error' => "Se esperaban {$placeholder_count} parámetros, se recibieron " . count($valores_array)]);
+            exit;
+        }
+        
+        // Ejecutar la query con múltiples parámetros
+        $stmt = $pdo->prepare($sql_consulta);
+        $stmt->execute($valores_array);
+        $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$datos) {
+            echo json_encode(['success' => false, 'error' => 'No se encontraron datos']);
+            exit;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $datos]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
 else {
     echo json_encode(['success' => false, 'error' => 'Acción no válida']);
 }

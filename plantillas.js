@@ -94,10 +94,10 @@ function cargarPlantilla() {
             if (data.success) {
                 plantillaActual = data.data;
                 
-                // Cargar clientes disponibles
-                cargarClientes();
+                // Cargar filtros disponibles
+                cargarFiltros(cod);
                 
-                // Mostrar solo el selector de cliente
+                // Mostrar solo el selector de filtros
                 document.getElementById('filtroSection').style.display = 'block';
                 document.getElementById('formularioSection').style.display = 'none';
                 document.getElementById('editorSection').style.display = 'none';
@@ -149,21 +149,94 @@ function cargarClientes() {
         });
 }
 
+// NUEVO: CARGAR FILTROS DINÁMICAMENTE
+function cargarFiltros(cod_plantilla) {
+    fetch(API_PLANTILLAS + '?action=obtener_filtros&cod=' + cod_plantilla)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const container = document.getElementById('filtrosContainer');
+                container.innerHTML = ''; // Limpiar filtros anteriores
+                
+                // Crear select para cada filtro
+                data.data.forEach(filtro => {
+                    const div = document.createElement('div');
+                    div.className = 'col-md-6 mb-3';
+                    
+                    const label = document.createElement('label');
+                    label.className = 'form-label fw-bold';
+                    label.textContent = filtro.etiqueta + (filtro.requerido ? ' *' : '');
+                    
+                    const select = document.createElement('select');
+                    select.id = 'filtro_' + filtro.nombre_filtro;
+                    select.className = 'form-select filtro-select';
+                    select.setAttribute('data-filtro', filtro.nombre_filtro);
+                    
+                    const optionDefault = document.createElement('option');
+                    optionDefault.value = '';
+                    optionDefault.textContent = '-- Seleccionar ' + filtro.etiqueta.toLowerCase() + ' --';
+                    select.appendChild(optionDefault);
+                    
+                    // Agregar opciones del filtro
+                    if (filtro.valores && filtro.valores.length > 0) {
+                        filtro.valores.forEach(valor => {
+                            const option = document.createElement('option');
+                            option.value = valor.id;
+                            option.textContent = valor.valor;
+                            select.appendChild(option);
+                        });
+                    }
+                    
+                    div.appendChild(label);
+                    div.appendChild(select);
+                    container.appendChild(div);
+                });
+                
+                // Inicializar Select2 en todos los select de filtros
+                setTimeout(() => {
+                    $('.filtro-select').select2({
+                        theme: 'bootstrap-5',
+                        width: '100%'
+                    });
+                }, 100);
+                
+            } else {
+                mostrarAlerta('Error al cargar filtros: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al cargar filtros', 'danger');
+        });
+}
+
 // APLICAR FILTRO Y OBTENER DATOS
 function aplicarFiltro() {
-    const idCliente = document.getElementById('selectCliente').value;
-    
-    if (!idCliente) {
-        mostrarAlerta('Selecciona un cliente', 'warning');
-        return;
-    }
-    
     if (!plantillaActual) {
         mostrarAlerta('Selecciona una plantilla primero', 'warning');
         return;
     }
+
+    // Recopilar valores de todos los filtros
+    const filtros = {};
+    let todosCompletos = true;
     
-    fetch(API_PLANTILLAS + '?action=obtener_datos&cod=' + plantillaActual.cod_plantilla + '&filtro=' + idCliente)
+    document.querySelectorAll('.filtro-select').forEach(select => {
+        const nombreFiltro = select.getAttribute('data-filtro');
+        const valor = select.value;
+        
+        if (!valor) {
+            todosCompletos = false;
+        }
+        filtros[nombreFiltro] = valor;
+    });
+    
+    if (!todosCompletos || Object.values(filtros).some(v => v === '')) {
+        mostrarAlerta('Completa todos los filtros requeridos', 'warning');
+        return;
+    }
+    
+    fetch(API_PLANTILLAS + '?action=obtener_datos_filtrados&cod=' + plantillaActual.cod_plantilla + '&filtros=' + encodeURIComponent(JSON.stringify(filtros)))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -208,7 +281,7 @@ function aplicarFiltro() {
                     tinymce.activeEditor.setContent(contenido);
                 }
                 
-                // Mostrar el editor y mantener visible el selector de cliente
+                // Mostrar el editor y mantener visible los filtros
                 document.getElementById('filtroSection').style.display = 'block';
                 document.getElementById('formularioSection').style.display = 'none';
                 document.getElementById('editorSection').style.display = 'block';
@@ -362,8 +435,19 @@ function descargarPDF() {
         return;
     }
 
-    if (!document.getElementById('selectCliente').value) {
-        mostrarAlerta('Selecciona un cliente primero', 'warning');
+    // Verificar que hay filtros completos
+    const filtros = {};
+    let todosCompletos = true;
+    
+    document.querySelectorAll('.filtro-select').forEach(select => {
+        const valor = select.value;
+        if (!valor) {
+            todosCompletos = false;
+        }
+    });
+    
+    if (!todosCompletos) {
+        mostrarAlerta('Completa todos los filtros primero', 'warning');
         return;
     }
 
@@ -459,8 +543,16 @@ function imprimirDocumento() {
         return;
     }
 
-    if (!document.getElementById('selectCliente').value) {
-        mostrarAlerta('Selecciona un cliente primero', 'warning');
+    // Verificar que hay filtros completos
+    let todosCompletos = true;
+    document.querySelectorAll('.filtro-select').forEach(select => {
+        if (!select.value) {
+            todosCompletos = false;
+        }
+    });
+    
+    if (!todosCompletos) {
+        mostrarAlerta('Completa todos los filtros primero', 'warning');
         return;
     }
 
@@ -488,8 +580,16 @@ function guardarDocumento() {
         return;
     }
 
-    if (!document.getElementById('selectCliente').value) {
-        mostrarAlerta('Selecciona un cliente primero', 'warning');
+    // Verificar que hay filtros completos
+    let todosCompletos = true;
+    document.querySelectorAll('.filtro-select').forEach(select => {
+        if (!select.value) {
+            todosCompletos = false;
+        }
+    });
+    
+    if (!todosCompletos) {
+        mostrarAlerta('Completa todos los filtros primero', 'warning');
         return;
     }
 
@@ -544,7 +644,12 @@ function nuevoDocumento() {
 // LIMPIAR
 
 function limpiar() {
-    document.getElementById('selectCliente').value = '';
+    // Limpiar filtros
+    document.querySelectorAll('.filtro-select').forEach(select => {
+        select.value = '';
+    });
+    
+    document.getElementById('filtrosContainer').innerHTML = '';
     document.getElementById('formularioDinamico').innerHTML = '';
     document.getElementById('filtroSection').style.display = 'none';
     document.getElementById('formularioSection').style.display = 'none';

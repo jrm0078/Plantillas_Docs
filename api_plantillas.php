@@ -287,6 +287,10 @@ else if ($action === 'crear') {
     }
     
     try {
+        // INICIAR TRANSACCIÓN
+        $pdo->beginTransaction();
+        
+        // 1. INSERTAR PLANTILLA
         $stmt = $pdo->prepare("
             INSERT INTO plantillas (cod_plantilla, nombre, descripcion, tipo_documento, contenido, tabla_origen, campo_clave, sql_consulta, estado)
             VALUES (:cod, :nombre, :desc, :tipo, :contenido, :tabla, :campo, :sql, :estado)
@@ -304,8 +308,58 @@ else if ($action === 'crear') {
             ':estado' => $data['estado'] ?? 1
         ]);
         
+        // 2. INSERTAR VARIABLES (si existen)
+        if (!empty($data['variables']) && is_array($data['variables'])) {
+            $stmtVar = $pdo->prepare("
+                INSERT INTO plantilla_variables (cod_plantilla, nombre_variable, etiqueta, tipo, requerido, orden)
+                VALUES (:cod, :nombre, :etiqueta, :tipo, :requerido, :orden)
+            ");
+            
+            foreach ($data['variables'] as $variable) {
+                if (!empty($variable['nombre_variable']) && !empty($variable['etiqueta'])) {
+                    $stmtVar->execute([
+                        ':cod' => $data['cod_plantilla'],
+                        ':nombre' => $variable['nombre_variable'],
+                        ':etiqueta' => $variable['etiqueta'],
+                        ':tipo' => $variable['tipo'] ?? 'text',
+                        ':requerido' => $variable['requerido'] ?? 0,
+                        ':orden' => $variable['orden'] ?? 999
+                    ]);
+                }
+            }
+        }
+        
+        // 3. INSERTAR FILTROS (si existen)
+        if (!empty($data['filtros']) && is_array($data['filtros'])) {
+            $stmtFilt = $pdo->prepare("
+                INSERT INTO plantillas_filtros (cod_plantilla, nombre_filtro, etiqueta, tabla_datos, campo_clave, campo_valor, orden, requerido, activo)
+                VALUES (:cod, :nombre, :etiqueta, :tabla, :campo_clave, :campo_valor, :orden, :requerido, :activo)
+            ");
+            
+            foreach ($data['filtros'] as $filtro) {
+                if (!empty($filtro['nombre_filtro']) && !empty($filtro['etiqueta']) && !empty($filtro['tabla_datos'])) {
+                    $stmtFilt->execute([
+                        ':cod' => $data['cod_plantilla'],
+                        ':nombre' => $filtro['nombre_filtro'],
+                        ':etiqueta' => $filtro['etiqueta'],
+                        ':tabla' => $filtro['tabla_datos'],
+                        ':campo_clave' => $filtro['campo_clave'] ?? 'id',
+                        ':campo_valor' => $filtro['campo_valor'] ?? 'nombre',
+                        ':orden' => $filtro['orden'] ?? 999,
+                        ':requerido' => $filtro['requerido'] ?? 1,
+                        ':activo' => 1
+                    ]);
+                }
+            }
+        }
+        
+        // CONFIRMAR TRANSACCIÓN
+        $pdo->commit();
+        
         echo json_encode(['success' => true, 'message' => 'Plantilla creada correctamente']);
     } catch (Exception $e) {
+        // ROLLBACK si algo falla
+        $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
@@ -357,6 +411,10 @@ else if ($action === 'editar') {
     }
     
     try {
+        // INICIAR TRANSACCIÓN
+        $pdo->beginTransaction();
+        
+        // 1. ACTUALIZAR PLANTILLA
         $stmt = $pdo->prepare("
             UPDATE plantillas 
             SET nombre = :nombre, descripcion = :desc, tipo_documento = :tipo, 
@@ -377,8 +435,66 @@ else if ($action === 'editar') {
             ':estado' => $data['estado'] ?? 1
         ]);
         
+        // 2. ELIMINAR VARIABLES ANTIGUAS
+        $pdo->prepare("DELETE FROM plantilla_variables WHERE cod_plantilla = :cod")
+            ->execute([':cod' => $cod]);
+        
+        // 3. AGREGAR NUEVAS VARIABLES
+        if (!empty($data['variables']) && is_array($data['variables'])) {
+            $stmtVar = $pdo->prepare("
+                INSERT INTO plantilla_variables (cod_plantilla, nombre_variable, etiqueta, tipo, requerido, orden)
+                VALUES (:cod, :nombre, :etiqueta, :tipo, :requerido, :orden)
+            ");
+            
+            foreach ($data['variables'] as $variable) {
+                if (!empty($variable['nombre_variable']) && !empty($variable['etiqueta'])) {
+                    $stmtVar->execute([
+                        ':cod' => $cod,
+                        ':nombre' => $variable['nombre_variable'],
+                        ':etiqueta' => $variable['etiqueta'],
+                        ':tipo' => $variable['tipo'] ?? 'text',
+                        ':requerido' => $variable['requerido'] ?? 0,
+                        ':orden' => $variable['orden'] ?? 999
+                    ]);
+                }
+            }
+        }
+        
+        // 4. ELIMINAR FILTROS ANTIGUOS
+        $pdo->prepare("DELETE FROM plantillas_filtros WHERE cod_plantilla = :cod")
+            ->execute([':cod' => $cod]);
+        
+        // 5. AGREGAR NUEVOS FILTROS
+        if (!empty($data['filtros']) && is_array($data['filtros'])) {
+            $stmtFilt = $pdo->prepare("
+                INSERT INTO plantillas_filtros (cod_plantilla, nombre_filtro, etiqueta, tabla_datos, campo_clave, campo_valor, orden, requerido, activo)
+                VALUES (:cod, :nombre, :etiqueta, :tabla, :campo_clave, :campo_valor, :orden, :requerido, :activo)
+            ");
+            
+            foreach ($data['filtros'] as $filtro) {
+                if (!empty($filtro['nombre_filtro']) && !empty($filtro['etiqueta']) && !empty($filtro['tabla_datos'])) {
+                    $stmtFilt->execute([
+                        ':cod' => $cod,
+                        ':nombre' => $filtro['nombre_filtro'],
+                        ':etiqueta' => $filtro['etiqueta'],
+                        ':tabla' => $filtro['tabla_datos'],
+                        ':campo_clave' => $filtro['campo_clave'] ?? 'id',
+                        ':campo_valor' => $filtro['campo_valor'] ?? 'nombre',
+                        ':orden' => $filtro['orden'] ?? 999,
+                        ':requerido' => $filtro['requerido'] ?? 1,
+                        ':activo' => 1
+                    ]);
+                }
+            }
+        }
+        
+        // CONFIRMAR TRANSACCIÓN
+        $pdo->commit();
+        
         echo json_encode(['success' => true, 'message' => 'Plantilla actualizada correctamente']);
     } catch (Exception $e) {
+        // ROLLBACK si algo falla
+        $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
@@ -412,6 +528,7 @@ else if ($action === 'obtener_completa') {
     }
     
     try {
+        // OBTENER PLANTILLA
         $stmt = $pdo->prepare("SELECT * FROM plantillas WHERE cod_plantilla = :cod");
         $stmt->execute([':cod' => $cod]);
         $plantilla = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -420,6 +537,29 @@ else if ($action === 'obtener_completa') {
             echo json_encode(['success' => false, 'error' => 'Plantilla no encontrada']);
             exit;
         }
+        
+        // OBTENER VARIABLES
+        $stmt = $pdo->prepare("
+            SELECT id, nombre_variable, etiqueta, tipo, requerido, orden
+            FROM plantilla_variables
+            WHERE cod_plantilla = :cod
+            ORDER BY orden
+        ");
+        $stmt->execute([':cod' => $cod]);
+        $variables = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // OBTENER FILTROS
+        $stmt = $pdo->prepare("
+            SELECT id, nombre_filtro, etiqueta, tabla_datos, campo_clave, campo_valor, orden, requerido, activo
+            FROM plantillas_filtros
+            WHERE cod_plantilla = :cod
+            ORDER BY orden
+        ");
+        $stmt->execute([':cod' => $cod]);
+        $filtros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $plantilla['variables'] = $variables;
+        $plantilla['filtros'] = $filtros;
         
         echo json_encode(['success' => true, 'data' => $plantilla]);
     } catch (Exception $e) {

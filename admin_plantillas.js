@@ -127,6 +127,58 @@ function abrirFormularioEditar(cod) {
                     tinymce.get('previsualizacion').setContent(decodificarHTML(data.data.contenido || ''));
                 }
                 
+                // NUEVA: Cargar Variables
+                const bodyVariables = document.getElementById('bodyVariables');
+                bodyVariables.innerHTML = '';
+                
+                if (data.data.variables && data.data.variables.length > 0) {
+                    data.data.variables.forEach(variable => {
+                        const rowId = 'var_' + Date.now() + Math.random();
+                        const row = document.createElement('tr');
+                        row.id = rowId;
+                        row.innerHTML = `
+                            <td><input type="text" class="form-control form-control-sm" value="${variable.nombre_variable}"></td>
+                            <td><input type="text" class="form-control form-control-sm" value="${variable.etiqueta}"></td>
+                            <td>
+                                <select class="form-control form-control-sm">
+                                    <option value="text" ${variable.tipo === 'text' ? 'selected' : ''}>Texto</option>
+                                    <option value="email" ${variable.tipo === 'email' ? 'selected' : ''}>Email</option>
+                                    <option value="number" ${variable.tipo === 'number' ? 'selected' : ''}>Número</option>
+                                    <option value="date" ${variable.tipo === 'date' ? 'selected' : ''}>Fecha</option>
+                                    <option value="textarea" ${variable.tipo === 'textarea' ? 'selected' : ''}>Texto largo</option>
+                                </select>
+                            </td>
+                            <td><input type="checkbox" class="form-check-input" ${variable.requerido === 1 ? 'checked' : ''}></td>
+                            <td><input type="number" class="form-control form-control-sm" value="${variable.orden || 1}" min="1"></td>
+                            <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaVariable('${rowId}')">Eliminar</button></td>
+                        `;
+                        bodyVariables.appendChild(row);
+                    });
+                }
+                
+                // NUEVA: Cargar Filtros
+                const bodyFiltros = document.getElementById('bodyFiltros');
+                bodyFiltros.innerHTML = '';
+                
+                if (data.data.filtros && data.data.filtros.length > 0) {
+                    data.data.filtros.forEach(filtro => {
+                        const rowId = 'filt_' + Date.now() + Math.random();
+                        const row = document.createElement('tr');
+                        row.id = rowId;
+                        row.innerHTML = `
+                            <td><input type="text" class="form-control form-control-sm" value="${filtro.nombre_filtro}"></td>
+                            <td><input type="text" class="form-control form-control-sm" value="${filtro.etiqueta}"></td>
+                            <td><input type="text" class="form-control form-control-sm" value="${filtro.tabla_datos}"></td>
+                            <td><input type="text" class="form-control form-control-sm" value="${filtro.campo_clave}"></td>
+                            <td><input type="text" class="form-control form-control-sm" value="${filtro.campo_valor}"></td>
+                            <td><input type="number" class="form-control form-control-sm" value="${filtro.orden || 1}" min="1"></td>
+                            <td><input type="checkbox" class="form-check-input" ${filtro.requerido === 1 ? 'checked' : ''}></td>
+                            <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaFiltro('${rowId}')">Eliminar</button></td>
+                        `;
+                        bodyFiltros.appendChild(row);
+                    });
+                }
+                
                 ocultarTabla();
             } else {
                 mostrarAlerta('Error: ' + data.error, 'danger');

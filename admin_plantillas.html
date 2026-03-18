@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
 <script src="tinymce_es.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
 
@@ -29,9 +30,95 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 <h2>Gestionar Plantillas</h2>
+<div>
+<button class="btn btn-info me-2" data-bs-toggle="collapse" data-bs-target="#referenciaColumnas" style="cursor: pointer;">
+<i class="fas fa-info-circle"></i> Columnas Disponibles
+</button>
 <button class="btn btn-success" onclick="abrirFormularioNueva()">
 Crear Plantilla
 </button>
+</div>
+</div>
+
+<!-- SECCIÓN DE REFERENCIA DE COLUMNAS -->
+<div class="collapse mb-4" id="referenciaColumnas">
+<div class="card card-body">
+<h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
+<div class="row">
+<div class="col-md-6">
+<div class="mb-3">
+<h6 class="fw-bold text-primary">Tabla: presupuestos</h6>
+<small class="text-muted d-block">
+- id<br>
+- id_cliente<br>
+- id_ano<br>
+- id_departamento<br>
+- numero_presupuesto<br>
+- descripcion<br>
+- cantidad<br>
+- precio_unitario<br>
+- descuento<br>
+- fecha_creacion
+</small>
+</div>
+</div>
+<div class="col-md-6">
+<div class="mb-3">
+<h6 class="fw-bold text-primary">Tabla: clientes</h6>
+<small class="text-muted d-block">
+- id<br>
+- nombre<br>
+- nif<br>
+- email<br>
+- telefono<br>
+- direccion<br>
+- provincia<br>
+- edad<br>
+- ciudad<br>
+- cif
+</small>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-md-6">
+<div class="mb-3">
+<h6 class="fw-bold text-primary">Tabla: contratos</h6>
+<small class="text-muted d-block">
+- id<br>
+- numero_contrato<br>
+- id_cliente<br>
+- descripcion<br>
+- fecha_inicio<br>
+- fecha_fin<br>
+- duracion_meses<br>
+- considerandos<br>
+- observaciones<br>
+- responsable
+</small>
+</div>
+</div>
+<div class="col-md-6">
+<div class="mb-3">
+<h6 class="fw-bold text-primary">Tabla: ofertas</h6>
+<small class="text-muted d-block">
+- id<br>
+- numero_oferta<br>
+- id_cliente<br>
+- concepto<br>
+- cantidad<br>
+- precio_unitario<br>
+- valor_total<br>
+- vigencia_dias<br>
+- observaciones_oferta<br>
+- fecha_creacion
+</small>
+</div>
+</div>
+</div>
+<hr>
+<p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato -nombre_columna- (Ej: -numero_presupuesto-, -descripcion-, etc.)</small></p>
+</div>
 </div>
 
 <div id="alertaContainer"></div>

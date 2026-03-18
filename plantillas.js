@@ -258,23 +258,6 @@ function aplicarFiltro() {
                 // Guardar datos del cliente/contrato/oferta
                 datosFormulario = data.data;
                 
-                // DEBUG: Mostrar qué datos llegaron
-                console.log("=== DATOS RECIBIDOS DEL API ===");
-                console.log(JSON.stringify(data.data, null, 2));
-                
-                // Mostrar en la página también
-                let debugHTML = '<div style="background:#f0f0f0; padding:10px; margin:10px 0; border:1px solid #ccc; font-family:monospace; font-size:12px; max-height:200px; overflow:auto;">';
-                debugHTML += '<strong>COLUMNAS DISPONIBLES:</strong><br>';
-                for (let key in data.data) {
-                    if (data.data.hasOwnProperty(key)) {
-                        debugHTML += `<span style="color:blue">${key}</span>: ${data.data[key]}<br>`;
-                    }
-                }
-                debugHTML += '</div>';
-                
-                // Insertar antes del editor
-                document.getElementById('editorSection').insertAdjacentHTML('beforebegin', debugHTML);
-                
                 // Reemplazar variables en la plantilla - DINÁMICO
                 let contenido = plantillaActual.contenido;
                 

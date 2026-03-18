@@ -255,13 +255,13 @@ function aplicarFiltro() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Guardar datos del cliente
+                // Guardar datos del cliente/contrato/oferta
                 datosFormulario = data.data;
                 
                 // Reemplazar variables en la plantilla
                 let contenido = plantillaActual.contenido;
                 
-                // Reemplazar cada campo de la BD con sus equivalentes en todas las plantillas
+                // Reemplazar campos de CLIENTES
                 if (data.data.nombre) {
                     contenido = contenido.replaceAll('-nombre-', data.data.nombre);
                     contenido = contenido.replaceAll('-cliente-', data.data.nombre);
@@ -289,6 +289,69 @@ function aplicarFiltro() {
                 }
                 if (data.data.cif) {
                     contenido = contenido.replaceAll('-cif-', data.data.cif);
+                }
+                
+                // Reemplazar campos de CONTRATOS
+                if (data.data.numero_contrato) {
+                    contenido = contenido.replaceAll('-num_contrato-', data.data.numero_contrato);
+                }
+                if (data.data.descripcion) {
+                    contenido = contenido.replaceAll('-descripcion-', data.data.descripcion);
+                }
+                if (data.data.fecha_inicio) {
+                    contenido = contenido.replaceAll('-fecha_inicio-', data.data.fecha_inicio);
+                }
+                if (data.data.fecha_fin) {
+                    contenido = contenido.replaceAll('-fecha_fin-', data.data.fecha_fin);
+                }
+                if (data.data.duracion_meses) {
+                    contenido = contenido.replaceAll('-duracion-', data.data.duracion_meses);
+                }
+                if (data.data.considerandos) {
+                    contenido = contenido.replaceAll('-considerandos-', data.data.considerandos);
+                }
+                if (data.data.observaciones) {
+                    contenido = contenido.replaceAll('-observaciones-', data.data.observaciones);
+                }
+                if (data.data.responsable) {
+                    contenido = contenido.replaceAll('-responsable-', data.data.responsable);
+                }
+                
+                // Reemplazar campos de OFERTAS
+                if (data.data.numero_oferta) {
+                    contenido = contenido.replaceAll('-num_oferta-', data.data.numero_oferta);
+                }
+                if (data.data.descripcion_oferta) {
+                    contenido = contenido.replaceAll('-descripcion_oferta-', data.data.descripcion_oferta);
+                }
+                if (data.data.concepto) {
+                    contenido = contenido.replaceAll('-concepto-', data.data.concepto);
+                }
+                if (data.data.cantidad) {
+                    contenido = contenido.replaceAll('-cantidad-', data.data.cantidad);
+                }
+                if (data.data.precio_unitario) {
+                    contenido = contenido.replaceAll('-precio_unitario-', data.data.precio_unitario);
+                }
+                if (data.data.valor_total) {
+                    contenido = contenido.replaceAll('-valor_total-', data.data.valor_total);
+                }
+                if (data.data.vigencia_dias) {
+                    contenido = contenido.replaceAll('-vigencia_dias-', data.data.vigencia_dias);
+                }
+                if (data.data.observaciones_oferta) {
+                    contenido = contenido.replaceAll('-observaciones_oferta-', data.data.observaciones_oferta);
+                }
+                
+                // Reemplazar campos agregados por JOINs (cliente_nombre, ano_nombre, departamento_nombre)
+                if (data.data.cliente_nombre) {
+                    contenido = contenido.replaceAll('-cliente_nombre-', data.data.cliente_nombre);
+                }
+                if (data.data.ano_nombre) {
+                    contenido = contenido.replaceAll('-ano_nombre-', data.data.ano_nombre);
+                }
+                if (data.data.departamento_nombre) {
+                    contenido = contenido.replaceAll('-departamento_nombre-', data.data.departamento_nombre);
                 }
                 
                 // Cargar en el editor

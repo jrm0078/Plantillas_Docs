@@ -250,12 +250,12 @@ function guardarPlantilla() {
         return;
     }
     
-    // Validar que sql_consulta contenga ?
-    if (!sql_consulta.includes('?')) {
-        mostrarAlerta('La sentencia SQL debe contener ? como parámetro', 'warning');
-        document.getElementById('sql_consulta').focus();
-        return;
-    }
+    // Validar que sql_consulta contenga ? (opcional - puede tener o no parámetros)
+    // if (!sql_consulta.includes('?')) {
+    //     mostrarAlerta('La sentencia SQL debe contener ? como parámetro', 'warning');
+    //     document.getElementById('sql_consulta').focus();
+    //     return;
+    // }
     
     const datos = {
         cod_plantilla: cod,

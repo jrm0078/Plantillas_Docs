@@ -276,10 +276,11 @@ else if ($action === 'crear') {
         exit;
     }
     
-    if (strpos($data['sql_consulta'], '?') === false) {
-        echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
-        exit;
-    }
+    // Validación comentada - permitir SQL con o sin parámetros
+    // if (strpos($data['sql_consulta'], '?') === false) {
+    //     echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
+    //     exit;
+    // }
     
     if (strpos($data['cod_plantilla'], ' ') !== false) {
         echo json_encode(['success' => false, 'error' => 'El código de plantilla no puede contener espacios']);
@@ -405,10 +406,11 @@ else if ($action === 'editar') {
         exit;
     }
     
-    if (strpos($data['sql_consulta'], '?') === false) {
-        echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
-        exit;
-    }
+    // Validación comentada - permitir SQL con o sin parámetros
+    // if (strpos($data['sql_consulta'], '?') === false) {
+    //     echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
+    //     exit;
+    // }
     
     try {
         // INICIAR TRANSACCIÓN

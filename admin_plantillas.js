@@ -214,7 +214,9 @@ function guardarPlantilla() {
         campo_clave: campo_clave,
         sql_consulta: sql_consulta,
         contenido: contenido,
-        estado: document.getElementById('estado').checked ? 1 : 0
+        estado: document.getElementById('estado').checked ? 1 : 0,
+        variables: obtenerVariables(),
+        filtros: obtenerFiltros()
     };
     
     const action = plantillaEnEdicion ? 'editar&cod=' + plantillaEnEdicion : 'crear';
@@ -321,4 +323,128 @@ function mostrarAlerta(mensaje, tipo) {
         const alerta = document.getElementById(alertId);
         if (alerta) alerta.remove();
     }, 4000);
+}
+
+// ========== FUNCIONES PARA VARIABLES ==========
+function agregarFilaVariable() {
+    const tbody = document.getElementById('bodyVariables');
+    const fila = document.createElement('tr');
+    const rowId = 'var-' + Date.now();
+    
+    fila.id = rowId;
+    fila.innerHTML = `
+        <td><input type="text" class="form-control form-control-sm var-nombre" placeholder="nombre_variable" required></td>
+        <td><input type="text" class="form-control form-control-sm var-etiqueta" placeholder="Etiqueta visible" required></td>
+        <td>
+            <select class="form-select form-select-sm var-tipo" required>
+                <option value="text">Texto</option>
+                <option value="email">Email</option>
+                <option value="number">Número</option>
+                <option value="date">Fecha</option>
+                <option value="textarea">Área de texto</option>
+            </select>
+        </td>
+        <td>
+            <input type="checkbox" class="form-check-input var-requerido" checked>
+        </td>
+        <td><input type="number" class="form-control form-control-sm var-orden" value="1" min="1" required></td>
+        <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaVariable('${rowId}')">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    
+    tbody.appendChild(fila);
+}
+
+function eliminarFilaVariable(rowId) {
+    const fila = document.getElementById(rowId);
+    if (fila) fila.remove();
+}
+
+function obtenerVariables() {
+    const variables = [];
+    const filas = document.querySelectorAll('#bodyVariables tr');
+    
+    filas.forEach((fila, index) => {
+        const nombre = fila.querySelector('.var-nombre').value.trim();
+        const etiqueta = fila.querySelector('.var-etiqueta').value.trim();
+        const tipo = fila.querySelector('.var-tipo').value;
+        const requerido = fila.querySelector('.var-requerido').checked ? 1 : 0;
+        const orden = parseInt(fila.querySelector('.var-orden').value) || (index + 1);
+        
+        if (nombre && etiqueta) {
+            variables.push({
+                nombre_variable: nombre,
+                etiqueta: etiqueta,
+                tipo: tipo,
+                requerido: requerido,
+                orden: orden
+            });
+        }
+    });
+    
+    return variables;
+}
+
+// ========== FUNCIONES PARA FILTROS ==========
+function agregarFilaFiltro() {
+    const tbody = document.getElementById('bodyFiltros');
+    const fila = document.createElement('tr');
+    const rowId = 'filtro-' + Date.now();
+    
+    fila.id = rowId;
+    fila.innerHTML = `
+        <td><input type="text" class="form-control form-control-sm filtro-nombre" placeholder="año, departamento, etc." required></td>
+        <td><input type="text" class="form-control form-control-sm filtro-etiqueta" placeholder="Etiqueta visible" required></td>
+        <td><input type="text" class="form-control form-control-sm filtro-tabla" placeholder="años, departamentos, etc." required></td>
+        <td><input type="text" class="form-control form-control-sm filtro-campo-clave" placeholder="generalmente id" value="id" required></td>
+        <td><input type="text" class="form-control form-control-sm filtro-campo-valor" placeholder="campo a mostrar" value="nombre" required></td>
+        <td><input type="number" class="form-control form-control-sm filtro-orden" value="1" min="1" required></td>
+        <td>
+            <input type="checkbox" class="form-check-input filtro-requerido" checked>
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaFiltro('${rowId}')">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    
+    tbody.appendChild(fila);
+}
+
+function eliminarFilaFiltro(rowId) {
+    const fila = document.getElementById(rowId);
+    if (fila) fila.remove();
+}
+
+function obtenerFiltros() {
+    const filtros = [];
+    const filas = document.querySelectorAll('#bodyFiltros tr');
+    
+    filas.forEach((fila, index) => {
+        const nombre = fila.querySelector('.filtro-nombre').value.trim();
+        const etiqueta = fila.querySelector('.filtro-etiqueta').value.trim();
+        const tabla = fila.querySelector('.filtro-tabla').value.trim();
+        const campoClave = fila.querySelector('.filtro-campo-clave').value.trim();
+        const campoValor = fila.querySelector('.filtro-campo-valor').value.trim();
+        const orden = parseInt(fila.querySelector('.filtro-orden').value) || (index + 1);
+        const requerido = fila.querySelector('.filtro-requerido').checked ? 1 : 0;
+        
+        if (nombre && etiqueta && tabla) {
+            filtros.push({
+                nombre_filtro: nombre,
+                etiqueta: etiqueta,
+                tabla_datos: tabla,
+                campo_clave: campoClave,
+                campo_valor: campoValor,
+                orden: orden,
+                requerido: requerido
+            });
+        }
+    });
+    
+    return filtros;
 }

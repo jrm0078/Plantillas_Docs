@@ -100,6 +100,7 @@ function abrirFormularioNueva() {
     document.getElementById('cod_plantilla').disabled = false;
     limpiarFormulario();
     ocultarTabla();
+    document.getElementById('btnCrearTabla').style.display = 'none';
 }
 
 // ABRIR FORMULARIO PARA EDITAR
@@ -180,6 +181,7 @@ function abrirFormularioEditar(cod) {
                 }
                 
                 ocultarTabla();
+                document.getElementById('btnCrearTabla').style.display = 'none';
             } else {
                 mostrarAlerta('Error: ' + data.error, 'danger');
             }
@@ -355,6 +357,7 @@ function ocultarTabla() {
 function mostrarTabla() {
     document.getElementById('tablaPantillas').style.display = 'block';
     document.getElementById('formularioSection').style.display = 'none';
+    document.getElementById('btnCrearTabla').style.display = 'block';
 }
 
 // MOSTRAR ALERTAS

@@ -30,14 +30,35 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 <h2>Gestionar Plantillas</h2>
-<div>
-<button class="btn btn-info me-2" data-bs-toggle="collapse" data-bs-target="#referenciaColumnas" style="cursor: pointer;">
-<i class="fas fa-info-circle"></i> Columnas Disponibles
-</button>
-<button class="btn btn-success" onclick="abrirFormularioNueva()">
+<button class="btn btn-success" onclick="abrirFormularioNueva()" id="btnCrearTabla">
 Crear Plantilla
 </button>
 </div>
+
+<div id="alertaContainer"></div>
+
+<div id="tablaPantillas" style="display:block;">
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Codigo</th>
+<th>Nombre</th>
+<th>Descripcion</th>
+<th>Tipo</th>
+<th>Estado</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="cuerpoTabla">
+</tbody>
+</table>
+</div>
+
+<div id="formularioSection" style="display:none;">
+<div class="mb-3">
+<button class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#referenciaColumnas" style="cursor: pointer;">
+<i class="fas fa-info-circle"></i> Ver Columnas Disponibles
+</button>
 </div>
 
 <!-- SECCIÓN DE REFERENCIA DE COLUMNAS -->
@@ -121,26 +142,6 @@ Crear Plantilla
 </div>
 </div>
 
-<div id="alertaContainer"></div>
-
-<div id="tablaPantillas" style="display:block;">
-<table class="table table-striped">
-<thead>
-<tr>
-<th>Codigo</th>
-<th>Nombre</th>
-<th>Descripcion</th>
-<th>Tipo</th>
-<th>Estado</th>
-<th>Acciones</th>
-</tr>
-</thead>
-<tbody id="cuerpoTabla">
-</tbody>
-</table>
-</div>
-
-<div id="formularioSection" style="display:none;">
 <h4 id="tituloFormulario">Nueva Plantilla</h4>
 
 <div class="row mb-3">

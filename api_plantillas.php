@@ -639,14 +639,10 @@ else if ($action === 'obtener_datos_filtrados') {
     
     try {
         $filtros = json_decode($filtros_json, true);
-        if (!$filtros || empty($filtros)) {
-            echo json_encode(['success' => false, 'error' => 'Filtros requeridos']);
-            exit;
-        }
         
         error_log("DEBUG: filtros recibidos: " . json_encode($filtros));
         
-        // Obtener configuración de la plantilla y orden de filtros
+        // Obtener configuración de la plantilla
         $stmt = $pdo->prepare("
             SELECT sql_consulta, campo_clave, tabla_origen 
             FROM plantillas 
@@ -672,15 +668,42 @@ else if ($action === 'obtener_datos_filtrados') {
         
         error_log("DEBUG: orden esperado de filtros: " . json_encode($filtros_config));
         
-        // Reordenar valores según el orden de la BD
-        $valores_array = [];
-        foreach ($filtros_config as $nombre_filtro) {
-            if (isset($filtros[$nombre_filtro])) {
-                $valores_array[] = $filtros[$nombre_filtro];
+        // Si no hay filtros configurados, ejecutar SQL sin parámetros
+        if (empty($filtros_config)) {
+            $sql_consulta = $plantilla['sql_consulta'];
+            $placeholder_count = substr_count($sql_consulta, '?');
+            
+            // Si la SQL no tiene parámetros, ejecutar directamente
+            if ($placeholder_count === 0) {
+                $stmt = $pdo->prepare($sql_consulta);
+                $stmt->execute();
+                $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if (!$datos) {
+                    echo json_encode(['success' => false, 'error' => 'No se encontraron datos']);
+                    exit;
+                }
+                
+                echo json_encode(['success' => true, 'data' => $datos]);
+                exit;
             }
         }
         
-        error_log("DEBUG: valores ordenados: " . json_encode($valores_array));
+        // Si hay filtros configurados, procesarlos
+        if (!empty($filtros_config)) {
+            // Reordenar valores según el orden de la BD
+            $valores_array = [];
+            foreach ($filtros_config as $nombre_filtro) {
+                if (isset($filtros[$nombre_filtro])) {
+                    $valores_array[] = $filtros[$nombre_filtro];
+                }
+            }
+            
+            error_log("DEBUG: valores ordenados: " . json_encode($valores_array));
+        } else {
+            $valores_array = [];
+        }
+        
         error_log("DEBUG: SQL: " . $plantilla['sql_consulta']);
         
         // Contar placeholders en la SQL

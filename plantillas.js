@@ -151,15 +151,23 @@ function cargarClientes() {
 
 // NUEVO: CARGAR FILTROS DINÁMICAMENTE
 function cargarFiltros(cod_plantilla) {
+    console.log('Cargando filtros para:', cod_plantilla);
+    
     fetch(API_PLANTILLAS + '?action=obtener_filtros&cod=' + cod_plantilla)
         .then(response => response.json())
         .then(data => {
+            console.log('Respuesta de filtros:', data);
+            
             if (data.success) {
                 const container = document.getElementById('filtrosContainer');
+                console.log('Contenedor encontrado:', container);
+                
                 container.innerHTML = ''; // Limpiar filtros anteriores
                 
                 // Crear select para cada filtro
                 data.data.forEach(filtro => {
+                    console.log('Agregando filtro:', filtro.nombre_filtro);
+                    
                     const div = document.createElement('div');
                     div.className = 'col-md-6 mb-3';
                     
@@ -192,20 +200,24 @@ function cargarFiltros(cod_plantilla) {
                     container.appendChild(div);
                 });
                 
+                console.log('Filtros agregados, inicializando Select2');
+                
                 // Inicializar Select2 en todos los select de filtros
                 setTimeout(() => {
                     $('.filtro-select').select2({
                         theme: 'bootstrap-5',
                         width: '100%'
                     });
+                    console.log('Select2 inicializado');
                 }, 100);
                 
             } else {
+                console.error('Error en respuesta:', data.error);
                 mostrarAlerta('Error al cargar filtros: ' + data.error, 'danger');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error al cargar filtros:', error);
             mostrarAlerta('Error al cargar filtros', 'danger');
         });
 }

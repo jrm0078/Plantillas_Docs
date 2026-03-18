@@ -117,6 +117,54 @@ Crear Plantilla
 </label>
 </div>
 
+<!-- SECCIÓN: VARIABLES -->
+<hr class="my-4">
+<h5 class="mb-3">Variables para Rellenar por Usuario</h5>
+<div class="table-responsive mb-3">
+<table class="table table-sm table-bordered" id="tablaVariables">
+<thead class="table-light">
+<tr>
+<th>Nombre Variable</th>
+<th>Etiqueta</th>
+<th>Tipo</th>
+<th>Requerido</th>
+<th>Orden</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="bodyVariables">
+</tbody>
+</table>
+</div>
+<button type="button" class="btn btn-sm btn-success mb-4" onclick="agregarFilaVariable()">
++ Agregar Variable
+</button>
+
+<!-- SECCIÓN: FILTROS -->
+<hr class="my-4">
+<h5 class="mb-3">Filtros para Consulta SQL</h5>
+<div class="table-responsive mb-3">
+<table class="table table-sm table-bordered" id="tablaFiltros">
+<thead class="table-light">
+<tr>
+<th>Nombre Filtro</th>
+<th>Etiqueta</th>
+<th>Tabla Datos</th>
+<th>Campo Clave</th>
+<th>Campo Valor</th>
+<th>Orden</th>
+<th>Requerido</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="bodyFiltros">
+</tbody>
+</table>
+</div>
+<button type="button" class="btn btn-sm btn-success mb-4" onclick="agregarFilaFiltro()">
++ Agregar Filtro
+</button>
+
 <div>
 <button class="btn btn-primary" onclick="guardarPlantilla()">
 Guardar

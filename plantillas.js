@@ -156,7 +156,7 @@ function cargarFiltros(cod_plantilla) {
     fetch(API_PLANTILLAS + '?action=obtener_filtros&cod=' + cod_plantilla)
         .then(response => response.json())
         .then(data => {
-            console.log('Respuesta de filtros:', data);
+            console.log('Respuesta de filtros completa:', JSON.stringify(data, null, 2));
             
             if (data.success) {
                 const container = document.getElementById('filtrosContainer');
@@ -166,7 +166,7 @@ function cargarFiltros(cod_plantilla) {
                 
                 // Crear select para cada filtro
                 data.data.forEach(filtro => {
-                    console.log('Agregando filtro:', filtro.nombre_filtro);
+                    console.log('Procesando filtro:', filtro.nombre_filtro, 'Valores:', filtro.valores);
                     
                     const div = document.createElement('div');
                     div.className = 'col-md-6 mb-3';
@@ -187,12 +187,15 @@ function cargarFiltros(cod_plantilla) {
                     
                     // Agregar opciones del filtro
                     if (filtro.valores && filtro.valores.length > 0) {
+                        console.log('Agregando ' + filtro.valores.length + ' valores a ' + filtro.nombre_filtro);
                         filtro.valores.forEach(valor => {
                             const option = document.createElement('option');
                             option.value = valor.id;
                             option.textContent = valor.valor;
                             select.appendChild(option);
                         });
+                    } else {
+                        console.warn('No hay valores para el filtro:', filtro.nombre_filtro);
                     }
                     
                     div.appendChild(label);

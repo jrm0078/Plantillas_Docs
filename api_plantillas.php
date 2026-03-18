@@ -504,7 +504,9 @@ else if ($action === 'obtener_datos_filtrados') {
             exit;
         }
         
-        // Obtener configuración de la plantilla
+        error_log("DEBUG: filtros recibidos: " . json_encode($filtros));
+        
+        // Obtener configuración de la plantilla y orden de filtros
         $stmt = $pdo->prepare("
             SELECT sql_consulta, campo_clave, tabla_origen 
             FROM plantillas 
@@ -518,25 +520,46 @@ else if ($action === 'obtener_datos_filtrados') {
             exit;
         }
         
+        // Obtener orden de filtros de la BD
+        $stmt = $pdo->prepare("
+            SELECT nombre_filtro 
+            FROM plantillas_filtros 
+            WHERE cod_plantilla = :cod AND activo = 1 
+            ORDER BY orden
+        ");
+        $stmt->execute([':cod' => $cod_plantilla]);
+        $filtros_config = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        error_log("DEBUG: orden esperado de filtros: " . json_encode($filtros_config));
+        
+        // Reordenar valores según el orden de la BD
+        $valores_array = [];
+        foreach ($filtros_config as $nombre_filtro) {
+            if (isset($filtros[$nombre_filtro])) {
+                $valores_array[] = $filtros[$nombre_filtro];
+            }
+        }
+        
+        error_log("DEBUG: valores ordenados: " . json_encode($valores_array));
+        error_log("DEBUG: SQL: " . $plantilla['sql_consulta']);
+        
         // Contar placeholders en la SQL
         $sql_consulta = $plantilla['sql_consulta'];
         $placeholder_count = substr_count($sql_consulta, '?');
         
-        // Preparar valores en orden de los ?
-        $valores_array = array_values($filtros); // Los valores deben estar en orden
-        
         if (count($valores_array) !== $placeholder_count) {
-            echo json_encode(['success' => false, 'error' => "Se esperaban {$placeholder_count} parámetros, se recibieron " . count($valores_array)]);
+            echo json_encode(['success' => false, 'error' => "Se esperaban {$placeholder_count} parámetros, se recibieron " . count($valores_array) . ". Valores: " . json_encode($valores_array)]);
             exit;
         }
         
         // Ejecutar la query con múltiples parámetros
         $stmt = $pdo->prepare($sql_consulta);
+        error_log("DEBUG: ejecutando con valores: " . json_encode($valores_array));
         $stmt->execute($valores_array);
         $datos = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$datos) {
-            echo json_encode(['success' => false, 'error' => 'No se encontraron datos']);
+            echo json_encode(['success' => false, 'error' => 'No se encontraron datos. Ejecutados parámetros: ' . json_encode($valores_array)]);
             exit;
         }
         

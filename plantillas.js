@@ -258,76 +258,28 @@ function aplicarFiltro() {
                 // Guardar datos del cliente/contrato/oferta
                 datosFormulario = data.data;
                 
-                // Reemplazar variables en la plantilla
+                // Reemplazar variables en la plantilla - DINÁMICO
                 let contenido = plantillaActual.contenido;
                 
-                // Reemplazar campos de CLIENTES
-                if (data.data.nombre) {
-                    contenido = contenido.replaceAll('-nombre-', data.data.nombre);
-                    contenido = contenido.replaceAll('-cliente-', data.data.nombre);
-                }
-                if (data.data.nif) {
-                    contenido = contenido.replaceAll('-dni-', data.data.nif);
-                }
-                if (data.data.email) {
-                    contenido = contenido.replaceAll('-email-', data.data.email);
-                }
-                if (data.data.telefono) {
-                    contenido = contenido.replaceAll('-telefono-', data.data.telefono);
-                }
-                if (data.data.direccion) {
-                    contenido = contenido.replaceAll('-domicilio-', data.data.direccion);
-                }
-                if (data.data.provincia) {
-                    contenido = contenido.replaceAll('-provincia-', data.data.provincia);
-                }
-                if (data.data.edad) {
-                    contenido = contenido.replaceAll('-edad-', data.data.edad);
-                }
-                if (data.data.ciudad) {
-                    contenido = contenido.replaceAll('-ciudad-', data.data.ciudad);
-                }
-                if (data.data.cif) {
-                    contenido = contenido.replaceAll('-cif-', data.data.cif);
+                // Reemplazar TODAS las variables encontradas en los datos
+                if (data.data && typeof data.data === 'object') {
+                    // Iterar sobre todas las propiedades del objeto data
+                    for (let key in data.data) {
+                        if (data.data.hasOwnProperty(key)) {
+                            const value = data.data[key];
+                            
+                            // Reemplazar con guiones: -columna-
+                            contenido = contenido.replaceAll('-' + key + '-', value || '');
+                            
+                            // Reemplazar con dobles llaves: {{columna}}
+                            contenido = contenido.replaceAll('{{' + key + '}}', value || '');
+                            
+                            // Reemplazar con triple llave: {{{columna}}}
+                            contenido = contenido.replaceAll('{{{' + key + '}}}', value || '');
+                        }
+                    }
                 }
                 
-                // Reemplazar campos de CONTRATOS
-                if (data.data.numero_contrato) {
-                    contenido = contenido.replaceAll('-num_contrato-', data.data.numero_contrato);
-                }
-                if (data.data.descripcion) {
-                    contenido = contenido.replaceAll('-descripcion-', data.data.descripcion);
-                }
-                if (data.data.fecha_inicio) {
-                    contenido = contenido.replaceAll('-fecha_inicio-', data.data.fecha_inicio);
-                }
-                if (data.data.fecha_fin) {
-                    contenido = contenido.replaceAll('-fecha_fin-', data.data.fecha_fin);
-                }
-                if (data.data.duracion_meses) {
-                    contenido = contenido.replaceAll('-duracion-', data.data.duracion_meses);
-                }
-                if (data.data.considerandos) {
-                    contenido = contenido.replaceAll('-considerandos-', data.data.considerandos);
-                }
-                if (data.data.observaciones) {
-                    contenido = contenido.replaceAll('-observaciones-', data.data.observaciones);
-                }
-                if (data.data.responsable) {
-                    contenido = contenido.replaceAll('-responsable-', data.data.responsable);
-                }
-                
-                // Reemplazar campos de OFERTAS
-                if (data.data.numero_oferta) {
-                    contenido = contenido.replaceAll('-num_oferta-', data.data.numero_oferta);
-                }
-                if (data.data.descripcion_oferta) {
-                    contenido = contenido.replaceAll('-descripcion_oferta-', data.data.descripcion_oferta);
-                }
-                if (data.data.concepto) {
-                    contenido = contenido.replaceAll('-concepto-', data.data.concepto);
-                }
-                if (data.data.cantidad) {
                     contenido = contenido.replaceAll('-cantidad-', data.data.cantidad);
                 }
                 if (data.data.precio_unitario) {

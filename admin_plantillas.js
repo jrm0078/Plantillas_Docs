@@ -420,11 +420,15 @@ function obtenerVariables() {
     const filas = document.querySelectorAll('#bodyVariables tr');
     
     filas.forEach((fila, index) => {
-        const nombre = fila.querySelector('.var-nombre').value.trim();
-        const etiqueta = fila.querySelector('.var-etiqueta').value.trim();
-        const tipo = fila.querySelector('.var-tipo').value;
-        const requerido = fila.querySelector('.var-requerido').checked ? 1 : 0;
-        const orden = parseInt(fila.querySelector('.var-orden').value) || (index + 1);
+        const celdas = fila.querySelectorAll('td');
+        if (celdas.length < 5) return; // Skip si no tiene suficientes celdas
+        
+        // Celda 0: nombre, Celda 1: etiqueta, Celda 2: tipo, Celda 3: requerido, Celda 4: orden
+        const nombre = celdas[0].querySelector('input')?.value.trim() || '';
+        const etiqueta = celdas[1].querySelector('input')?.value.trim() || '';
+        const tipo = celdas[2].querySelector('select')?.value || celdas[2].querySelector('input')?.value || 'text';
+        const requerido = celdas[3].querySelector('input[type="checkbox"]')?.checked ? 1 : 0;
+        const orden = parseInt(celdas[4].querySelector('input')?.value) || (index + 1);
         
         if (nombre && etiqueta) {
             variables.push({
@@ -477,13 +481,16 @@ function obtenerFiltros() {
     const filas = document.querySelectorAll('#bodyFiltros tr');
     
     filas.forEach((fila, index) => {
-        const nombre = fila.querySelector('.filtro-nombre').value.trim();
-        const etiqueta = fila.querySelector('.filtro-etiqueta').value.trim();
-        const tabla = fila.querySelector('.filtro-tabla').value.trim();
-        const campoClave = fila.querySelector('.filtro-campo-clave').value.trim();
-        const campoValor = fila.querySelector('.filtro-campo-valor').value.trim();
-        const orden = parseInt(fila.querySelector('.filtro-orden').value) || (index + 1);
-        const requerido = fila.querySelector('.filtro-requerido').checked ? 1 : 0;
+        const celdas = fila.querySelectorAll('td');
+        if (celdas.length < 7) return;
+        
+        const nombre = celdas[0].querySelector('input')?.value.trim() || '';
+        const etiqueta = celdas[1].querySelector('input')?.value.trim() || '';
+        const tabla = celdas[2].querySelector('input')?.value.trim() || '';
+        const campoClave = celdas[3].querySelector('input')?.value.trim() || 'id';
+        const campoValor = celdas[4].querySelector('input')?.value.trim() || 'nombre';
+        const orden = parseInt(celdas[5].querySelector('input')?.value) || (index + 1);
+        const requerido = celdas[6].querySelector('input[type="checkbox"]')?.checked ? 1 : 0;
         
         if (nombre && etiqueta && tabla) {
             filtros.push({

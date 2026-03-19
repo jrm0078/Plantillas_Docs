@@ -1,5 +1,5 @@
 // GENERADOR DE DOCUMENTOS CON PLANTILLAS
-const API_BASE = './';
+const API_BASE = '../backend/api/';
 const API_PLANTILLAS = API_BASE + 'api_plantillas.php';
 
 let plantillaActual = null;

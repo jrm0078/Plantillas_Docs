@@ -1,4 +1,4 @@
-const API_PLANTILLAS = './api_plantillas.php';
+const API_PLANTILLAS = '../backend/api/api_plantillas.php';
 
 let plantillaEnEdicion = null;
 

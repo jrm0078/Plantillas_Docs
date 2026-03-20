@@ -166,14 +166,49 @@ function abrirFormularioEditar(cod) {
                         const rowId = 'filt_' + Date.now() + Math.random();
                         const row = document.createElement('tr');
                         row.id = rowId;
+                        row.className = 'filtro-row';
+                        
+                        const tipo = filtro.tipo_filtro || 'select_table';
+                        
+                        let configHtml = '';
+                        if (tipo === 'select_table') {
+                            configHtml = `
+                                <input type="text" class="form-control form-control-sm mb-1 filtro-tabla" value="${filtro.tabla_datos || ''}">
+                                <input type="text" class="form-control form-control-sm mb-1 filtro-campo-clave" value="${filtro.campo_clave || 'id'}">
+                                <input type="text" class="form-control form-control-sm filtro-campo-valor" value="${filtro.campo_valor || 'nombre'}">
+                            `;
+                        } else if (tipo === 'select_sql') {
+                            configHtml = `
+                                <textarea class="form-control form-control-sm filtro-sql-query" rows="2">${filtro.sql_query || ''}</textarea>
+                            `;
+                        } else if (['text', 'number', 'date'].includes(tipo)) {
+                            configHtml = `
+                                <select class="form-control form-control-sm filtro-operador">
+                                    <option value="=" ${filtro.operador === '=' ? 'selected' : ''}>=</option>
+                                    <option value="LIKE" ${filtro.operador === 'LIKE' ? 'selected' : ''}>LIKE</option>
+                                    <option value=">" ${filtro.operador === '>' ? 'selected' : ''}>&gt;</option>
+                                    <option value="<" ${filtro.operador === '<' ? 'selected' : ''}>&lt;</option>
+                                    <option value=">=" ${filtro.operador === '>=' ? 'selected' : ''}>&gt;=</option>
+                                    <option value="<=" ${filtro.operador === '<=' ? 'selected' : ''}>&lt;=</option>
+                                </select>
+                            `;
+                        }
+                        
                         row.innerHTML = `
-                            <td><input type="text" class="form-control form-control-sm" value="${filtro.nombre_filtro}"></td>
-                            <td><input type="text" class="form-control form-control-sm" value="${filtro.etiqueta}"></td>
-                            <td><input type="text" class="form-control form-control-sm" value="${filtro.tabla_datos}"></td>
-                            <td><input type="text" class="form-control form-control-sm" value="${filtro.campo_clave}"></td>
-                            <td><input type="text" class="form-control form-control-sm" value="${filtro.campo_valor}"></td>
-                            <td><input type="number" class="form-control form-control-sm" value="${filtro.orden || 1}" min="1"></td>
-                            <td><input type="checkbox" class="form-check-input" ${filtro.requerido === 1 ? 'checked' : ''}></td>
+                            <td><input type="text" class="form-control form-control-sm filtro-nombre" value="${filtro.nombre_filtro}"></td>
+                            <td><input type="text" class="form-control form-control-sm filtro-etiqueta" value="${filtro.etiqueta}"></td>
+                            <td>
+                                <select class="form-control form-control-sm filtro-tipo" onchange="actualizarConfiguracionFiltro('${rowId}')">
+                                    <option value="select_table" ${tipo === 'select_table' ? 'selected' : ''}>SELECT Tabla</option>
+                                    <option value="select_sql" ${tipo === 'select_sql' ? 'selected' : ''}>SELECT SQL</option>
+                                    <option value="text" ${tipo === 'text' ? 'selected' : ''}>Texto</option>
+                                    <option value="number" ${tipo === 'number' ? 'selected' : ''}>Número</option>
+                                    <option value="date" ${tipo === 'date' ? 'selected' : ''}>Fecha</option>
+                                </select>
+                            </td>
+                            <td id="config-${rowId}">${configHtml}</td>
+                            <td><input type="number" class="form-control form-control-sm filtro-orden" value="${filtro.orden || 1}" min="1"></td>
+                            <td><input type="checkbox" class="form-check-input filtro-requerido" ${filtro.requerido === 1 ? 'checked' : ''}></td>
                             <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaFiltro('${rowId}')">Eliminar</button></td>
                         `;
                         bodyFiltros.appendChild(row);
@@ -454,12 +489,27 @@ function agregarFilaFiltro() {
     const rowId = 'filtro-' + Date.now();
     
     fila.id = rowId;
+    fila.className = 'filtro-row';
     fila.innerHTML = `
         <td><input type="text" class="form-control form-control-sm filtro-nombre" placeholder="año, departamento, etc." required></td>
         <td><input type="text" class="form-control form-control-sm filtro-etiqueta" placeholder="Etiqueta visible" required></td>
-        <td><input type="text" class="form-control form-control-sm filtro-tabla" placeholder="años, departamentos, etc." required></td>
-        <td><input type="text" class="form-control form-control-sm filtro-campo-clave" placeholder="generalmente id" value="id" required></td>
-        <td><input type="text" class="form-control form-control-sm filtro-campo-valor" placeholder="campo a mostrar" value="nombre" required></td>
+        <td>
+            <select class="form-control form-control-sm filtro-tipo" onchange="actualizarConfiguracionFiltro('${rowId}')">
+                <option value="select_table">SELECT Tabla</option>
+                <option value="select_sql">SELECT SQL</option>
+                <option value="text">Texto</option>
+                <option value="number">Número</option>
+                <option value="date">Fecha</option>
+            </select>
+        </td>
+        <td id="config-${rowId}">
+            <!-- Configuración inicial para select_table -->
+            <div class="config-select-table">
+                <input type="text" class="form-control form-control-sm mb-1 filtro-tabla" placeholder="Tabla: años, departamentos" required>
+                <input type="text" class="form-control form-control-sm mb-1 filtro-campo-clave" placeholder="Clave: id" value="id">
+                <input type="text" class="form-control form-control-sm filtro-campo-valor" placeholder="Valor: nombre">
+            </div>
+        </td>
         <td><input type="number" class="form-control form-control-sm filtro-orden" value="1" min="1" required></td>
         <td>
             <input type="checkbox" class="form-check-input filtro-requerido" checked>
@@ -472,6 +522,45 @@ function agregarFilaFiltro() {
     `;
     
     tbody.appendChild(fila);
+}
+
+function actualizarConfiguracionFiltro(rowId) {
+    const fila = document.getElementById(rowId);
+    const tipo = fila.querySelector('.filtro-tipo').value;
+    const configDiv = document.getElementById('config-' + rowId);
+    
+    let html = '';
+    
+    switch(tipo) {
+        case 'select_table':
+            html = `
+                <input type="text" class="form-control form-control-sm mb-1 filtro-tabla" placeholder="Tabla: años, departamentos">
+                <input type="text" class="form-control form-control-sm mb-1 filtro-campo-clave" placeholder="Clave: id" value="id">
+                <input type="text" class="form-control form-control-sm filtro-campo-valor" placeholder="Valor: nombre">
+            `;
+            break;
+        case 'select_sql':
+            html = `
+                <textarea class="form-control form-control-sm filtro-sql-query" placeholder="SELECT id, nombre FROM tabla WHERE..." rows="2" required></textarea>
+            `;
+            break;
+        case 'text':
+        case 'number':
+        case 'date':
+            html = `
+                <select class="form-control form-control-sm filtro-operador">
+                    <option value="=">=</option>
+                    <option value="LIKE">LIKE</option>
+                    <option value=">">&gt;</option>
+                    <option value="<">&lt;</option>
+                    <option value=">=">&gt;=</option>
+                    <option value="<=">&lt;=</option>
+                </select>
+            `;
+            break;
+    }
+    
+    configDiv.innerHTML = html;
 }
 
 function eliminarFilaFiltro(rowId) {
@@ -489,23 +578,48 @@ function obtenerFiltros() {
         
         const nombre = celdas[0].querySelector('input')?.value.trim() || '';
         const etiqueta = celdas[1].querySelector('input')?.value.trim() || '';
-        const tabla = celdas[2].querySelector('input')?.value.trim() || '';
-        const campoClave = celdas[3].querySelector('input')?.value.trim() || 'id';
-        const campoValor = celdas[4].querySelector('input')?.value.trim() || 'nombre';
-        const orden = parseInt(celdas[5].querySelector('input')?.value) || (index + 1);
-        const requerido = celdas[6].querySelector('input[type="checkbox"]')?.checked ? 1 : 0;
+        const tipo = celdas[2].querySelector('select')?.value || 'select_table';
+        const orden = parseInt(celdas[4].querySelector('input')?.value) || (index + 1);
+        const requerido = celdas[5].querySelector('input[type="checkbox"]')?.checked ? 1 : 0;
         
-        if (nombre && etiqueta && tabla) {
-            filtros.push({
-                nombre_filtro: nombre,
-                etiqueta: etiqueta,
-                tabla_datos: tabla,
-                campo_clave: campoClave,
-                campo_valor: campoValor,
-                orden: orden,
-                requerido: requerido
-            });
+        if (!nombre || !etiqueta) return;
+        
+        const filtro = {
+            nombre_filtro: nombre,
+            etiqueta: etiqueta,
+            tipo_filtro: tipo,
+            orden: orden,
+            requerido: requerido
+        };
+        
+        // Recolectar configuración según tipo
+        const configDiv = celdas[3];
+        
+        if (tipo === 'select_table') {
+            const tabla = configDiv.querySelector('.filtro-tabla')?.value.trim() || '';
+            const campoClave = configDiv.querySelector('.filtro-campo-clave')?.value.trim() || 'id';
+            const campoValor = configDiv.querySelector('.filtro-campo-valor')?.value.trim() || 'nombre';
+            
+            if (!tabla) return;
+            
+            filtro.tabla_datos = tabla;
+            filtro.campo_clave = campoClave;
+            filtro.campo_valor = campoValor;
+        } 
+        else if (tipo === 'select_sql') {
+            const sqlQuery = configDiv.querySelector('.filtro-sql-query')?.value.trim() || '';
+            if (!sqlQuery) return;
+            
+            filtro.sql_query = sqlQuery;
+            filtro.campo_clave = 'id';  // Por defecto
+            filtro.campo_valor = 'nombre';
+        } 
+        else if (['text', 'number', 'date'].includes(tipo)) {
+            const operador = configDiv.querySelector('.filtro-operador')?.value || '=';
+            filtro.operador = operador;
         }
+        
+        filtros.push(filtro);
     });
     
     return filtros;

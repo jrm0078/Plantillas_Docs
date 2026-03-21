@@ -164,9 +164,9 @@ function cargarFiltros(cod_plantilla) {
                 
                 container.innerHTML = ''; // Limpiar filtros anteriores
                 
-                // Crear select para cada filtro
+                // Crear input para cada filtro según su tipo
                 data.data.forEach(filtro => {
-                    console.log('Procesando filtro:', filtro.nombre_filtro, 'Valores:', filtro.valores);
+                    console.log('Procesando filtro:', filtro.nombre_filtro, 'Tipo:', filtro.tipo_filtro);
                     
                     const div = document.createElement('div');
                     div.className = 'col-md-6 mb-3';
@@ -175,39 +175,76 @@ function cargarFiltros(cod_plantilla) {
                     label.className = 'form-label fw-bold';
                     label.textContent = filtro.etiqueta + (filtro.requerido ? ' *' : '');
                     
-                    const select = document.createElement('select');
-                    select.id = 'filtro_' + filtro.nombre_filtro;
-                    select.className = 'form-select filtro-select';
-                    select.setAttribute('data-filtro', filtro.nombre_filtro);
+                    const tipo = filtro.tipo_filtro || 'select_table';
+                    let input;
                     
-                    const optionDefault = document.createElement('option');
-                    optionDefault.value = '';
-                    optionDefault.textContent = '-- Seleccionar ' + filtro.etiqueta.toLowerCase() + ' --';
-                    select.appendChild(optionDefault);
-                    
-                    // Agregar opciones del filtro
-                    if (filtro.valores && filtro.valores.length > 0) {
-                        console.log('Agregando ' + filtro.valores.length + ' valores a ' + filtro.nombre_filtro);
-                        filtro.valores.forEach(valor => {
-                            const option = document.createElement('option');
-                            option.value = valor.id;
-                            option.textContent = valor.valor;
-                            select.appendChild(option);
-                        });
-                    } else {
-                        console.warn('No hay valores para el filtro:', filtro.nombre_filtro);
+                    // CREAR UI SEGÚN TIPO DE FILTRO
+                    if (tipo === 'select_table' || tipo === 'select_sql') {
+                        // SELECT DROPDOWN
+                        input = document.createElement('select');
+                        input.id = 'filtro_' + filtro.nombre_filtro;
+                        input.className = 'form-select filtro-input';
+                        input.setAttribute('data-filtro', filtro.nombre_filtro);
+                        input.setAttribute('data-tipo', tipo);
+                        
+                        const optionDefault = document.createElement('option');
+                        optionDefault.value = '';
+                        optionDefault.textContent = '-- Seleccionar ' + filtro.etiqueta.toLowerCase() + ' --';
+                        input.appendChild(optionDefault);
+                        
+                        // Agregar opciones del filtro
+                        if (filtro.valores && filtro.valores.length > 0) {
+                            console.log('Agregando ' + filtro.valores.length + ' valores a ' + filtro.nombre_filtro);
+                            filtro.valores.forEach(valor => {
+                                const option = document.createElement('option');
+                                option.value = valor.id;
+                                option.textContent = valor.valor;
+                                input.appendChild(option);
+                            });
+                        } else {
+                            console.warn('No hay valores para el filtro:', filtro.nombre_filtro);
+                        }
+                    }
+                    else if (tipo === 'text') {
+                        // INPUT TEXT
+                        input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = 'filtro_' + filtro.nombre_filtro;
+                        input.className = 'form-control filtro-input';
+                        input.setAttribute('data-filtro', filtro.nombre_filtro);
+                        input.setAttribute('data-tipo', tipo);
+                        input.placeholder = 'Escribe ' + filtro.etiqueta.toLowerCase();
+                    }
+                    else if (tipo === 'number') {
+                        // INPUT NUMBER
+                        input = document.createElement('input');
+                        input.type = 'number';
+                        input.id = 'filtro_' + filtro.nombre_filtro;
+                        input.className = 'form-control filtro-input';
+                        input.setAttribute('data-filtro', filtro.nombre_filtro);
+                        input.setAttribute('data-tipo', tipo);
+                        input.placeholder = 'Escribe un número';
+                    }
+                    else if (tipo === 'date') {
+                        // INPUT DATE
+                        input = document.createElement('input');
+                        input.type = 'date';
+                        input.id = 'filtro_' + filtro.nombre_filtro;
+                        input.className = 'form-control filtro-input';
+                        input.setAttribute('data-filtro', filtro.nombre_filtro);
+                        input.setAttribute('data-tipo', tipo);
                     }
                     
                     div.appendChild(label);
-                    div.appendChild(select);
+                    div.appendChild(input);
                     container.appendChild(div);
                 });
                 
                 console.log('Filtros agregados, inicializando Select2');
                 
-                // Inicializar Select2 en todos los select de filtros
+                // Inicializar Select2 en los select de filtros
                 setTimeout(() => {
-                    $('.filtro-select').select2({
+                    $('select.filtro-input').select2({
                         theme: 'bootstrap-5',
                         width: '100%'
                     });
@@ -232,13 +269,13 @@ function aplicarFiltro() {
         return;
     }
 
-    // Recopilar valores de todos los filtros
+    // Recopilar valores de todos los filtros (select e inputs)
     const filtros = {};
     let todosCompletos = true;
     
-    document.querySelectorAll('.filtro-select').forEach(select => {
-        const nombreFiltro = select.getAttribute('data-filtro');
-        const valor = select.value;
+    document.querySelectorAll('.filtro-input').forEach(input => {
+        const nombreFiltro = input.getAttribute('data-filtro');
+        const valor = input.value;
         
         if (!valor) {
             todosCompletos = false;

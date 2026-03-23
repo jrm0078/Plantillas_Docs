@@ -2,279 +2,295 @@
 <html>
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Administrar Plantillas</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrar Plantillas</title>
 
-<link rel="icon" href="about:blank">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link href="public/css/formulario.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
-<script src="public/js/tinymce_es.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="icon" href="about:blank">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="public/css/formulario.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+  <script src="public/js/tinymce_es.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
 
 <body>
 
-<button class="theme-toggle" id="themeToggle">
-  Oscuro
-</button>
+  <button class="theme-toggle" id="themeToggle">
+    Oscuro
+  </button>
 
-<div class="container-fluid py-4" style="max-width:1400px; margin:0 auto;">
+  <div class="container-fluid py-4" style="max-width:1400px; margin:0 auto;">
 
-<div class="card shadow-lg mb-4">
-<div class="card-body">
+    <div class="card shadow-lg mb-4">
+      <div class="card-body">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-<h2>Gestionar Plantillas</h2>
-<button class="btn btn-success" onclick="abrirFormularioNueva()" id="btnCrearTabla">
-Crear Plantilla
-</button>
-</div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2>Gestionar Plantillas</h2>
+          <button class="btn btn-success" onclick="abrirFormularioNueva()" id="btnCrearTabla">
+            Crear Plantilla
+          </button>
+        </div>
 
-<div id="alertaContainer"></div>
+        <div id="alertaContainer"></div>
 
-<div id="tablaPantillas" style="display:block;">
-<table class="table table-striped">
-<thead>
-<tr>
-<th>Codigo</th>
-<th>Nombre</th>
-<th>Descripcion</th>
-<th>Tipo</th>
-<th>Estado</th>
-<th>Acciones</th>
-</tr>
-</thead>
-<tbody id="cuerpoTabla">
-</tbody>
-</table>
-</div>
+        <div id="tablaPantillas" style="display:block;">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Codigo</th>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoTabla">
+            </tbody>
+          </table>
+        </div>
 
-<div id="formularioSection" style="display:none;">
-<div class="mb-3">
-<button class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#referenciaColumnas" style="cursor: pointer;">
-<i class="fas fa-info-circle"></i> Ver Columnas Disponibles
-</button>
-</div>
+        <div id="formularioSection" style="display:none;">
+          <div class="mb-3">
+            <button class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#referenciaColumnas"
+              style="cursor: pointer;">
+              <i class="fas fa-info-circle"></i> Ver Columnas Disponibles
+            </button>
+          </div>
 
-<!-- SECCIÓN DE REFERENCIA DE COLUMNAS -->
-<div class="collapse mb-4" id="referenciaColumnas">
-<div class="card card-body">
-<h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
-<div class="row">
-<div class="col-md-6">
-<div class="mb-3">
-<h6 class="fw-bold text-primary">Tabla: presupuestos</h6>
-<small class="text-muted d-block">
-- id<br>
-- id_cliente<br>
-- id_ano<br>
-- id_departamento<br>
-- numero_presupuesto<br>
-- descripcion<br>
-- cantidad<br>
-- precio_unitario<br>
-- descuento<br>
-- fecha_creacion
-</small>
-</div>
-</div>
-<div class="col-md-6">
-<div class="mb-3">
-<h6 class="fw-bold text-primary">Tabla: clientes</h6>
-<small class="text-muted d-block">
-- id<br>
-- nombre<br>
-- nif<br>
-- email<br>
-- telefono<br>
-- direccion<br>
-- provincia<br>
-- edad<br>
-- ciudad<br>
-- cif
-</small>
-</div>
-</div>
-</div>
-<div class="row">
-<div class="col-md-6">
-<div class="mb-3">
-<h6 class="fw-bold text-primary">Tabla: contratos</h6>
-<small class="text-muted d-block">
-- id<br>
-- numero_contrato<br>
-- id_cliente<br>
-- descripcion<br>
-- fecha_inicio<br>
-- fecha_fin<br>
-- duracion_meses<br>
-- considerandos<br>
-- observaciones<br>
-- responsable
-</small>
-</div>
-</div>
-<div class="col-md-6">
-<div class="mb-3">
-<h6 class="fw-bold text-primary">Tabla: ofertas</h6>
-<small class="text-muted d-block">
-- id<br>
-- numero_oferta<br>
-- id_cliente<br>
-- concepto<br>
-- cantidad<br>
-- precio_unitario<br>
-- valor_total<br>
-- vigencia_dias<br>
-- observaciones_oferta<br>
-- fecha_creacion
-</small>
-</div>
-</div>
-</div>
-<hr>
-<p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato -nombre_columna- (Ej: -numero_presupuesto-, -descripcion-, etc.)</small></p>
-</div>
-</div>
+          <!-- SECCIÓN DE REFERENCIA DE COLUMNAS -->
+          <div class="collapse mb-4" id="referenciaColumnas">
+            <div class="card card-body">
+              <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <h6 class="fw-bold text-primary">Tabla: presupuestos</h6>
+                    <small class="text-muted d-block">
+                      - id<br>
+                      - id_cliente<br>
+                      - id_ano<br>
+                      - id_departamento<br>
+                      - numero_presupuesto<br>
+                      - descripcion<br>
+                      - cantidad<br>
+                      - precio_unitario<br>
+                      - descuento<br>
+                      - fecha_creacion
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <h6 class="fw-bold text-primary">Tabla: clientes</h6>
+                    <small class="text-muted d-block">
+                      - id<br>
+                      - nombre<br>
+                      - nif<br>
+                      - email<br>
+                      - telefono<br>
+                      - direccion<br>
+                      - provincia<br>
+                      - edad<br>
+                      - ciudad<br>
+                      - cif
+                    </small>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <h6 class="fw-bold text-primary">Tabla: contratos</h6>
+                    <small class="text-muted d-block">
+                      - id<br>
+                      - numero_contrato<br>
+                      - id_cliente<br>
+                      - descripcion<br>
+                      - fecha_inicio<br>
+                      - fecha_fin<br>
+                      - duracion_meses<br>
+                      - considerandos<br>
+                      - observaciones<br>
+                      - responsable
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <h6 class="fw-bold text-primary">Tabla: ofertas</h6>
+                    <small class="text-muted d-block">
+                      - id<br>
+                      - numero_oferta<br>
+                      - id_cliente<br>
+                      - concepto<br>
+                      - cantidad<br>
+                      - precio_unitario<br>
+                      - valor_total<br>
+                      - vigencia_dias<br>
+                      - observaciones_oferta<br>
+                      - fecha_creacion
+                    </small>
+                  </div>
+                </div>
+              </div>
+              <hr>
+              <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el
+                  formato -nombre_columna- (Ej: -numero_presupuesto-, -descripcion-, etc.)</small></p>
+            </div>
+          </div>
 
-<h4 id="tituloFormulario">Nueva Plantilla</h4>
+          <h4 id="tituloFormulario">Nueva Plantilla</h4>
 
-<div class="row mb-3">
-<div class="col-md-6">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">Codigo Plantilla <span style="color: red; font-weight: bold;">*</span></label>
-<input type="text" id="cod_plantilla" class="form-control" placeholder="Ej: presupuesto_1" required>
-</div>
-<div class="col-md-6">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">Nombre <span style="color: red; font-weight: bold;">*</span></label>
-<input type="text" id="nombre" class="form-control" placeholder="Ej: Presupuesto Estandar" required>
-</div>
-</div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Codigo Plantilla <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="cod_plantilla" class="form-control" placeholder="Ej: presupuesto_1" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Nombre <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="nombre" class="form-control" placeholder="Ej: Presupuesto Estandar" required>
+            </div>
+          </div>
 
-<div class="row mb-3">
-<div class="col-md-6">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">Descripcion</label>
-<input type="text" id="descripcion" class="form-control" placeholder="">
-</div>
-<div class="col-md-6">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">Tipo de Documento</label>
-<input type="text" id="tipo_documento" class="form-control" placeholder="Ej: presupuesto">
-</div>
-</div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Descripcion</label>
+              <input type="text" id="descripcion" class="form-control" placeholder="">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Tipo de Documento</label>
+              <input type="text" id="tipo_documento" class="form-control" placeholder="Ej: presupuesto">
+            </div>
+          </div>
 
-<div class="row mb-3">
-<div class="col-md-4">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">Tabla Origen <span style="color: red; font-weight: bold;">*</span></label>
-<input type="text" id="tabla_origen" class="form-control" placeholder="Ej: clientes" required>
-<small class="form-text text-muted">Tabla de la base de datos origen</small>
-</div>
-<div class="col-md-4">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">Campo Clave <span style="color: red; font-weight: bold;">*</span></label>
-<input type="text" id="campo_clave" class="form-control" placeholder="Ej: id" required>
-<small class="form-text text-muted">Campo identificador único</small>
-</div>
-<div class="col-md-4">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">SQL Consulta <span style="color: red; font-weight: bold;">*</span></label>
-<input type="text" id="sql_consulta" class="form-control" placeholder="Ej: SELECT * FROM clientes WHERE id = [[id_cliente]]" required>
-<small class="form-text text-muted">Usar parámetros nombrados: <code>[[id_cliente]]</code>, <code>[[anio]]</code>, etc. Los valores vienen de los filtros.</small>
-</div>
-</div>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Tabla Origen <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="tabla_origen" class="form-control" placeholder="Ej: clientes" required>
+              <small class="form-text text-muted">Tabla de la base de datos origen</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Campo Clave <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="campo_clave" class="form-control" placeholder="Ej: id" required>
+              <small class="form-text text-muted">Campo identificador único</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">SQL Consulta <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="sql_consulta" class="form-control"
+                placeholder="Ej: SELECT * FROM clientes WHERE id = [[id_cliente]]" required>
+              <small class="form-text text-muted">Usar parámetros nombrados: <code>[[id_cliente]]</code>,
+                <code>[[anio]]</code>, etc. Los valores vienen de los filtros.</small>
+            </div>
+          </div>
 
-<div class="mb-3">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">HTML Plantilla <span style="color: red; font-weight: bold;">*</span></label>
-<div class="row">
-<div class="col-md-6">
-<label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Texto (HTML)</label>
-<textarea id="contenido" class="form-control" rows="20" placeholder="Pegue el HTML con variables entre guiones -variable-" style="min-height: 550px;" required></textarea>
-<small class="form-text text-muted">Campo obligatorio. Usar variables con formato: -nombre-, -dni-, -email-, etc.</small>
-</div>
-<div class="col-md-6">
-<label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Visual (Vista Previa)</label>
-<textarea id="previsualizacion" style="width: 100%; min-height: 550px;"></textarea>
-</div>
-</div>
-</div>
+          <div class="mb-3">
+            <label class="form-label fw-bold" style="font-size: 1.05rem;">HTML Plantilla <span
+                style="color: red; font-weight: bold;">*</span></label>
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Texto
+                  (HTML)</label>
+                <textarea id="contenido" class="form-control" rows="20"
+                  placeholder="Pegue el HTML con variables entre guiones -variable-" style="min-height: 550px;"
+                  required></textarea>
+                <small class="form-text text-muted">Campo obligatorio. Usar variables con formato: -nombre-, -dni-,
+                  -email-, etc.</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Visual
+                  (Vista Previa)</label>
+                <textarea id="previsualizacion" style="width: 100%; min-height: 550px;"></textarea>
+              </div>
+            </div>
+          </div>
 
-<div class="mb-3">
-<label class="form-label fw-bold" style="font-size: 1.05rem;">
-<input type="checkbox" id="estado" checked> Plantilla Activa
-</label>
-</div>
+          <div class="mb-3">
+            <label class="form-label fw-bold" style="font-size: 1.05rem;">
+              <input type="checkbox" id="estado" checked> Plantilla Activa
+            </label>
+          </div>
 
-<!-- SECCIÓN: VARIABLES -->
-<hr class="my-4">
-<h5 class="mb-3">Variables para Rellenar por Usuario</h5>
-<div class="table-responsive mb-3">
-<table class="table table-sm table-bordered" id="tablaVariables">
-<thead class="table-light">
-<tr>
-<th>Nombre Variable</th>
-<th>Etiqueta</th>
-<th>Tipo</th>
-<th>Requerido</th>
-<th>Orden</th>
-<th>Acciones</th>
-</tr>
-</thead>
-<tbody id="bodyVariables">
-</tbody>
-</table>
-</div>
-<button type="button" class="btn btn-sm btn-success mb-4" onclick="agregarFilaVariable()">
-+ Agregar Variable
-</button>
+          <!-- SECCIÓN: VARIABLES -->
+          <hr class="my-4">
+          <h5 class="mb-3">Variables para Rellenar por Usuario</h5>
+          <div class="table-responsive mb-3">
+            <table class="table table-sm table-bordered" id="tablaVariables">
+              <thead class="table-light">
+                <tr>
+                  <th>Nombre Variable</th>
+                  <th>Etiqueta</th>
+                  <th>Tipo</th>
+                  <th>Requerido</th>
+                  <th>Orden</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="bodyVariables">
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn btn-sm btn-success mb-4" onclick="agregarFilaVariable()">
+            + Agregar Variable
+          </button>
 
-<!-- SECCIÓN: FILTROS -->
-<hr class="my-4">
-<h5 class="mb-3">Filtros para Consulta SQL</h5>
+          <!-- SECCIÓN: FILTROS -->
+          <hr class="my-4">
+          <h5 class="mb-3">Filtros para Consulta SQL</h5>
 
-<div class="table-responsive mb-3">
-<table class="table table-sm table-bordered" id="tablaFiltros">
-<thead class="table-light">
-<tr>
-<th>Nombre Filtro</th>
-<th>Etiqueta</th>
-<th>Tipo</th>
-<th style="min-width: 250px;">Configuración</th>
-<th>Orden</th>
-<th>Requerido</th>
-<th>Acciones</th>
-</tr>
-</thead>
-<tbody id="bodyFiltros">
-</tbody>
-</table>
-</div>
-<button type="button" class="btn btn-sm btn-success mb-4" onclick="agregarFilaFiltro()">
-+ Agregar Filtro
-</button>
+          <div class="table-responsive mb-3">
+            <table class="table table-sm table-bordered" id="tablaFiltros">
+              <thead class="table-light">
+                <tr>
+                  <th>Nombre Filtro</th>
+                  <th>Etiqueta</th>
+                  <th>Tipo</th>
+                  <th style="min-width: 250px;">Configuración</th>
+                  <th>Orden</th>
+                  <th>Requerido</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="bodyFiltros">
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn btn-sm btn-success mb-4" onclick="agregarFilaFiltro()">
+            + Agregar Filtro
+          </button>
 
-<div>
-<button class="btn btn-primary" onclick="guardarPlantilla()">
-Guardar
-</button>
-<button class="btn btn-secondary" onclick="cancelarFormulario()">
-Cancelar
-</button>
-</div>
+          <div>
+            <button class="btn btn-primary" onclick="guardarPlantilla()">
+              Guardar
+            </button>
+            <button class="btn btn-secondary" onclick="cancelarFormulario()">
+              Cancelar
+            </button>
+          </div>
 
-</div>
+        </div>
 
-</div>
-</div>
+      </div>
+    </div>
 
-<button class="btn btn-light" onclick="history.back()">
-Volver
-</button>
+    <button class="btn btn-light" onclick="history.back()">
+      Volver
+    </button>
 
-</div>
+  </div>
 
-<script src="public/js/admin_plantillas.js"></script>
-<script src="public/js/temaoscuro.js"></script>
+  <script src="public/js/admin_plantillas.js"></script>
+  <script src="public/js/temaoscuro.js"></script>
 
 </body>
+
 </html>

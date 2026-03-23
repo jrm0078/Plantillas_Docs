@@ -542,6 +542,7 @@ function actualizarConfiguracionFiltro(rowId) {
         case 'select_sql':
             html = `
                 <textarea class="form-control form-control-sm filtro-sql-query" placeholder="SELECT id, nombre FROM tabla WHERE..." rows="2" required></textarea>
+                <small class="text-muted d-block mt-1">Tip: Usa [[nombre_filtro]] para parámetros dinámicos</small>
             `;
             break;
         case 'text':

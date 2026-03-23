@@ -232,17 +232,6 @@ Crear Plantilla
 <hr class="my-4">
 <h5 class="mb-3">Filtros para Consulta SQL</h5>
 
-<!-- AYUDA: Parámetros Nombrados -->
-<div class="alert alert-info mb-3" style="font-size: 0.9rem;">
-    <strong><i class="fas fa-info-circle"></i> Parámetros Nombrados para Filtros SELECT SQL:</strong><br>
-    En los filtros de tipo "SELECT SQL", puedes usar parámetros nombrados para crear consultas dinámicas:
-    <ul class="mb-0 mt-2">
-        <li><code>SELECT id, nombre FROM clientes WHERE nombre LIKE [[buscar]]</code></li>
-        <li><code>SELECT id FROM presupuestos WHERE anio = [[anio]] AND estado = [[estado]]</code></li>
-    </ul>
-    Los nombres entre <code>[[]]</code> deben coincidir con los nombres de otros filtros (ó usar el nombre del propio filtro).
-</div>
-
 <div class="table-responsive mb-3">
 <table class="table table-sm table-bordered" id="tablaFiltros">
 <thead class="table-light">

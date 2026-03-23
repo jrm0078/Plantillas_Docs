@@ -117,16 +117,9 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('nombre').value = data.data.nombre;
                 document.getElementById('descripcion').value = data.data.descripcion || '';
                 document.getElementById('tipo_documento').value = data.data.tipo_documento || '';
-                document.getElementById('tabla_origen').value = data.data.tabla_origen || 'clientes';
-                document.getElementById('campo_clave').value = data.data.campo_clave || 'id';
-                document.getElementById('sql_consulta').value = data.data.sql_consulta || 'SELECT * FROM clientes WHERE id = ?';
+                document.getElementById('sql_consulta').value = data.data.sql_consulta || 'SELECT * FROM clientes WHERE id = [[id]]';
                 document.getElementById('contenido').value = decodificarHTML(data.data.contenido || '');
                 document.getElementById('estado').checked = data.data.estado == 1;
-                
-                // Actualizar previsualización con TinyMCE
-                if (tinymce.get('previsualizacion')) {
-                    tinymce.get('previsualizacion').setContent(decodificarHTML(data.data.contenido || ''));
-                }
                 
                 // NUEVA: Cargar Variables
                 const bodyVariables = document.getElementById('bodyVariables');
@@ -232,8 +225,6 @@ function guardarPlantilla() {
     const cod = document.getElementById('cod_plantilla').value.trim();
     const nombre = document.getElementById('nombre').value.trim();
     const contenido = document.getElementById('contenido').value.trim();
-    const tabla_origen = document.getElementById('tabla_origen').value.trim();
-    const campo_clave = document.getElementById('campo_clave').value.trim();
     const sql_consulta = document.getElementById('sql_consulta').value.trim();
     
     // Validaciones
@@ -252,18 +243,6 @@ function guardarPlantilla() {
     if (!contenido) {
         mostrarAlerta('El contenido HTML de la plantilla es obligatorio', 'warning');
         document.getElementById('contenido').focus();
-        return;
-    }
-    
-    if (!tabla_origen) {
-        mostrarAlerta('La tabla origen es obligatoria', 'warning');
-        document.getElementById('tabla_origen').focus();
-        return;
-    }
-    
-    if (!campo_clave) {
-        mostrarAlerta('El campo clave es obligatorio', 'warning');
-        document.getElementById('campo_clave').focus();
         return;
     }
     
@@ -299,8 +278,6 @@ function guardarPlantilla() {
         nombre: nombre,
         descripcion: document.getElementById('descripcion').value,
         tipo_documento: document.getElementById('tipo_documento').value,
-        tabla_origen: tabla_origen,
-        campo_clave: campo_clave,
         sql_consulta: sql_consulta,
         contenido: contenido,
         estado: document.getElementById('estado').checked ? 1 : 0,
@@ -364,15 +341,9 @@ function limpiarFormulario() {
     document.getElementById('nombre').value = '';
     document.getElementById('descripcion').value = '';
     document.getElementById('tipo_documento').value = '';
-    document.getElementById('tabla_origen').value = 'clientes';
-    document.getElementById('campo_clave').value = 'id';
-    document.getElementById('sql_consulta').value = 'SELECT * FROM clientes WHERE id = ?';
+    document.getElementById('sql_consulta').value = '';
     document.getElementById('contenido').value = '';
     document.getElementById('estado').checked = true;
-    
-    if (tinymce.get('previsualizacion')) {
-        tinymce.get('previsualizacion').setContent('');
-    }
     
     plantillaEnEdicion = null;
 }
@@ -549,14 +520,7 @@ function actualizarConfiguracionFiltro(rowId) {
         case 'number':
         case 'date':
             html = `
-                <select class="form-control form-control-sm filtro-operador">
-                    <option value="=">=</option>
-                    <option value="LIKE">LIKE</option>
-                    <option value=">">&gt;</option>
-                    <option value="<">&lt;</option>
-                    <option value=">=">&gt;=</option>
-                    <option value="<=">&lt;=</option>
-                </select>
+                <small class="text-muted d-block">Operador especificado en SQL del filtro</small>
             `;
             break;
     }
@@ -616,8 +580,7 @@ function obtenerFiltros() {
             filtro.campo_valor = 'nombre';
         } 
         else if (['text', 'number', 'date'].includes(tipo)) {
-            const operador = configDiv.querySelector('.filtro-operador')?.value || '=';
-            filtro.operador = operador;
+            // Operador especificado en SQL
         }
         
         filtros.push(filtro);

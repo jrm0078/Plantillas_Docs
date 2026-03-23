@@ -170,22 +170,48 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-bold" style="font-size: 1.05rem;">SQL Consulta <span
-                style="color: red; font-weight: bold;">*</span></label>
-            <textarea id="sql_consulta" class="form-control" rows="6"
-              placeholder="Ej: SELECT c.* FROM clientes c WHERE c.id = [[id_cliente]] AND c.id_ano = [[anio]]"
-              required></textarea>
-            <small class="form-text text-muted">Usar parámetros nombrados: <code>[[id_cliente]]</code>, <code>[[anio]]</code>, etc. Los valores vienen de los filtros.</small>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Tabla Origen <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="tabla_origen" class="form-control" placeholder="Ej: clientes" required>
+              <small class="form-text text-muted">Tabla de la base de datos origen</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">Campo Clave <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="campo_clave" class="form-control" placeholder="Ej: id" required>
+              <small class="form-text text-muted">Campo identificador único</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold" style="font-size: 1.05rem;">SQL Consulta <span
+                  style="color: red; font-weight: bold;">*</span></label>
+              <input type="text" id="sql_consulta" class="form-control"
+                placeholder="Ej: SELECT * FROM clientes WHERE id = [[id_cliente]]" required>
+              <small class="form-text text-muted">Usar parámetros nombrados: <code>[[id_cliente]]</code>,
+                <code>[[anio]]</code>, etc. Los valores vienen de los filtros.</small>
+            </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-bold" style="font-size: 1.05rem;">Plantilla <span
+            <label class="form-label fw-bold" style="font-size: 1.05rem;">HTML Plantilla <span
                 style="color: red; font-weight: bold;">*</span></label>
-            <textarea id="contenido" class="form-control" rows="20"
-              placeholder="Editor visual - Usar variables entre guiones -variable-" style="min-height: 550px;"
-              required></textarea>
-            <small class="form-text text-muted">Usar variables con formato: -nombre-, -dni-, -email-, etc.</small>
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Texto
+                  (HTML)</label>
+                <textarea id="contenido" class="form-control" rows="20"
+                  placeholder="Pegue el HTML con variables entre guiones -variable-" style="min-height: 550px;"
+                  required></textarea>
+                <small class="form-text text-muted">Campo obligatorio. Usar variables con formato: -nombre-, -dni-,
+                  -email-, etc.</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Visual
+                  (Vista Previa)</label>
+                <textarea id="previsualizacion" style="width: 100%; min-height: 550px;"></textarea>
+              </div>
+            </div>
           </div>
 
           <div class="mb-3">

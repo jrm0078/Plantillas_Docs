@@ -261,26 +261,10 @@ else if ($action === 'crear') {
         exit;
     }
     
-    if (!$data['tabla_origen'] || trim($data['tabla_origen']) === '') {
-        echo json_encode(['success' => false, 'error' => 'La tabla origen es requerida']);
-        exit;
-    }
-    
-    if (!$data['campo_clave'] || trim($data['campo_clave']) === '') {
-        echo json_encode(['success' => false, 'error' => 'El campo clave es requerido']);
-        exit;
-    }
-    
     if (!$data['sql_consulta'] || trim($data['sql_consulta']) === '') {
         echo json_encode(['success' => false, 'error' => 'La sentencia SQL es requerida']);
         exit;
     }
-    
-    // Validación comentada - permitir SQL con o sin parámetros
-    // if (strpos($data['sql_consulta'], '?') === false) {
-    //     echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
-    //     exit;
-    // }
     
     if (strpos($data['cod_plantilla'], ' ') !== false) {
         echo json_encode(['success' => false, 'error' => 'El código de plantilla no puede contener espacios']);
@@ -303,34 +287,13 @@ else if ($action === 'crear') {
             ':desc' => $data['descripcion'] ?? '',
             ':tipo' => $data['tipo_documento'] ?? '',
             ':contenido' => $data['contenido'],
-            ':tabla' => $data['tabla_origen'] ?? '',
-            ':campo' => $data['campo_clave'] ?? '',
+            ':tabla' => '',
+            ':campo' => '',
             ':sql' => $data['sql_consulta'] ?? '',
             ':estado' => $data['estado'] ?? 1
         ]);
         
-        // 2. INSERTAR VARIABLES (si existen)
-        if (!empty($data['variables']) && is_array($data['variables'])) {
-            $stmtVar = $pdo->prepare("
-                INSERT INTO plantilla_variables (cod_plantilla, nombre_variable, etiqueta, tipo, requerido, orden)
-                VALUES (:cod, :nombre, :etiqueta, :tipo, :requerido, :orden)
-            ");
-            
-            foreach ($data['variables'] as $variable) {
-                if (!empty($variable['nombre_variable']) && !empty($variable['etiqueta'])) {
-                    $stmtVar->execute([
-                        ':cod' => $data['cod_plantilla'],
-                        ':nombre' => $variable['nombre_variable'],
-                        ':etiqueta' => $variable['etiqueta'],
-                        ':tipo' => $variable['tipo'] ?? 'text',
-                        ':requerido' => $variable['requerido'] ?? 0,
-                        ':orden' => $variable['orden'] ?? 999
-                    ]);
-                }
-            }
-        }
-        
-        // 3. INSERTAR FILTROS (si existen)
+        // 2. INSERTAR FILTROS (si existen)
         if (!empty($data['filtros']) && is_array($data['filtros'])) {
             $stmtFilt = $pdo->prepare("
                 INSERT INTO plantillas_filtros 
@@ -406,26 +369,10 @@ else if ($action === 'editar') {
         exit;
     }
     
-    if (!$data['tabla_origen'] || trim($data['tabla_origen']) === '') {
-        echo json_encode(['success' => false, 'error' => 'La tabla origen es requerida']);
-        exit;
-    }
-    
-    if (!$data['campo_clave'] || trim($data['campo_clave']) === '') {
-        echo json_encode(['success' => false, 'error' => 'El campo clave es requerido']);
-        exit;
-    }
-    
     if (!$data['sql_consulta'] || trim($data['sql_consulta']) === '') {
         echo json_encode(['success' => false, 'error' => 'La sentencia SQL es requerida']);
         exit;
     }
-    
-    // Validación comentada - permitir SQL con o sin parámetros
-    // if (strpos($data['sql_consulta'], '?') === false) {
-    //     echo json_encode(['success' => false, 'error' => 'La sentencia SQL debe contener ? como parámetro']);
-    //     exit;
-    // }
     
     try {
         // INICIAR TRANSACCIÓN
@@ -435,7 +382,7 @@ else if ($action === 'editar') {
         $stmt = $pdo->prepare("
             UPDATE plantillas 
             SET nombre = :nombre, descripcion = :desc, tipo_documento = :tipo, 
-                contenido = :contenido, tabla_origen = :tabla, campo_clave = :campo, 
+                contenido = :contenido, tabla_origen = '', campo_clave = '', 
                 sql_consulta = :sql, estado = :estado
             WHERE cod_plantilla = :cod
         ");
@@ -446,42 +393,11 @@ else if ($action === 'editar') {
             ':desc' => $data['descripcion'] ?? '',
             ':tipo' => $data['tipo_documento'] ?? '',
             ':contenido' => $data['contenido'],
-            ':tabla' => $data['tabla_origen'],
-            ':campo' => $data['campo_clave'],
             ':sql' => $data['sql_consulta'],
             ':estado' => $data['estado'] ?? 1
         ]);
         
-        // 2. ELIMINAR VARIABLES ANTIGUAS
-        $pdo->prepare("DELETE FROM plantilla_variables WHERE cod_plantilla = :cod")
-            ->execute([':cod' => $cod]);
-        
-        // 3. AGREGAR NUEVAS VARIABLES
-        if (!empty($data['variables']) && is_array($data['variables'])) {
-            $stmtVar = $pdo->prepare("
-                INSERT INTO plantilla_variables (cod_plantilla, nombre_variable, etiqueta, tipo, requerido, orden)
-                VALUES (:cod, :nombre, :etiqueta, :tipo, :requerido, :orden)
-            ");
-            
-            foreach ($data['variables'] as $variable) {
-                if (!empty($variable['nombre_variable']) && !empty($variable['etiqueta'])) {
-                    $stmtVar->execute([
-                        ':cod' => $cod,
-                        ':nombre' => $variable['nombre_variable'],
-                        ':etiqueta' => $variable['etiqueta'],
-                        ':tipo' => $variable['tipo'] ?? 'text',
-                        ':requerido' => $variable['requerido'] ?? 0,
-                        ':orden' => $variable['orden'] ?? 999
-                    ]);
-                }
-            }
-        }
-        
-        // 4. ELIMINAR FILTROS ANTIGUOS
-        $pdo->prepare("DELETE FROM plantillas_filtros WHERE cod_plantilla = :cod")
-            ->execute([':cod' => $cod]);
-        
-        // 5. AGREGAR NUEVOS FILTROS
+        // 3. AGREGAR NUEVOS FILTROS
         if (!empty($data['filtros']) && is_array($data['filtros'])) {
             $stmtFilt = $pdo->prepare("
                 INSERT INTO plantillas_filtros 

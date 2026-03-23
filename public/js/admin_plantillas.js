@@ -117,9 +117,7 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('nombre').value = data.data.nombre;
                 document.getElementById('descripcion').value = data.data.descripcion || '';
                 document.getElementById('tipo_documento').value = data.data.tipo_documento || '';
-                document.getElementById('tabla_origen').value = data.data.tabla_origen || 'clientes';
-                document.getElementById('campo_clave').value = data.data.campo_clave || 'id';
-                document.getElementById('sql_consulta').value = data.data.sql_consulta || 'SELECT * FROM clientes WHERE id = ?';
+                document.getElementById('sql_consulta').value = data.data.sql_consulta || 'SELECT * FROM clientes WHERE id = [[id]]';
                 document.getElementById('contenido').value = decodificarHTML(data.data.contenido || '');
                 document.getElementById('estado').checked = data.data.estado == 1;
                 
@@ -129,34 +127,6 @@ function abrirFormularioEditar(cod) {
                 }
                 
                 // NUEVA: Cargar Variables
-                const bodyVariables = document.getElementById('bodyVariables');
-                bodyVariables.innerHTML = '';
-                
-                if (data.data.variables && data.data.variables.length > 0) {
-                    data.data.variables.forEach(variable => {
-                        const rowId = 'var_' + Date.now() + Math.random();
-                        const row = document.createElement('tr');
-                        row.id = rowId;
-                        row.innerHTML = `
-                            <td><input type="text" class="form-control form-control-sm" value="${variable.nombre_variable}"></td>
-                            <td><input type="text" class="form-control form-control-sm" value="${variable.etiqueta}"></td>
-                            <td>
-                                <select class="form-control form-control-sm">
-                                    <option value="text" ${variable.tipo === 'text' ? 'selected' : ''}>Texto</option>
-                                    <option value="email" ${variable.tipo === 'email' ? 'selected' : ''}>Email</option>
-                                    <option value="number" ${variable.tipo === 'number' ? 'selected' : ''}>Número</option>
-                                    <option value="date" ${variable.tipo === 'date' ? 'selected' : ''}>Fecha</option>
-                                    <option value="textarea" ${variable.tipo === 'textarea' ? 'selected' : ''}>Texto largo</option>
-                                </select>
-                            </td>
-                            <td><input type="checkbox" class="form-check-input" ${variable.requerido === 1 ? 'checked' : ''}></td>
-                            <td><input type="number" class="form-control form-control-sm" value="${variable.orden || 1}" min="1"></td>
-                            <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaVariable('${rowId}')">Eliminar</button></td>
-                        `;
-                        bodyVariables.appendChild(row);
-                    });
-                }
-                
                 // NUEVA: Cargar Filtros
                 const bodyFiltros = document.getElementById('bodyFiltros');
                 bodyFiltros.innerHTML = '';
@@ -232,8 +202,6 @@ function guardarPlantilla() {
     const cod = document.getElementById('cod_plantilla').value.trim();
     const nombre = document.getElementById('nombre').value.trim();
     const contenido = document.getElementById('contenido').value.trim();
-    const tabla_origen = document.getElementById('tabla_origen').value.trim();
-    const campo_clave = document.getElementById('campo_clave').value.trim();
     const sql_consulta = document.getElementById('sql_consulta').value.trim();
     
     // Validaciones
@@ -255,18 +223,7 @@ function guardarPlantilla() {
         return;
     }
     
-    if (!tabla_origen) {
-        mostrarAlerta('La tabla origen es obligatoria', 'warning');
-        document.getElementById('tabla_origen').focus();
-        return;
-    }
-    
-    if (!campo_clave) {
-        mostrarAlerta('El campo clave es obligatorio', 'warning');
-        document.getElementById('campo_clave').focus();
-        return;
-    }
-    
+
     if (!sql_consulta) {
         mostrarAlerta('La sentencia SQL es obligatoria', 'warning');
         document.getElementById('sql_consulta').focus();
@@ -299,12 +256,11 @@ function guardarPlantilla() {
         nombre: nombre,
         descripcion: document.getElementById('descripcion').value,
         tipo_documento: document.getElementById('tipo_documento').value,
-        tabla_origen: tabla_origen,
-        campo_clave: campo_clave,
+
         sql_consulta: sql_consulta,
         contenido: contenido,
         estado: document.getElementById('estado').checked ? 1 : 0,
-        variables: obtenerVariables(),
+
         filtros: obtenerFiltros()
     };
     
@@ -364,8 +320,7 @@ function limpiarFormulario() {
     document.getElementById('nombre').value = '';
     document.getElementById('descripcion').value = '';
     document.getElementById('tipo_documento').value = '';
-    document.getElementById('tabla_origen').value = 'clientes';
-    document.getElementById('campo_clave').value = 'id';
+
     document.getElementById('sql_consulta').value = 'SELECT * FROM clientes WHERE id = ?';
     document.getElementById('contenido').value = '';
     document.getElementById('estado').checked = true;
@@ -413,73 +368,6 @@ function mostrarAlerta(mensaje, tipo) {
         const alerta = document.getElementById(alertId);
         if (alerta) alerta.remove();
     }, 4000);
-}
-
-// ========== FUNCIONES PARA VARIABLES ==========
-function agregarFilaVariable() {
-    const tbody = document.getElementById('bodyVariables');
-    const fila = document.createElement('tr');
-    const rowId = 'var-' + Date.now();
-    
-    fila.id = rowId;
-    fila.innerHTML = `
-        <td><input type="text" class="form-control form-control-sm var-nombre" placeholder="nombre_variable" required></td>
-        <td><input type="text" class="form-control form-control-sm var-etiqueta" placeholder="Etiqueta visible" required></td>
-        <td>
-            <select class="form-select form-select-sm var-tipo" required>
-                <option value="text">Texto</option>
-                <option value="email">Email</option>
-                <option value="number">Número</option>
-                <option value="date">Fecha</option>
-                <option value="textarea">Área de texto</option>
-            </select>
-        </td>
-        <td>
-            <input type="checkbox" class="form-check-input var-requerido" checked>
-        </td>
-        <td><input type="number" class="form-control form-control-sm var-orden" value="1" min="1" required></td>
-        <td>
-            <button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaVariable('${rowId}')">
-                <i class="fas fa-trash"></i>
-            </button>
-        </td>
-    `;
-    
-    tbody.appendChild(fila);
-}
-
-function eliminarFilaVariable(rowId) {
-    const fila = document.getElementById(rowId);
-    if (fila) fila.remove();
-}
-
-function obtenerVariables() {
-    const variables = [];
-    const filas = document.querySelectorAll('#bodyVariables tr');
-    
-    filas.forEach((fila, index) => {
-        const celdas = fila.querySelectorAll('td');
-        if (celdas.length < 5) return; // Skip si no tiene suficientes celdas
-        
-        // Celda 0: nombre, Celda 1: etiqueta, Celda 2: tipo, Celda 3: requerido, Celda 4: orden
-        const nombre = celdas[0].querySelector('input')?.value.trim() || '';
-        const etiqueta = celdas[1].querySelector('input')?.value.trim() || '';
-        const tipo = celdas[2].querySelector('select')?.value || celdas[2].querySelector('input')?.value || 'text';
-        const requerido = celdas[3].querySelector('input[type="checkbox"]')?.checked ? 1 : 0;
-        const orden = parseInt(celdas[4].querySelector('input')?.value) || (index + 1);
-        
-        if (nombre && etiqueta) {
-            variables.push({
-                nombre_variable: nombre,
-                etiqueta: etiqueta,
-                tipo: tipo,
-                requerido: requerido,
-                orden: orden
-            });
-        }
-    });
-    
-    return variables;
 }
 
 // ========== FUNCIONES PARA FILTROS ==========

@@ -170,20 +170,7 @@
             </div>
           </div>
 
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <label class="form-label fw-bold" style="font-size: 1.05rem;">Tabla Origen <span
-                  style="color: red; font-weight: bold;">*</span></label>
-              <input type="text" id="tabla_origen" class="form-control" placeholder="Ej: clientes" required>
-              <small class="form-text text-muted">Tabla de la base de datos origen</small>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-bold" style="font-size: 1.05rem;">Campo Clave <span
-                  style="color: red; font-weight: bold;">*</span></label>
-              <input type="text" id="campo_clave" class="form-control" placeholder="Ej: id" required>
-              <small class="form-text text-muted">Campo identificador único</small>
-            </div>
-            <div class="col-md-12">
+          <div class="mb-3">
               <label class="form-label fw-bold" style="font-size: 1.05rem;">SQL Consulta <span
                   style="color: red; font-weight: bold;">*</span></label>
               <textarea id="sql_consulta" class="form-control" rows="6"
@@ -191,7 +178,6 @@
               <small class="form-text text-muted">Usar parámetros nombrados: <code>[[id_cliente]]</code>,
                 <code>[[anio]]</code>, etc. Los valores vienen de los filtros.</small>
             </div>
-          </div>
 
           <div class="mb-3">
             <label class="form-label fw-bold" style="font-size: 1.05rem;">Plantilla HTML <span
@@ -213,29 +199,6 @@
               <input type="checkbox" id="estado" checked> Plantilla Activa
             </label>
           </div>
-
-          <!-- SECCIÓN: VARIABLES -->
-          <hr class="my-4">
-          <h5 class="mb-3">Variables para Rellenar por Usuario</h5>
-          <div class="table-responsive mb-3">
-            <table class="table table-sm table-bordered" id="tablaVariables">
-              <thead class="table-light">
-                <tr>
-                  <th>Nombre Variable</th>
-                  <th>Etiqueta</th>
-                  <th>Tipo</th>
-                  <th>Requerido</th>
-                  <th>Orden</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="bodyVariables">
-              </tbody>
-            </table>
-          </div>
-          <button type="button" class="btn btn-sm btn-success mb-4" onclick="agregarFilaVariable()">
-            + Agregar Variable
-          </button>
 
           <!-- SECCIÓN: FILTROS -->
           <hr class="my-4">

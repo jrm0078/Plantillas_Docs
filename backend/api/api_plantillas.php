@@ -324,7 +324,6 @@ else if ($action === 'crear') {
                     ':campo_clave' => $filtro['campo_clave'] ?? 'id',
                     ':campo_valor' => $filtro['campo_valor'] ?? 'nombre',
                     ':sql_query' => $filtro['sql_query'] ?? null,
-                    ':operador' => $filtro['operador'] ?? '=',
                     ':orden' => $filtro['orden'] ?? 999,
                     ':requerido' => $filtro['requerido'] ?? 1,
                     ':activo' => 1
@@ -428,7 +427,6 @@ else if ($action === 'editar') {
                     ':campo_clave' => $filtro['campo_clave'] ?? 'id',
                     ':campo_valor' => $filtro['campo_valor'] ?? 'nombre',
                     ':sql_query' => $filtro['sql_query'] ?? null,
-                    ':operador' => $filtro['operador'] ?? '=',
                     ':orden' => $filtro['orden'] ?? 999,
                     ':requerido' => $filtro['requerido'] ?? 1,
                     ':activo' => 1

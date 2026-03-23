@@ -436,16 +436,7 @@ function actualizarConfiguracionFiltro(rowId) {
         case 'text':
         case 'number':
         case 'date':
-            html = `
-                <select class="form-control form-control-sm filtro-operador">
-                    <option value="=">=</option>
-                    <option value="LIKE">LIKE</option>
-                    <option value=">">&gt;</option>
-                    <option value="<">&lt;</option>
-                    <option value=">=">&gt;=</option>
-                    <option value="<=">&lt;=</option>
-                </select>
-            `;
+            html = '';
             break;
     }
     
@@ -500,12 +491,9 @@ function obtenerFiltros() {
             if (!sqlQuery) return;
             
             filtro.sql_query = sqlQuery;
-            filtro.campo_clave = 'id';  // Por defecto
-            filtro.campo_valor = 'nombre';
         } 
         else if (['text', 'number', 'date'].includes(tipo)) {
-            const operador = configDiv.querySelector('.filtro-operador')?.value || '=';
-            filtro.operador = operador;
+            // Sin configuración especial para estos tipos
         }
         
         filtros.push(filtro);

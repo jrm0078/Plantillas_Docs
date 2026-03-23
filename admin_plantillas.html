@@ -183,36 +183,30 @@
               <input type="text" id="campo_clave" class="form-control" placeholder="Ej: id" required>
               <small class="form-text text-muted">Campo identificador único</small>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-12">
               <label class="form-label fw-bold" style="font-size: 1.05rem;">SQL Consulta <span
                   style="color: red; font-weight: bold;">*</span></label>
-              <input type="text" id="sql_consulta" class="form-control"
-                placeholder="Ej: SELECT * FROM clientes WHERE id = [[id_cliente]]" required>
+              <textarea id="sql_consulta" class="form-control" rows="6"
+                placeholder="Ej: SELECT * FROM clientes WHERE id = [[id_cliente]]" required></textarea>
               <small class="form-text text-muted">Usar parámetros nombrados: <code>[[id_cliente]]</code>,
                 <code>[[anio]]</code>, etc. Los valores vienen de los filtros.</small>
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-bold" style="font-size: 1.05rem;">HTML Plantilla <span
+            <label class="form-label fw-bold" style="font-size: 1.05rem;">Plantilla HTML <span
                 style="color: red; font-weight: bold;">*</span></label>
             <div class="row">
-              <div class="col-md-6">
-                <label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Texto
-                  (HTML)</label>
-                <textarea id="contenido" class="form-control" rows="20"
-                  placeholder="Pegue el HTML con variables entre guiones -variable-" style="min-height: 550px;"
-                  required></textarea>
-                <small class="form-text text-muted">Campo obligatorio. Usar variables con formato: -nombre-, -dni-,
-                  -email-, etc.</small>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Visual
-                  (Vista Previa)</label>
-                <textarea id="previsualizacion" style="width: 100%; min-height: 550px;"></textarea>
+              <div class="col-md-12">
+                <label class="form-label" style="font-size: 0.9rem; color: #667eea; font-weight: 600;">Editor Visual</label>
+                <textarea id="previsualizacion" style="width: 100%; min-height: 600px;"></textarea>
+                <small class="form-text text-muted">Usar variables con formato: -nombre-, -dni-, -email-, etc.</small>
               </div>
             </div>
           </div>
+          
+          <!-- textarea hidden para almacenar HTML -->
+          <textarea id="contenido" style="display:none;"></textarea>
 
           <div class="mb-3">
             <label class="form-label fw-bold" style="font-size: 1.05rem;">

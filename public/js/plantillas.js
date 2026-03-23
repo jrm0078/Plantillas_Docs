@@ -150,6 +150,82 @@ function cargarClientes() {
 }
 
 // NUEVO: CARGAR FILTROS DINÁMICAMENTE
+// ============================================
+// FUNCIONES PARA FILTROS CON PARÁMETROS NOMBRADOS [[param]]
+// ============================================
+
+function cargarOpcionesConParametros(filtro, paramContainer) {
+    const plantillaActualCod = plantillaActual?.cod_plantilla;
+    if (!plantillaActualCod) {
+        console.error('Plantilla no disponible');
+        return;
+    }
+    
+    // Recopilar valores de los parámetros
+    const parametros = {};
+    const paramInputs = paramContainer.querySelectorAll('.param-input');
+    let todosCompletados = true;
+    
+    paramInputs.forEach(input => {
+        const paramName = input.getAttribute('data-param-name');
+        const valor = input.value.trim();
+        parametros[paramName] = valor;
+        
+        if (!valor) {
+            todosCompletados = false;
+        }
+    });
+    
+    if (!todosCompletados) {
+        console.warn('No todos los parámetros están completados');
+        return;
+    }
+    
+    console.log('Ejecutando SELECT con parámetros:', parametros);
+    
+    // Llamar al endpoint para ejecutar el SELECT con parámetros
+    const url = API_PLANTILLAS + '?action=ejecutar_select_filtro&cod=' + plantillaActualCod + '&filtro=' + filtro.nombre_filtro + '&parametros=' + encodeURIComponent(JSON.stringify(parametros));
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Respuesta de SELECT parametrizado:', data);
+            
+            if (data.success) {
+                const selectElement = document.getElementById('filtro_' + filtro.nombre_filtro);
+                
+                // Limpiar opciones existentes (excepto el default)
+                while (selectElement.options.length > 1) {
+                    selectElement.remove(1);
+                }
+                
+                // Agregar nuevas opciones
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(valor => {
+                        const option = document.createElement('option');
+                        option.value = valor.id;
+                        option.textContent = valor.valor;
+                        selectElement.appendChild(option);
+                    });
+                    
+                    // Actualizar Select2 si existe
+                    if ($.fn.select2) {
+                        $(selectElement).trigger('change');
+                    }
+                } else {
+                    console.warn('No hay resultados para los parámetros especificados');
+                }
+            } else {
+                console.error('Error al ejecutar SELECT:', data.error);
+                alert('Error al cargar opciones: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error en fetch:', error);
+            alert('Error al conectar con el servidor');
+        });
+}
+
 function cargarFiltros(cod_plantilla) {
     console.log('Cargando filtros para:', cod_plantilla);
     
@@ -180,29 +256,89 @@ function cargarFiltros(cod_plantilla) {
                     
                     // CREAR UI SEGÚN TIPO DE FILTRO
                     if (tipo === 'select_table' || tipo === 'select_sql') {
-                        // SELECT DROPDOWN
-                        input = document.createElement('select');
-                        input.id = 'filtro_' + filtro.nombre_filtro;
-                        input.className = 'form-select filtro-input';
-                        input.setAttribute('data-filtro', filtro.nombre_filtro);
-                        input.setAttribute('data-tipo', tipo);
-                        
-                        const optionDefault = document.createElement('option');
-                        optionDefault.value = '';
-                        optionDefault.textContent = '-- Seleccionar ' + filtro.etiqueta.toLowerCase() + ' --';
-                        input.appendChild(optionDefault);
-                        
-                        // Agregar opciones del filtro
-                        if (filtro.valores && filtro.valores.length > 0) {
-                            console.log('Agregando ' + filtro.valores.length + ' valores a ' + filtro.nombre_filtro);
-                            filtro.valores.forEach(valor => {
-                                const option = document.createElement('option');
-                                option.value = valor.id;
-                                option.textContent = valor.valor;
-                                input.appendChild(option);
+                        // SELECT con parámetros nombrados [[param]]
+                        if (filtro.tiene_parametros && filtro.parametros_requeridos) {
+                            // Crear contenedor para parámetros
+                            const paramContainer = document.createElement('div');
+                            paramContainer.className = 'mb-2';
+                            paramContainer.id = 'param_' + filtro.nombre_filtro;
+                            
+                            // Crear inputs para cada parámetro
+                            filtro.parametros_requeridos.forEach(paramName => {
+                                const paramLabel = document.createElement('label');
+                                paramLabel.className = 'form-label fw-bold small';
+                                paramLabel.textContent = 'Parámetro: [[' + paramName + ']]';
+                                
+                                const paramInput = document.createElement('input');
+                                paramInput.type = 'text';
+                                paramInput.className = 'form-control form-control-sm mb-2 param-input';
+                                paramInput.setAttribute('data-param-name', paramName);
+                                paramInput.setAttribute('data-filtro-parent', filtro.nombre_filtro);
+                                paramInput.placeholder = 'Valor para ' + paramName;
+                                
+                                paramContainer.appendChild(paramLabel);
+                                paramContainer.appendChild(paramInput);
                             });
+                            
+                            div.appendChild(label);
+                            div.appendChild(paramContainer);
+                            
+                            // Crear SELECT pero sin opciones iniciales
+                            input = document.createElement('select');
+                            input.id = 'filtro_' + filtro.nombre_filtro;
+                            input.className = 'form-select filtro-input';
+                            input.setAttribute('data-filtro', filtro.nombre_filtro);
+                            input.setAttribute('data-tipo', tipo);
+                            input.setAttribute('data-tiene-parametros', 'true');
+                            
+                            const optionDefault = document.createElement('option');
+                            optionDefault.value = '';
+                            optionDefault.textContent = '-- Ingresa los parámetros arriba y presiona Tab --';
+                            input.appendChild(optionDefault);
+                            
+                            // Event listener para ejecutar SELECT al cambiar parámetros
+                            paramContainer.addEventListener('change', function(e) {
+                                if (e.target.classList.contains('param-input')) {
+                                    cargarOpcionesConParametros(filtro, paramContainer);
+                                }
+                            });
+                            
+                            // También ejecutar al perder foco (Tab)
+                            Array.from(paramContainer.querySelectorAll('.param-input')).forEach(elem => {
+                                elem.addEventListener('blur', function() {
+                                    cargarOpcionesConParametros(filtro, paramContainer);
+                                });
+                            });
+                            
+                            div.appendChild(input);
                         } else {
-                            console.warn('No hay valores para el filtro:', filtro.nombre_filtro);
+                            // SELECT sin parámetros - carga estática
+                            input = document.createElement('select');
+                            input.id = 'filtro_' + filtro.nombre_filtro;
+                            input.className = 'form-select filtro-input';
+                            input.setAttribute('data-filtro', filtro.nombre_filtro);
+                            input.setAttribute('data-tipo', tipo);
+                            
+                            const optionDefault = document.createElement('option');
+                            optionDefault.value = '';
+                            optionDefault.textContent = '-- Seleccionar ' + filtro.etiqueta.toLowerCase() + ' --';
+                            input.appendChild(optionDefault);
+                            
+                            // Agregar opciones del filtro
+                            if (filtro.valores && filtro.valores.length > 0) {
+                                console.log('Agregando ' + filtro.valores.length + ' valores a ' + filtro.nombre_filtro);
+                                filtro.valores.forEach(valor => {
+                                    const option = document.createElement('option');
+                                    option.value = valor.id;
+                                    option.textContent = valor.valor;
+                                    input.appendChild(option);
+                                });
+                            } else {
+                                console.warn('No hay valores para el filtro:', filtro.nombre_filtro);
+                            }
+                            
+                            div.appendChild(label);
+                            div.appendChild(input);
                         }
                     }
                     else if (tipo === 'text') {

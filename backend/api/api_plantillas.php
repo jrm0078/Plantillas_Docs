@@ -659,16 +659,30 @@ else if ($action === 'obtener_filtros') {
                 try {
                     $sql = $filtro['sql_query'];
                     if (!empty($sql)) {
-                        $stmt_valores = $pdo->query($sql);
-                        $resultados = $stmt_valores->fetchAll(PDO::FETCH_ASSOC);
+                        // Detectar parámetros nombrados [[param_name]]
+                        $has_params = preg_match_all('/\[\[(\w+)\]\]/', $sql, $param_matches);
                         
-                        // Convertir resultados a formato [id, valor]
-                        foreach ($resultados as $row) {
-                            $keys = array_keys($row);
-                            $filtro['valores'][] = [
-                                'id' => $row[$keys[0]],
-                                'valor' => $row[$keys[1] ?? $keys[0]]
-                            ];
+                        $filtro['tiene_parametros'] = false;
+                        $filtro['parametros_requeridos'] = [];
+                        
+                        if ($has_params > 0) {
+                            // SQL con parámetros - no ejecutar, esperar valores del usuario
+                            $filtro['tiene_parametros'] = true;
+                            $filtro['parametros_requeridos'] = $param_matches[1]; // Array de nombres
+                            $filtro['valores'] = []; // Sin valores precargados
+                        } else {
+                            // SQL sin parámetros - ejecutar normal
+                            $stmt_valores = $pdo->query($sql);
+                            $resultados = $stmt_valores->fetchAll(PDO::FETCH_ASSOC);
+                            
+                            // Convertir resultados a formato [id, valor]
+                            foreach ($resultados as $row) {
+                                $keys = array_keys($row);
+                                $filtro['valores'][] = [
+                                    'id' => $row[$keys[0]],
+                                    'valor' => $row[$keys[1] ?? $keys[0]]
+                                ];
+                            }
                         }
                     }
                 } catch (Exception $e) {
@@ -685,7 +699,85 @@ else if ($action === 'obtener_filtros') {
     }
 }
 
-// NUEVO: Obtener datos con múltiples filtros (modificación mejorada)
+// NUEVO: Ejecutar SELECT SQL de un filtro con parámetros nombrados [[param]]
+else if ($action === 'ejecutar_select_filtro') {
+    $cod_plantilla = $_GET['cod'] ?? '';
+    $nombre_filtro = $_GET['filtro'] ?? '';
+    $parametros_json = $_GET['parametros'] ?? '{}';
+    
+    if (!$cod_plantilla || !$nombre_filtro) {
+        echo json_encode(['success' => false, 'error' => 'Código de plantilla y nombre de filtro requeridos']);
+        exit;
+    }
+    
+    try {
+        $parametros = json_decode($parametros_json, true);
+        
+        // Obtener configuración del filtro
+        $stmt = $pdo->prepare("
+            SELECT sql_query 
+            FROM plantillas_filtros 
+            WHERE cod_plantilla = :cod AND nombre_filtro = :filtro AND tipo_filtro = 'select_sql'
+        ");
+        $stmt->execute([':cod' => $cod_plantilla, ':filtro' => $nombre_filtro]);
+        $filtro_config = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$filtro_config) {
+            echo json_encode(['success' => false, 'error' => 'Filtro no encontrado']);
+            exit;
+        }
+        
+        $sql = $filtro_config['sql_query'];
+        
+        // Detectar parámetros nombrados [[param_name]]
+        $has_params = preg_match_all('/\[\[(\w+)\]\]/', $sql, $param_matches);
+        
+        if ($has_params > 0) {
+            // Obtener nombres de parámetros
+            $param_names = $param_matches[1];
+            $param_values = [];
+            
+            // Mapear valores de parámetros
+            foreach ($param_names as $param_name) {
+                if (isset($parametros[$param_name])) {
+                    $param_values[] = $parametros[$param_name];
+                } else {
+                    // Parámetro no proporcionado
+                    $param_values[] = null;
+                }
+            }
+            
+            // Reemplazar [[param_name]] con ?
+            $sql = preg_replace('/\[\[\w+\]\]/', '?', $sql);
+            
+            // Ejecutar con parámetros
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($param_values);
+        } else {
+            // Sin parámetros
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+        }
+        
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Convertir resultados a formato [id, valor]
+        $valores = [];
+        foreach ($resultados as $row) {
+            $keys = array_keys($row);
+            $valores[] = [
+                'id' => $row[$keys[0]],
+                'valor' => $row[$keys[1] ?? $keys[0]]
+            ];
+        }
+        
+        echo json_encode(['success' => true, 'data' => $valores]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+// Obtener datos con múltiples filtros (modificación mejorada)
 else if ($action === 'obtener_datos_filtrados') {
     $cod_plantilla = $_GET['cod'] ?? '';
     $filtros_json = $_GET['filtros'] ?? '{}';

@@ -909,6 +909,34 @@ else if ($action === 'obtener_datos_filtrados') {
     }
 }
 
+// DEBUG: Probar SQL directamente
+else if ($action === 'debug_sql') {
+    $sql = $_GET['sql'] ?? '';
+    
+    if (!$sql) {
+        echo json_encode(['success' => false, 'error' => 'SQL requerido']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->query($sql);
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'sql' => $sql,
+            'filas' => count($resultados),
+            'data' => $resultados
+        ]);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'sql' => $sql,
+            'error' => $e->getMessage()
+        ]);
+    }
+}
+
 else {
     echo json_encode(['success' => false, 'error' => 'Acción no válida']);
 }

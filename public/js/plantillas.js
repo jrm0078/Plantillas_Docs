@@ -88,7 +88,7 @@ function cargarPlantilla() {
         return;
     }
 
-    fetch(API_PLANTILLAS + '?action=obtener&cod=' + cod)
+    fetch(API_PLANTILLAS + '?action=obtener_completa&cod=' + cod)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -562,36 +562,63 @@ function generarDocumento() {
         return;
     }
 
-    if (!document.getElementById('selectCliente').value) {
-        mostrarAlerta('Selecciona un cliente primero', 'warning');
+    // Recopilar valores de los filtros
+    const filtros = {};
+    let todosCompletos = true;
+    
+    document.querySelectorAll('.filtro-select').forEach(select => {
+        const valor = select.value;
+        const nombre = select.dataset.nombre || select.name;
+        if (!valor) {
+            todosCompletos = false;
+        }
+        filtros[nombre] = valor;
+    });
+    
+    if (!todosCompletos || Object.values(filtros).some(v => v === '')) {
+        mostrarAlerta('Completa todos los filtros requeridos', 'warning');
         return;
     }
-
-    // Recopilar datos del formulario
-    datosFormulario = {};
-    plantillaActual.variables.forEach(variable => {
-        const inputId = 'var_' + variable.nombre_variable;
-        const input = document.getElementById(inputId);
-        if (input) {
-            datosFormulario[variable.nombre_variable] = input.value;
-        }
-    });
-
-    // Llamar API para reemplazar variables
-    fetch(API_PLANTILLAS + '?action=reemplazar&cod=' + plantillaActual.cod_plantilla, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(datosFormulario)
-    })
+    
+    // Ejecutar consulta SQL con los filtros
+    fetch(API_PLANTILLAS + '?action=obtener_datos_filtrados&cod=' + plantillaActual.cod_plantilla + '&filtros=' + encodeURIComponent(JSON.stringify(filtros)))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Cargar contenido reemplazado en TinyMCE
-                if (tinymce.activeEditor) {
-                    tinymce.activeEditor.setContent(data.data.contenido);
+                // Guardar datos obtenidos
+                datosFormulario = data.data;
+                
+                // Reemplazar variables en la plantilla - DINÁMICO
+                let contenido = plantillaActual.contenido;
+                
+                // Reemplazar TODAS las variables encontradas en los datos
+                if (data.data && typeof data.data === 'object') {
+                    // Iterar sobre todas las propiedades del objeto data
+                    for (let key in data.data) {
+                        if (data.data.hasOwnProperty(key)) {
+                            const value = data.data[key];
+                            
+                            // Reemplazar con guiones: -columna-
+                            contenido = contenido.replaceAll('-' + key + '-', value || '');
+                            
+                            // Reemplazar con dobles llaves: {{columna}}
+                            contenido = contenido.replaceAll('{{' + key + '}}', value || '');
+                            
+                            // Reemplazar con triple llave: {{{columna}}}
+                            contenido = contenido.replaceAll('{{{' + key + '}}}', value || '');
+                        }
+                    }
                 }
+                
+                // Cargar en el editor
+                if (tinymce.activeEditor) {
+                    tinymce.activeEditor.setContent(contenido);
+                }
+                
+                // Mostrar el editor
+                document.getElementById('filtroSection').style.display = 'block';
+                document.getElementById('editorSection').style.display = 'block';
+                
                 mostrarAlerta('Documento generado correctamente', 'success');
             } else {
                 mostrarAlerta('Error: ' + data.error, 'danger');

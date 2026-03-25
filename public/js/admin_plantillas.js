@@ -122,9 +122,12 @@ function abrirFormularioEditar(cod) {
                 document.getElementById('estado').checked = data.data.estado == 1;
                 
                 // Actualizar previsualización con TinyMCE
-                if (tinymce.get('previsualizacion')) {
-                    tinymce.get('previsualizacion').setContent(decodificarHTML(data.data.contenido || ''));
-                }
+                // Esperar a que TinyMCE esté listo
+                setTimeout(() => {
+                    if (tinymce.get('previsualizacion')) {
+                        tinymce.get('previsualizacion').setContent(decodificarHTML(data.data.contenido || ''));
+                    }
+                }, 500);
                 
                 // NUEVA: Cargar Variables
                 // NUEVA: Cargar Filtros
@@ -152,16 +155,7 @@ function abrirFormularioEditar(cod) {
                                 <textarea class="form-control form-control-sm filtro-sql-query" rows="2">${filtro.sql_query || ''}</textarea>
                             `;
                         } else if (['text', 'number', 'date'].includes(tipo)) {
-                            configHtml = `
-                                <select class="form-control form-control-sm filtro-operador">
-                                    <option value="=" ${filtro.operador === '=' ? 'selected' : ''}>=</option>
-                                    <option value="LIKE" ${filtro.operador === 'LIKE' ? 'selected' : ''}>LIKE</option>
-                                    <option value=">" ${filtro.operador === '>' ? 'selected' : ''}>&gt;</option>
-                                    <option value="<" ${filtro.operador === '<' ? 'selected' : ''}>&lt;</option>
-                                    <option value=">=" ${filtro.operador === '>=' ? 'selected' : ''}>&gt;=</option>
-                                    <option value="<=" ${filtro.operador === '<=' ? 'selected' : ''}>&lt;=</option>
-                                </select>
-                            `;
+                            configHtml = '';
                         }
                         
                         row.innerHTML = `

@@ -358,10 +358,14 @@ function mostrarAlerta(mensaje, tipo) {
     
     document.getElementById('alertaContainer').appendChild(alertDiv);
     
-    setTimeout(() => {
-        const alerta = document.getElementById(alertId);
-        if (alerta) alerta.remove();
-    }, 4000);
+    // Los errores se mantienen visibles hasta que el usuario los cierre manualmente
+    // El resto de alertas desaparecen después de 5 segundos
+    if (tipo !== 'danger') {
+        setTimeout(() => {
+            const alerta = document.getElementById(alertId);
+            if (alerta) alerta.remove();
+        }, 5000);
+    }
 }
 
 // ========== FUNCIONES PARA FILTROS ==========

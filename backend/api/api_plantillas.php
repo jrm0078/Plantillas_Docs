@@ -297,8 +297,8 @@ else if ($action === 'crear') {
         if (!empty($data['filtros']) && is_array($data['filtros'])) {
             $stmtFilt = $pdo->prepare("
                 INSERT INTO plantillas_filtros 
-                (cod_plantilla, nombre_filtro, etiqueta, tipo_filtro, tabla_datos, campo_clave, campo_valor, sql_query, operador, orden, requerido, activo)
-                VALUES (:cod, :nombre, :etiqueta, :tipo, :tabla, :campo_clave, :campo_valor, :sql_query, :operador, :orden, :requerido, :activo)
+                (cod_plantilla, nombre_filtro, etiqueta, tipo_filtro, tabla_datos, campo_clave, campo_valor, sql_query, orden, requerido, activo)
+                VALUES (:cod, :nombre, :etiqueta, :tipo, :tabla, :campo_clave, :campo_valor, :sql_query, :orden, :requerido, :activo)
             ");
             
             foreach ($data['filtros'] as $filtro) {
@@ -400,8 +400,8 @@ else if ($action === 'editar') {
         if (!empty($data['filtros']) && is_array($data['filtros'])) {
             $stmtFilt = $pdo->prepare("
                 INSERT INTO plantillas_filtros 
-                (cod_plantilla, nombre_filtro, etiqueta, tipo_filtro, tabla_datos, campo_clave, campo_valor, sql_query, operador, orden, requerido, activo)
-                VALUES (:cod, :nombre, :etiqueta, :tipo, :tabla, :campo_clave, :campo_valor, :sql_query, :operador, :orden, :requerido, :activo)
+                (cod_plantilla, nombre_filtro, etiqueta, tipo_filtro, tabla_datos, campo_clave, campo_valor, sql_query, orden, requerido, activo)
+                VALUES (:cod, :nombre, :etiqueta, :tipo, :tabla, :campo_clave, :campo_valor, :sql_query, :orden, :requerido, :activo)
             ");
             
             foreach ($data['filtros'] as $filtro) {

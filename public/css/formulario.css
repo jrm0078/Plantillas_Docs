@@ -598,6 +598,110 @@ p {
   color: #888;
 }
 
+/* ===== ESTILOS PARA COLUMNAS SQL ===== */
+.badge {
+  transition: all 0.3s ease;
+  display: inline-block;
+  padding: 6px 10px;
+  margin: 2px;
+  user-select: none;
+}
+
+.badge.bg-info {
+  background-color: var(--info) !important;
+  color: white;
+}
+
+.badge.bg-info:hover {
+  background-color: #0052a3 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
+  cursor: pointer;
+}
+
+.dark-mode .badge.bg-info {
+  background-color: #0066cc !important;
+}
+
+.dark-mode .badge.bg-info:hover {
+  background-color: #0052a3 !important;
+}
+
+#referenciaColumnas {
+  margin-bottom: 20px;
+}
+
+#referenciaColumnas .card {
+  border: 2px solid var(--primary);
+  transition: all 0.3s ease;
+}
+
+.dark-mode #referenciaColumnas .card {
+  border-color: #667eea;
+}
+
+#referenciaColumnas .card-body {
+  background: var(--card-light);
+  padding: 20px;
+}
+
+.dark-mode #referenciaColumnas .card-body {
+  background: var(--card-dark);
+}
+
+#referenciaColumnas .card-body h5 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.dark-mode #referenciaColumnas .card-body h5 {
+  color: #8899ff;
+}
+
+#referenciaColumnas .d-flex {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-info {
+  background-color: var(--info) !important;
+  border-color: var(--info) !important;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+  background-color: #0052a3 !important;
+  border-color: #0052a3 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
+}
+
+.dark-mode .btn-info {
+  background-color: #0066cc !important;
+  border-color: #0066cc !important;
+}
+
+.dark-mode .btn-info:hover {
+  background-color: #0052a3 !important;
+  border-color: #0052a3 !important;
+}
+
+code {
+  color: var(--info);
+  background: rgba(0, 102, 204, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.dark-mode code {
+  color: #5aa8ff;
+  background: rgba(0, 102, 204, 0.2);
+}
+
 .text-muted {
   color: #666 !important;
 }

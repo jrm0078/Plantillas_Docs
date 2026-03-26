@@ -56,6 +56,16 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('contenido').addEventListener('input', function() {
         actualizarPreview();
     });
+    
+    // Evento para actualizar referencia de columnas cuando cambia el SQL
+    const sqlTextarea = document.getElementById('sql_consulta');
+    if (sqlTextarea) {
+        sqlTextarea.addEventListener('input', function() {
+            actualizarReferenciaColumnas();
+        });
+        // Actualizar columnas al cargar la página (en caso de que haya SQL precargado)
+        actualizarReferenciaColumnas();
+    }
 });
 
 // CARGAR TABLA DE PLANTILLAS
@@ -101,6 +111,11 @@ function abrirFormularioNueva() {
     limpiarFormulario();
     ocultarTabla();
     document.getElementById('btnCrearTabla').style.display = 'none';
+    
+    // Actualizar referencia de columnas (vacía al principio)
+    setTimeout(() => {
+        actualizarReferenciaColumnas();
+    }, 100);
 }
 
 // ABRIR FORMULARIO PARA EDITAR
@@ -128,6 +143,11 @@ function abrirFormularioEditar(cod) {
                         tinymce.get('previsualizacion').setContent(decodificarHTML(data.data.contenido || ''));
                     }
                 }, 500);
+                
+                // Actualizar referencia de columnas disponibles
+                setTimeout(() => {
+                    actualizarReferenciaColumnas();
+                }, 300);
                 
                 // NUEVA: Cargar Variables
                 // NUEVA: Cargar Filtros
@@ -498,4 +518,192 @@ function obtenerFiltros() {
     });
     
     return filtros;
+}
+
+// ========== FUNCIONES PARA PARSEAR SQL Y MOSTRAR COLUMNAS ==========
+
+/**
+ * Extrae los nombres de columnas (incluyendo aliases) de una consulta SQL SELECT
+ * @param {string} sql - Consulta SQL
+ * @returns {Array} Array de objetos con {nombre, tipo}
+ */
+function extraerColumnasSQL(sql) {
+    if (!sql || sql.trim() === '') {
+        return [];
+    }
+    
+    try {
+        // Limpiar whitespace
+        let sqlLimpio = sql.trim();
+        
+        // Remover comentarios SQL de una línea (-- comentario)
+        sqlLimpio = sqlLimpio.replace(/--[^\n]*/g, '');
+        
+        // Remover comentarios SQL multilínea (/* comentario */)
+        sqlLimpio = sqlLimpio.replace(/\/\*[\s\S]*?\*\//g, '');
+        
+        // Expresión regular para extraer la sección SELECT ... FROM
+        const regexSelect = /SELECT\s+(.*?)\s+FROM/is;
+        const matchSelect = sqlLimpio.match(regexSelect);
+        
+        if (!matchSelect || !matchSelect[1]) {
+            return [];
+        }
+        
+        const selectPart = matchSelect[1].trim();
+        
+        // Si es SELECT *, retornar vacío (no se pueden extraer nombres específicos)
+        if (selectPart === '*') {
+            return [{nombre: '*', tipo: 'all'}];
+        }
+        
+        // Separar por comas (manteniendo cuidado con comas dentro de paréntesis o funciones)
+        const columnasRaw = selectPart.split(',').map(s => s.trim());
+        
+        const columnas = [];
+        
+        columnasRaw.forEach(col => {
+            if (!col) return;
+            
+            // Remover funciones de agregación comunes
+            col = col.replace(/^(COUNT|SUM|AVG|MIN|MAX|GROUP_CONCAT|CONCAT|UPPER|LOWER|COALESCE|IFNULL|DATE_FORMAT|DATE|YEAR|MONTH|DAY|IF|CASE[\s\S]*?END)\s*\(/i, '');
+            
+            // Remover paréntesis de funciones que quedan
+            col = col.replace(/[()]/g, '');
+            
+            // Detectar alias: "nombre AS alias" o "nombre alias"
+            // Patrón: palabra palabra o palabra AS palabra
+            const regexAlias = /^(.+?)\s+(?:AS\s+)?(\w+)$/i;
+            const matchAlias = col.match(regexAlias);
+            
+            let nombre = col;
+            
+            if (matchAlias && matchAlias[1].trim() !== matchAlias[2].trim()) {
+                // Hay un alias
+                nombre = matchAlias[2].trim();
+            } else {
+                // No hay alias, extraer el último identificador
+                // Remover paréntesis residuales
+                nombre = col.split(/[\s\(\)]+/).filter(p => p).pop() || col;
+                
+                // Si tiene tabla.columna, tomar solo columna
+                if (nombre.includes('.')) {
+                    nombre = nombre.split('.').pop();
+                }
+            }
+            
+            // Limpiar backticks y comillas
+            nombre = nombre.replace(/[`"']/g, '');
+            
+            if (nombre && nombre.length > 0) {
+                columnas.push({
+                    nombre: nombre,
+                    tipo: 'column'
+                });
+            }
+        });
+        
+        return columnas;
+        
+    } catch (e) {
+        console.error('Error al parsear SQL:', e);
+        return [];
+    }
+}
+
+/**
+ * Actualiza la sección de referencia de columnas basada en el SQL ingresado
+ */
+function actualizarReferenciaColumnas() {
+    const sql = document.getElementById('sql_consulta')?.value || '';
+    const columnas = extraerColumnasSQL(sql);
+    
+    // Obtener el contenedor de referencia
+    const refDiv = document.getElementById('referenciaColumnas');
+    if (!refDiv) return;
+    
+    // Si no hay columnas validas, no actualizar
+    if (columnas.length === 0) {
+        return;
+    }
+    
+    // Si es SELECT *, mostrar mensaje
+    if (columnas.length === 1 && columnas[0].tipo === 'all') {
+        const cardBody = refDiv.querySelector('.card-body');
+        if (cardBody) {
+            cardBody.innerHTML = `
+                <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
+                <div class="alert alert-info">
+                    <strong>SELECT *</strong> detectado en la consulta.
+                    <br><small>Se usarán todas las columnas de la tabla. Para una referencia específica, lista las columnas explícitamente en el SELECT.</small>
+                </div>
+                <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato -nombre_columna-</small></p>
+            `;
+        }
+        return;
+    }
+    
+    // Construir HTML para las columnas extraídas
+    let columnasHTML = '';
+    
+    // Agrupar por columnas disponibles
+    if (columnas.length > 0) {
+        columnasHTML = `
+            <div class="mb-3">
+                <h6 class="fw-bold text-primary"><i class="fas fa-columns"></i> Columnas Disponibles en tu Consulta SQL</h6>
+                <div class="d-flex flex-wrap gap-2">
+        `;
+        
+        columnas.forEach(col => {
+            columnasHTML += `
+                <span class="badge bg-info" style="font-size: 0.85rem; cursor: pointer;" title="Click para copiar" onclick="copiarColumna('${col.nombre}')">
+                    -${col.nombre}-
+                </span>
+            `;
+        });
+        
+        columnasHTML += `
+                </div>
+            </div>
+        `;
+    }
+    
+    // Actualizar el contenido del card-body
+    const cardBody = refDiv.querySelector('.card-body');
+    if (cardBody) {
+        cardBody.innerHTML = `
+            <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
+            ${columnasHTML}
+            <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato -nombre_columna- (Ej: -numero_presupuesto-, -descripcion-, etc.)</small></p>
+        `;
+        
+        // Actualizar si el panel está colapsado
+        const refCollapse = new bootstrap.Collapse(refDiv, { toggle: false });
+    }
+}
+
+/**
+ * Copia el texto de una columna al portapapeles
+ */
+function copiarColumna(nombre) {
+    const texto = `-${nombre}-`;
+    navigator.clipboard.writeText(texto).then(() => {
+        // Mostrar feedback visual
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.innerHTML = `
+            Columna "<code>${nombre}</code>" copiada a portapapeles
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 3000);
+    }).catch(err => {
+        console.error('Error al copiar:', err);
+    });
 }

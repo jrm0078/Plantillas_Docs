@@ -149,8 +149,6 @@ function abrirFormularioEditar(cod) {
                     actualizarReferenciaColumnas();
                 }, 300);
                 
-                // NUEVA: Cargar Variables
-                // NUEVA: Cargar Filtros
                 const bodyFiltros = document.getElementById('bodyFiltros');
                 bodyFiltros.innerHTML = '';
                 
@@ -528,10 +526,7 @@ function obtenerFiltros() {
  * @returns {Object} {columnas: Array, esSelectAsterisco: boolean, tabla: string}
  */
 function extraerColumnasSQL(sql) {
-    console.log('extraerColumnasSQL called with:', sql);
-    
     if (!sql || sql.trim() === '') {
-        console.log('SQL is empty');
         return {columnas: [], esSelectAsterisco: false, tabla: ''};
     }
     
@@ -545,27 +540,19 @@ function extraerColumnasSQL(sql) {
         // Remover comentarios SQL multilínea (/* comentario */)
         sqlLimpio = sqlLimpio.replace(/\/\*[\s\S]*?\*\//g, '');
         
-        console.log('SQL cleaned:', sqlLimpio);
-        
         // Expresión regular para extraer la sección SELECT ... FROM
         const regexSelect = /SELECT\s+(.*?)\s+FROM\s+(\w+)/is;
         const matchSelect = sqlLimpio.match(regexSelect);
         
-        console.log('matchSelect:', matchSelect);
-        
         if (!matchSelect || !matchSelect[1]) {
-            console.log('No match found for SELECT...FROM');
             return {columnas: [], esSelectAsterisco: false, tabla: ''};
         }
         
         const selectPart = matchSelect[1].trim();
         const tabla = matchSelect[2].trim();
-        console.log('selectPart:', selectPart);
-        console.log('tabla:', tabla);
         
         // Si es SELECT *, retornar indicador de asterisco
         if (selectPart === '*') {
-            console.log('SELECT * detected - marcando para consultar tabla real');
             return {columnas: [], esSelectAsterisco: true, tabla: tabla};
         }
         
@@ -639,19 +626,14 @@ function actualizarReferenciaColumnas() {
     
     // Si no hay resultado válido
     if (!resultado || (resultado.columnas.length === 0 && !resultado.esSelectAsterisco)) {
-        console.log('No valid SQL result');
         return;
     }
     
-    console.log('resultado:', resultado);
-    
     // Si es SELECT *, consultar la tabla real
     if (resultado.esSelectAsterisco) {
-        console.log('SELECT * detected, fetching real columns from:', resultado.tabla);
         fetch(API_PLANTILLAS + '?action=obtener_columnas_tabla&tabla=' + resultado.tabla)
             .then(response => response.json())
             .then(data => {
-                console.log('Columnas reales obtenidas:', data);
                 if (data.success && data.columnas) {
                     // Convertir a formato esperado
                     const columnasObj = data.columnas.map(col => ({
@@ -660,12 +642,11 @@ function actualizarReferenciaColumnas() {
                     }));
                     mostrarColumnasEnPanel(refDiv, columnasObj);
                 } else {
-                    console.warn('Error al obtener columnas reales:', data.error);
                     mostrarColumnasEnPanel(refDiv, []);
                 }
             })
             .catch(error => {
-                console.error('Error fetching columns:', error);
+                console.error('Error al obtener columnas:', error);
                 mostrarColumnasEnPanel(refDiv, []);
             });
         return;
@@ -673,7 +654,6 @@ function actualizarReferenciaColumnas() {
     
     // Si hay columnas extraídas, mostrarlas
     if (resultado.columnas.length > 0) {
-        console.log('Columnas extraídas:', resultado.columnas);
         mostrarColumnasEnPanel(refDiv, resultado.columnas);
     }
 }
@@ -717,7 +697,6 @@ function mostrarColumnasEnPanel(refDiv, columnas) {
     
     // Actualizar el contenido del card-body
     const cardBody = refDiv.querySelector('.card-body');
-    console.log('cardBody found:', !!cardBody);
     
     if (cardBody) {
         cardBody.innerHTML = `
@@ -726,14 +705,10 @@ function mostrarColumnasEnPanel(refDiv, columnas) {
             <p class="text-muted mb-0"><small>Para usar estas columnas en tu plantilla HTML, usa el formato <code>[[nombre_columna]]</code> (ejemplo: <code>[[numero_presupuesto]]</code>, <code>[[descripcion]]</code>). Haz click en cualquier columna arriba para copiarla automáticamente.</small></p>
         `;
         
-        console.log('HTML updated in cardBody');
-        
         // Abrir automáticamente el panel
         const refCollapse = new bootstrap.Collapse(refDiv, { toggle: false });
         refCollapse.show();
-        console.log('Panel opened');
     } else {
-        console.warn('cardBody not found, trying alternative selectors');
         // Intentar con .card como fallback
         const card = refDiv.querySelector('.card');
         if (card) {
@@ -744,10 +719,8 @@ function mostrarColumnasEnPanel(refDiv, columnas) {
                     <p class="text-muted mb-0"><small>Para usar estas columnas en tu plantilla HTML, usa el formato <code>[[nombre_columna]]</code> (ejemplo: <code>[[numero_presupuesto]]</code>, <code>[[descripcion]]</code>). Haz click en cualquier columna arriba para copiarla automáticamente.</small></p>
                 </div>
             `;
-            console.log('HTML updated in card via fallback');
             const refCollapse = new bootstrap.Collapse(refDiv, { toggle: false });
             refCollapse.show();
-            console.log('Panel opened via fallback');
         }
     }
 }

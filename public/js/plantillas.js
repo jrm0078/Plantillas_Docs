@@ -181,7 +181,7 @@ function cargarOpcionesConParametros(filtro, paramContainer) {
         return;
     }
     
-    console.log('Ejecutando SELECT con parámetros:', parametros);
+
     
     // Llamar al endpoint para ejecutar el SELECT con parámetros
     const url = API_PLANTILLAS + '?action=ejecutar_select_filtro&cod=' + plantillaActualCod + '&filtro=' + filtro.nombre_filtro + '&parametros=' + encodeURIComponent(JSON.stringify(parametros));
@@ -189,7 +189,6 @@ function cargarOpcionesConParametros(filtro, paramContainer) {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            console.log('Respuesta de SELECT parametrizado:', data);
             
             if (data.success) {
                 const selectElement = document.getElementById('filtro_' + filtro.nombre_filtro);
@@ -227,23 +226,19 @@ function cargarOpcionesConParametros(filtro, paramContainer) {
 }
 
 function cargarFiltros(cod_plantilla) {
-    console.log('Cargando filtros para:', cod_plantilla);
+
     
     fetch(API_PLANTILLAS + '?action=obtener_filtros&cod=' + cod_plantilla)
         .then(response => response.json())
         .then(data => {
-            console.log('Respuesta de filtros completa:', JSON.stringify(data, null, 2));
             
             if (data.success) {
                 const container = document.getElementById('filtrosContainer');
-                console.log('Contenedor encontrado:', container);
                 
                 container.innerHTML = ''; // Limpiar filtros anteriores
                 
                 // Crear input para cada filtro según su tipo
                 data.data.forEach(filtro => {
-                    console.log('Procesando filtro:', filtro.nombre_filtro, 'Tipo:', filtro.tipo_filtro);
-                    
                     const div = document.createElement('div');
                     div.className = 'col-md-6 mb-3';
                     
@@ -326,15 +321,13 @@ function cargarFiltros(cod_plantilla) {
                             
                             // Agregar opciones del filtro
                             if (filtro.valores && filtro.valores.length > 0) {
-                                console.log('Agregando ' + filtro.valores.length + ' valores a ' + filtro.nombre_filtro);
+
                                 filtro.valores.forEach(valor => {
                                     const option = document.createElement('option');
                                     option.value = valor.id;
                                     option.textContent = valor.valor;
                                     input.appendChild(option);
                                 });
-                            } else {
-                                console.warn('No hay valores para el filtro:', filtro.nombre_filtro);
                             }
                             
                             div.appendChild(label);
@@ -375,9 +368,7 @@ function cargarFiltros(cod_plantilla) {
                     div.appendChild(input);
                     container.appendChild(div);
                 });
-                
-                console.log('Filtros agregados, inicializando Select2');
-                
+
                 // Inicializar Select2 en los select de filtros
                 setTimeout(() => {
                     $('select.filtro-input').select2({
@@ -436,18 +427,13 @@ function aplicarFiltro() {
                 
                 // Reemplazar TODAS las variables encontradas en los datos
                 if (data.data && typeof data.data === 'object') {
-                    console.log('Iniciando reemplazo en aplicarFiltro');
-                    console.log('data.data:', data.data);
-                    
                     // Iterar sobre todas las propiedades del objeto data
                     for (let key in data.data) {
                         if (data.data.hasOwnProperty(key)) {
                             const value = data.data[key];
                             
                             // Reemplazar con dobles corchetes: [[columna]]
-                            const patron1 = '[[' + key + ']]';
-                            console.log(`Buscando ${patron1}, reemplazando con ${value}`);
-                            contenido = contenido.replaceAll(patron1, value || '');
+                            contenido = contenido.replaceAll('[[' + key + ']]', value || '');
                             
                             // Para compatibilidad con formato antiguo, también soportar:
                             // Reemplazar con guiones: -columna-
@@ -460,8 +446,6 @@ function aplicarFiltro() {
                             contenido = contenido.replaceAll('{{{' + key + '}}}', value || '');
                         }
                     }
-                    
-                    console.log('Contenido después de reemplazos:', contenido);
                 }
                 
                 // Cargar en el editor
@@ -586,63 +570,38 @@ function generarDocumento() {
         filtros[nombre] = valor;
     });
     
-    console.log('Filtros recopilados:', filtros);
-    
     if (!todosCompletos || Object.values(filtros).some(v => v === '')) {
         mostrarAlerta('Completa todos los filtros requeridos', 'warning');
         return;
     }
     
-    console.log('Llamando a obtener_datos_filtrados con:', {
-        cod: plantillaActual.cod_plantilla,
-        filtros: filtros
-    });
-    
     // Ejecutar consulta SQL con los filtros
     fetch(API_PLANTILLAS + '?action=obtener_datos_filtrados&cod=' + plantillaActual.cod_plantilla + '&filtros=' + encodeURIComponent(JSON.stringify(filtros)))
         .then(response => response.json())
         .then(data => {
-            console.log('Respuesta de obtener_datos_filtrados:', data);
-            
             if (data.success) {
                 // Guardar datos obtenidos
                 datosFormulario = data.data;
-                
-                console.log('datosFormulario:', datosFormulario);
-                console.log('tipo de datosFormulario:', typeof datosFormulario);
-                console.log('plantillaActual.contenido:', plantillaActual.contenido);
                 
                 // Reemplazar variables en la plantilla - DINÁMICO
                 let contenido = plantillaActual.contenido;
                 
                 // Reemplazar TODAS las variables encontradas en los datos
                 if (datosFormulario && typeof datosFormulario === 'object') {
-                    console.log('Iniciando reemplazo de variables...');
-                    
                     // Iterar sobre todas las propiedades del objeto data
                     for (let key in datosFormulario) {
                         if (datosFormulario.hasOwnProperty(key)) {
                             const value = datosFormulario[key];
-                            const patron = '[[' + key + ']]';
-                            
-                            console.log(`Reemplazando ${patron} con ${value}`);
                             
                             // Reemplazar con dobles corchetes: [[columna]]
                             contenido = contenido.replaceAll('[[' + key + ']]', value || '');
                         }
                     }
-                    
-                    console.log('Contenido después de reemplazos:', contenido);
-                } else {
-                    console.warn('datosFormulario no es un objeto válido');
                 }
                 
                 // Cargar en el editor
                 if (tinymce.activeEditor) {
-                    console.log('Actualizando TinyMCE con contenido');
                     tinymce.activeEditor.setContent(contenido);
-                } else {
-                    console.warn('TinyMCE not active');
                 }
                 
                 // Mostrar el editor
@@ -651,12 +610,11 @@ function generarDocumento() {
                 
                 mostrarAlerta('Documento generado correctamente', 'success');
             } else {
-                console.error('Error en response:', data.error);
                 mostrarAlerta('Error: ' + data.error, 'danger');
             }
         })
         .catch(error => {
-            console.error('Error fetch:', error);
+            console.error('Error:', error);
             mostrarAlerta('Error al generar documento', 'danger');
         });
 }

@@ -193,7 +193,7 @@ function abrirFormularioEditar(cod) {
                             <td id="config-${rowId}">${configHtml}</td>
                             <td><input type="number" class="form-control form-control-sm filtro-orden" value="${filtro.orden || 1}" min="1"></td>
                             <td><input type="checkbox" class="form-check-input filtro-requerido" ${filtro.requerido === 1 ? 'checked' : ''}></td>
-                            <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaFiltro('${rowId}')">Eliminar</button></td>
+                            <td><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFilaFiltro('${rowId}')"><i class="fas fa-trash"></i></button></td>
                         `;
                         bodyFiltros.appendChild(row);
                     });
@@ -528,7 +528,10 @@ function obtenerFiltros() {
  * @returns {Array} Array de objetos con {nombre, tipo}
  */
 function extraerColumnasSQL(sql) {
+    console.log('extraerColumnasSQL called with:', sql);
+    
     if (!sql || sql.trim() === '') {
+        console.log('SQL is empty');
         return [];
     }
     
@@ -542,18 +545,25 @@ function extraerColumnasSQL(sql) {
         // Remover comentarios SQL multilínea (/* comentario */)
         sqlLimpio = sqlLimpio.replace(/\/\*[\s\S]*?\*\//g, '');
         
+        console.log('SQL cleaned:', sqlLimpio);
+        
         // Expresión regular para extraer la sección SELECT ... FROM
         const regexSelect = /SELECT\s+(.*?)\s+FROM/is;
         const matchSelect = sqlLimpio.match(regexSelect);
         
+        console.log('matchSelect:', matchSelect);
+        
         if (!matchSelect || !matchSelect[1]) {
+            console.log('No match found for SELECT...FROM');
             return [];
         }
         
         const selectPart = matchSelect[1].trim();
+        console.log('selectPart:', selectPart);
         
         // Si es SELECT *, retornar vacío (no se pueden extraer nombres específicos)
         if (selectPart === '*') {
+            console.log('SELECT * detected - returning all columns marker');
             return [{nombre: '*', tipo: 'all'}];
         }
         
@@ -620,18 +630,33 @@ function actualizarReferenciaColumnas() {
     
     // Obtener el contenedor de referencia
     const refDiv = document.getElementById('referenciaColumnas');
-    if (!refDiv) return;
-    
-    // Si no hay columnas validas, no actualizar
-    if (columnas.length === 0) {
+    if (!refDiv) {
+        console.warn('referenciaColumnas element not found');
         return;
     }
     
+    // Si no hay columnas validas, no actualizar
+    if (columnas.length === 0) {
+        console.log('No columns extracted from SQL');
+        return;
+    }
+    
+    console.log('Columnas extraídas:', columnas);
+    
     // Si es SELECT *, mostrar mensaje
     if (columnas.length === 1 && columnas[0].tipo === 'all') {
-        const cardBody = refDiv.querySelector('.card-body');
-        if (cardBody) {
-            cardBody.innerHTML = `
+        // Buscar el elemento de contenido - puede ser .card-body o .card directo
+        let fillTarget = refDiv.querySelector('.card-body');
+        if (!fillTarget) {
+            fillTarget = refDiv.querySelector('.card');
+        }
+        if (!fillTarget) {
+            // Si no hay card, buscar en el collapse del contenedor directo
+            fillTarget = refDiv;
+        }
+        
+        if (fillTarget) {
+            fillTarget.innerHTML = `
                 <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
                 <div class="alert alert-info">
                     <strong>SELECT *</strong> detectado en la consulta.
@@ -639,6 +664,9 @@ function actualizarReferenciaColumnas() {
                 </div>
                 <p class="text-muted mb-0"><small>Usa el formato <code>[[nombre_columna]]</code> en tu plantilla HTML para reemplazar valores con datos de la base de datos.</small></p>
             `;
+            console.log('SELECT * message updated');
+        } else {
+            console.warn('No fill target found for SELECT *');
         }
         return;
     }

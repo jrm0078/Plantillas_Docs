@@ -525,14 +525,14 @@ function obtenerFiltros() {
 /**
  * Extrae los nombres de columnas (incluyendo aliases) de una consulta SQL SELECT
  * @param {string} sql - Consulta SQL
- * @returns {Array} Array de objetos con {nombre, tipo}
+ * @returns {Object} {columnas: Array, esSelectAsterisco: boolean, tabla: string}
  */
 function extraerColumnasSQL(sql) {
     console.log('extraerColumnasSQL called with:', sql);
     
     if (!sql || sql.trim() === '') {
         console.log('SQL is empty');
-        return [];
+        return {columnas: [], esSelectAsterisco: false, tabla: ''};
     }
     
     try {
@@ -548,23 +548,25 @@ function extraerColumnasSQL(sql) {
         console.log('SQL cleaned:', sqlLimpio);
         
         // Expresión regular para extraer la sección SELECT ... FROM
-        const regexSelect = /SELECT\s+(.*?)\s+FROM/is;
+        const regexSelect = /SELECT\s+(.*?)\s+FROM\s+(\w+)/is;
         const matchSelect = sqlLimpio.match(regexSelect);
         
         console.log('matchSelect:', matchSelect);
         
         if (!matchSelect || !matchSelect[1]) {
             console.log('No match found for SELECT...FROM');
-            return [];
+            return {columnas: [], esSelectAsterisco: false, tabla: ''};
         }
         
         const selectPart = matchSelect[1].trim();
+        const tabla = matchSelect[2].trim();
         console.log('selectPart:', selectPart);
+        console.log('tabla:', tabla);
         
-        // Si es SELECT *, retornar vacío (no se pueden extraer nombres específicos)
+        // Si es SELECT *, retornar indicador de asterisco
         if (selectPart === '*') {
-            console.log('SELECT * detected - returning all columns marker');
-            return [{nombre: '*', tipo: 'all'}];
+            console.log('SELECT * detected - marcando para consultar tabla real');
+            return {columnas: [], esSelectAsterisco: true, tabla: tabla};
         }
         
         // Separar por comas (manteniendo cuidado con comas dentro de paréntesis o funciones)
@@ -613,11 +615,11 @@ function extraerColumnasSQL(sql) {
             }
         });
         
-        return columnas;
+        return {columnas: columnas, esSelectAsterisco: false, tabla: ''};
         
     } catch (e) {
         console.error('Error al parsear SQL:', e);
-        return [];
+        return {columnas: [], esSelectAsterisco: false, tabla: ''};
     }
 }
 
@@ -626,7 +628,7 @@ function extraerColumnasSQL(sql) {
  */
 function actualizarReferenciaColumnas() {
     const sql = document.getElementById('sql_consulta')?.value || '';
-    const columnas = extraerColumnasSQL(sql);
+    const resultado = extraerColumnasSQL(sql);
     
     // Obtener el contenedor de referencia
     const refDiv = document.getElementById('referenciaColumnas');
@@ -635,51 +637,56 @@ function actualizarReferenciaColumnas() {
         return;
     }
     
-    // Si no hay columnas validas, no actualizar
-    if (columnas.length === 0) {
-        console.log('No columns extracted from SQL');
+    // Si no hay resultado válido
+    if (!resultado || (resultado.columnas.length === 0 && !resultado.esSelectAsterisco)) {
+        console.log('No valid SQL result');
         return;
     }
     
-    console.log('Columnas extraídas:', columnas);
+    console.log('resultado:', resultado);
     
-    // Si es SELECT *, mostrar mensaje
-    if (columnas.length === 1 && columnas[0].tipo === 'all') {
-        // Buscar el elemento de contenido - puede ser .card-body o .card directo
-        let fillTarget = refDiv.querySelector('.card-body');
-        if (!fillTarget) {
-            fillTarget = refDiv.querySelector('.card');
-        }
-        if (!fillTarget) {
-            // Si no hay card, buscar en el collapse del contenedor directo
-            fillTarget = refDiv;
-        }
-        
-        if (fillTarget) {
-            fillTarget.innerHTML = `
-                <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
-                <div class="alert alert-info">
-                    <strong>SELECT *</strong> detectado en la consulta.
-                    <br><small>Se usarán todas las columnas de la tabla. Para una referencia específica, lista las columnas explícitamente en el SELECT.</small>
-                </div>
-                <p class="text-muted mb-0"><small>Usa el formato <code>[[nombre_columna]]</code> en tu plantilla HTML para reemplazar valores con datos de la base de datos.</small></p>
-            `;
-            console.log('SELECT * message updated');
-            
-            // Abrir automáticamente el panel
-            const refCollapse = new bootstrap.Collapse(refDiv, { toggle: false });
-            refCollapse.show();
-            console.log('Panel opened for SELECT *');
-        } else {
-            console.warn('No fill target found for SELECT *');
-        }
+    // Si es SELECT *, consultar la tabla real
+    if (resultado.esSelectAsterisco) {
+        console.log('SELECT * detected, fetching real columns from:', resultado.tabla);
+        fetch(API_PLANTILLAS + '?action=obtener_columnas_tabla&tabla=' + resultado.tabla)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Columnas reales obtenidas:', data);
+                if (data.success && data.columnas) {
+                    // Convertir a formato esperado
+                    const columnasObj = data.columnas.map(col => ({
+                        nombre: col,
+                        tipo: 'column'
+                    }));
+                    mostrarColumnasEnPanel(refDiv, columnasObj);
+                } else {
+                    console.warn('Error al obtener columnas reales:', data.error);
+                    mostrarColumnasEnPanel(refDiv, []);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching columns:', error);
+                mostrarColumnasEnPanel(refDiv, []);
+            });
         return;
     }
     
-    // Construir HTML para las columnas extraídas
+    // Si hay columnas extraídas, mostrarlas
+    if (resultado.columnas.length > 0) {
+        console.log('Columnas extraídas:', resultado.columnas);
+        mostrarColumnasEnPanel(refDiv, resultado.columnas);
+    }
+}
+
+/**
+ * Muestra las columnas en el panel de referencia
+ */
+function mostrarColumnasEnPanel(refDiv, columnas) {
+    if (!refDiv) return;
+    
+    // Construir HTML para las columnas
     let columnasHTML = '';
     
-    // Agrupar por columnas disponibles
     if (columnas.length > 0) {
         columnasHTML = `
             <div class="mb-3">
@@ -697,6 +704,13 @@ function actualizarReferenciaColumnas() {
         
         columnasHTML += `
                 </div>
+            </div>
+        `;
+    } else {
+        columnasHTML = `
+            <div class="alert alert-warning">
+                <strong>No se pudieron extraer las columnas</strong><br>
+                <small>Verifica que la tabla exista y la sintaxis SQL sea correcta.</small>
             </div>
         `;
     }

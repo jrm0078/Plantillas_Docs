@@ -853,6 +853,47 @@ else if ($action === 'debug_sql') {
     }
 }
 
+// Obtener columnas reales de una tabla
+else if ($action === 'obtener_columnas_tabla') {
+    $tabla = $_GET['tabla'] ?? '';
+    
+    if (!$tabla) {
+        echo json_encode(['success' => false, 'error' => 'Tabla requerida']);
+        exit;
+    }
+    
+    // Sanitizar nombre de tabla (solo alfanuméricos y guiones bajos)
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $tabla)) {
+        echo json_encode(['success' => false, 'error' => 'Nombre de tabla inválido']);
+        exit;
+    }
+    
+    try {
+        // Usar DESCRIBE para obtener columnas
+        $stmt = $pdo->query("DESCRIBE `" . $tabla . "`");
+        $columnas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (empty($columnas)) {
+            echo json_encode(['success' => false, 'error' => 'Tabla no encontrada o sin columnas']);
+            exit;
+        }
+        
+        // Extraer solo los nombres de columnas
+        $nombres = array_map(function($col) {
+            return $col['Field'];
+        }, $columnas);
+        
+        echo json_encode([
+            'success' => true,
+            'tabla' => $tabla,
+            'columnas' => $nombres,
+            'total' => count($nombres)
+        ]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
 else {
     echo json_encode(['success' => false, 'error' => 'Acción no válida']);
 }

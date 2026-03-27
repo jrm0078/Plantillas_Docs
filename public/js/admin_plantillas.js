@@ -637,7 +637,7 @@ function actualizarReferenciaColumnas() {
                     <strong>SELECT *</strong> detectado en la consulta.
                     <br><small>Se usarán todas las columnas de la tabla. Para una referencia específica, lista las columnas explícitamente en el SELECT.</small>
                 </div>
-                <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato -nombre_columna-</small></p>
+                <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato [[nombre_columna]]</small></p>
             `;
         }
         return;
@@ -657,7 +657,7 @@ function actualizarReferenciaColumnas() {
         columnas.forEach(col => {
             columnasHTML += `
                 <span class="badge bg-info" style="font-size: 0.85rem; cursor: pointer;" title="Click para copiar" onclick="copiarColumna('${col.nombre}')">
-                    -${col.nombre}-
+                    [[${col.nombre}]]
                 </span>
             `;
         });
@@ -674,7 +674,7 @@ function actualizarReferenciaColumnas() {
         cardBody.innerHTML = `
             <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
             ${columnasHTML}
-            <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato -nombre_columna- (Ej: -numero_presupuesto-, -descripcion-, etc.)</small></p>
+            <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato [[columna]] (Ej: [[numero_presupuesto]], [[descripcion]], etc.)</small></p>
         `;
         
         // Actualizar si el panel está colapsado
@@ -686,7 +686,7 @@ function actualizarReferenciaColumnas() {
  * Copia el texto de una columna al portapapeles
  */
 function copiarColumna(nombre) {
-    const texto = `-${nombre}-`;
+    const texto = `[[${nombre}]]`;
     navigator.clipboard.writeText(texto).then(() => {
         // Mostrar feedback visual
         const alertDiv = document.createElement('div');
@@ -695,7 +695,7 @@ function copiarColumna(nombre) {
         alertDiv.style.right = '20px';
         alertDiv.style.zIndex = '9999';
         alertDiv.innerHTML = `
-            Columna "<code>${nombre}</code>" copiada a portapapeles
+            Variable "<code>[[${nombre}]]</code>" copiada a portapapeles
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         document.body.appendChild(alertDiv);

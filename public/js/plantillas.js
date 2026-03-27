@@ -598,14 +598,8 @@ function generarDocumento() {
                         if (data.data.hasOwnProperty(key)) {
                             const value = data.data[key];
                             
-                            // Reemplazar con guiones: -columna-
-                            contenido = contenido.replaceAll('-' + key + '-', value || '');
-                            
-                            // Reemplazar con dobles llaves: {{columna}}
-                            contenido = contenido.replaceAll('{{' + key + '}}', value || '');
-                            
-                            // Reemplazar con triple llave: {{{columna}}}
-                            contenido = contenido.replaceAll('{{{' + key + '}}}', value || '');
+                            // Reemplazar con dobles corchetes: [[columna]]
+                            contenido = contenido.replaceAll('[[' + key + ']]', value || '');
                         }
                     }
                 }

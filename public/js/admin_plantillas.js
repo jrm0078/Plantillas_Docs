@@ -637,7 +637,7 @@ function actualizarReferenciaColumnas() {
                     <strong>SELECT *</strong> detectado en la consulta.
                     <br><small>Se usarán todas las columnas de la tabla. Para una referencia específica, lista las columnas explícitamente en el SELECT.</small>
                 </div>
-                <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato [[nombre_columna]]</small></p>
+                <p class="text-muted mb-0"><small>Usa el formato <code>[[nombre_columna]]</code> en tu plantilla HTML para reemplazar valores con datos de la base de datos.</small></p>
             `;
         }
         return;
@@ -674,7 +674,7 @@ function actualizarReferenciaColumnas() {
         cardBody.innerHTML = `
             <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
             ${columnasHTML}
-            <p class="text-muted mb-0"><small><strong>Tip:</strong> Para usar estas columnas en tu plantilla, usa el formato [[columna]] (Ej: [[numero_presupuesto]], [[descripcion]], etc.)</small></p>
+            <p class="text-muted mb-0"><small>Para usar estas columnas en tu plantilla HTML, usa el formato <code>[[nombre_columna]]</code> (ejemplo: <code>[[numero_presupuesto]]</code>, <code>[[descripcion]]</code>). Haz click en cualquier columna arriba para copiarla automáticamente.</small></p>
         `;
         
         // Actualizar si el panel está colapsado

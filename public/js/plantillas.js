@@ -436,11 +436,20 @@ function aplicarFiltro() {
                 
                 // Reemplazar TODAS las variables encontradas en los datos
                 if (data.data && typeof data.data === 'object') {
+                    console.log('Iniciando reemplazo en aplicarFiltro');
+                    console.log('data.data:', data.data);
+                    
                     // Iterar sobre todas las propiedades del objeto data
                     for (let key in data.data) {
                         if (data.data.hasOwnProperty(key)) {
                             const value = data.data[key];
                             
+                            // Reemplazar con dobles corchetes: [[columna]]
+                            const patron1 = '[[' + key + ']]';
+                            console.log(`Buscando ${patron1}, reemplazando con ${value}`);
+                            contenido = contenido.replaceAll(patron1, value || '');
+                            
+                            // Para compatibilidad con formato antiguo, también soportar:
                             // Reemplazar con guiones: -columna-
                             contenido = contenido.replaceAll('-' + key + '-', value || '');
                             
@@ -451,6 +460,8 @@ function aplicarFiltro() {
                             contenido = contenido.replaceAll('{{{' + key + '}}}', value || '');
                         }
                     }
+                    
+                    console.log('Contenido después de reemplazos:', contenido);
                 }
                 
                 // Cargar en el editor

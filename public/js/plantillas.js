@@ -575,38 +575,63 @@ function generarDocumento() {
         filtros[nombre] = valor;
     });
     
+    console.log('Filtros recopilados:', filtros);
+    
     if (!todosCompletos || Object.values(filtros).some(v => v === '')) {
         mostrarAlerta('Completa todos los filtros requeridos', 'warning');
         return;
     }
     
+    console.log('Llamando a obtener_datos_filtrados con:', {
+        cod: plantillaActual.cod_plantilla,
+        filtros: filtros
+    });
+    
     // Ejecutar consulta SQL con los filtros
     fetch(API_PLANTILLAS + '?action=obtener_datos_filtrados&cod=' + plantillaActual.cod_plantilla + '&filtros=' + encodeURIComponent(JSON.stringify(filtros)))
         .then(response => response.json())
         .then(data => {
+            console.log('Respuesta de obtener_datos_filtrados:', data);
+            
             if (data.success) {
                 // Guardar datos obtenidos
                 datosFormulario = data.data;
+                
+                console.log('datosFormulario:', datosFormulario);
+                console.log('tipo de datosFormulario:', typeof datosFormulario);
+                console.log('plantillaActual.contenido:', plantillaActual.contenido);
                 
                 // Reemplazar variables en la plantilla - DINÁMICO
                 let contenido = plantillaActual.contenido;
                 
                 // Reemplazar TODAS las variables encontradas en los datos
-                if (data.data && typeof data.data === 'object') {
+                if (datosFormulario && typeof datosFormulario === 'object') {
+                    console.log('Iniciando reemplazo de variables...');
+                    
                     // Iterar sobre todas las propiedades del objeto data
-                    for (let key in data.data) {
-                        if (data.data.hasOwnProperty(key)) {
-                            const value = data.data[key];
+                    for (let key in datosFormulario) {
+                        if (datosFormulario.hasOwnProperty(key)) {
+                            const value = datosFormulario[key];
+                            const patron = '[[' + key + ']]';
+                            
+                            console.log(`Reemplazando ${patron} con ${value}`);
                             
                             // Reemplazar con dobles corchetes: [[columna]]
                             contenido = contenido.replaceAll('[[' + key + ']]', value || '');
                         }
                     }
+                    
+                    console.log('Contenido después de reemplazos:', contenido);
+                } else {
+                    console.warn('datosFormulario no es un objeto válido');
                 }
                 
                 // Cargar en el editor
                 if (tinymce.activeEditor) {
+                    console.log('Actualizando TinyMCE con contenido');
                     tinymce.activeEditor.setContent(contenido);
+                } else {
+                    console.warn('TinyMCE not active');
                 }
                 
                 // Mostrar el editor
@@ -615,11 +640,12 @@ function generarDocumento() {
                 
                 mostrarAlerta('Documento generado correctamente', 'success');
             } else {
+                console.error('Error en response:', data.error);
                 mostrarAlerta('Error: ' + data.error, 'danger');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error fetch:', error);
             mostrarAlerta('Error al generar documento', 'danger');
         });
 }

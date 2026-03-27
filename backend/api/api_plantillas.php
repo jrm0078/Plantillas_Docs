@@ -395,8 +395,10 @@ else if ($action === 'editar') {
             ':sql' => $data['sql_consulta'],
             ':estado' => $data['estado'] ?? 1
         ]);
-        
-        // 3. AGREGAR NUEVOS FILTROS
+                // 2B. ELIMINAR FILTROS ANTIGUOS PRIMERO
+        $stmtDelFilt = $pdo->prepare("DELETE FROM plantillas_filtros WHERE cod_plantilla = :cod");
+        $stmtDelFilt->execute([':cod' => $cod]);
+                // 3. AGREGAR NUEVOS FILTROS
         if (!empty($data['filtros']) && is_array($data['filtros'])) {
             $stmtFilt = $pdo->prepare("
                 INSERT INTO plantillas_filtros 

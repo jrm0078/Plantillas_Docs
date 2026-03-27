@@ -665,6 +665,11 @@ function actualizarReferenciaColumnas() {
                 <p class="text-muted mb-0"><small>Usa el formato <code>[[nombre_columna]]</code> en tu plantilla HTML para reemplazar valores con datos de la base de datos.</small></p>
             `;
             console.log('SELECT * message updated');
+            
+            // Abrir automáticamente el panel
+            const refCollapse = new bootstrap.Collapse(refDiv, { toggle: false });
+            refCollapse.show();
+            console.log('Panel opened for SELECT *');
         } else {
             console.warn('No fill target found for SELECT *');
         }
@@ -698,6 +703,8 @@ function actualizarReferenciaColumnas() {
     
     // Actualizar el contenido del card-body
     const cardBody = refDiv.querySelector('.card-body');
+    console.log('cardBody found:', !!cardBody);
+    
     if (cardBody) {
         cardBody.innerHTML = `
             <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
@@ -705,8 +712,29 @@ function actualizarReferenciaColumnas() {
             <p class="text-muted mb-0"><small>Para usar estas columnas en tu plantilla HTML, usa el formato <code>[[nombre_columna]]</code> (ejemplo: <code>[[numero_presupuesto]]</code>, <code>[[descripcion]]</code>). Haz click en cualquier columna arriba para copiarla automáticamente.</small></p>
         `;
         
-        // Actualizar si el panel está colapsado
+        console.log('HTML updated in cardBody');
+        
+        // Abrir automáticamente el panel
         const refCollapse = new bootstrap.Collapse(refDiv, { toggle: false });
+        refCollapse.show();
+        console.log('Panel opened');
+    } else {
+        console.warn('cardBody not found, trying alternative selectors');
+        // Intentar con .card como fallback
+        const card = refDiv.querySelector('.card');
+        if (card) {
+            card.innerHTML = `
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-database"></i> Referencia de Columnas Disponibles</h5>
+                    ${columnasHTML}
+                    <p class="text-muted mb-0"><small>Para usar estas columnas en tu plantilla HTML, usa el formato <code>[[nombre_columna]]</code> (ejemplo: <code>[[numero_presupuesto]]</code>, <code>[[descripcion]]</code>). Haz click en cualquier columna arriba para copiarla automáticamente.</small></p>
+                </div>
+            `;
+            console.log('HTML updated in card via fallback');
+            const refCollapse = new bootstrap.Collapse(refDiv, { toggle: false });
+            refCollapse.show();
+            console.log('Panel opened via fallback');
+        }
     }
 }
 

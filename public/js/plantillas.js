@@ -425,8 +425,39 @@ function aplicarFiltro() {
                 // Reemplazar variables en la plantilla - DINÁMICO
                 let contenido = plantillaActual.contenido;
                 
-                // Reemplazar TODAS las variables encontradas en los datos
-                if (data.data && typeof data.data === 'object') {
+                // Detectar si es un ARRAY (múltiples registros) o un OBJETO (registro único)
+                if (Array.isArray(data.data) && data.data.length > 0) {
+                    // CASO: Array de registros (ej: incidencias, listados, etc)
+                    
+                    // Buscar la fila repetible (contiene [[variables]])
+                    const rowRegex = /<tr[^>]*>.*?\[\[.*?\]\].*?<\/tr>/gs;
+                    const rowMatch = contenido.match(rowRegex);
+                    
+                    if (rowMatch && rowMatch.length > 0) {
+                        const rowTemplate = rowMatch[0];
+                        let allRows = '';
+                        
+                        // Repetir la fila para cada registro
+                        data.data.forEach(record => {
+                            let rowContent = rowTemplate;
+                            
+                            // Reemplazar variables en esta fila
+                            for (let key in record) {
+                                if (record.hasOwnProperty(key)) {
+                                    const value = record[key];
+                                    rowContent = rowContent.replaceAll('[[' + key + ']]', value || '');
+                                }
+                            }
+                            
+                            allRows += rowContent;
+                        });
+                        
+                        // Reemplazar la fila original por todas las filas generadas
+                        contenido = contenido.replace(rowRegex, allRows);
+                    }
+                } else if (data.data && typeof data.data === 'object') {
+                    // CASO: Objeto único (cliente, presupuesto individual, etc)
+                    
                     // Iterar sobre todas las propiedades del objeto data
                     for (let key in data.data) {
                         if (data.data.hasOwnProperty(key)) {
@@ -586,8 +617,39 @@ function generarDocumento() {
                 // Reemplazar variables en la plantilla - DINÁMICO
                 let contenido = plantillaActual.contenido;
                 
-                // Reemplazar TODAS las variables encontradas en los datos
-                if (datosFormulario && typeof datosFormulario === 'object') {
+                // Detectar si es un ARRAY (múltiples registros) o un OBJETO (registro único)
+                if (Array.isArray(datosFormulario) && datosFormulario.length > 0) {
+                    // CASO: Array de registros (ej: incidencias, listados, etc)
+                    
+                    // Buscar la fila repetible (contiene [[variables]])
+                    const rowRegex = /<tr[^>]*>.*?\[\[.*?\]\].*?<\/tr>/gs;
+                    const rowMatch = contenido.match(rowRegex);
+                    
+                    if (rowMatch && rowMatch.length > 0) {
+                        const rowTemplate = rowMatch[0];
+                        let allRows = '';
+                        
+                        // Repetir la fila para cada registro
+                        datosFormulario.forEach(record => {
+                            let rowContent = rowTemplate;
+                            
+                            // Reemplazar variables en esta fila
+                            for (let key in record) {
+                                if (record.hasOwnProperty(key)) {
+                                    const value = record[key];
+                                    rowContent = rowContent.replaceAll('[[' + key + ']]', value || '');
+                                }
+                            }
+                            
+                            allRows += rowContent;
+                        });
+                        
+                        // Reemplazar la fila original por todas las filas generadas
+                        contenido = contenido.replace(rowRegex, allRows);
+                    }
+                } else if (datosFormulario && typeof datosFormulario === 'object') {
+                    // CASO: Objeto único (cliente, presupuesto individual, etc)
+                    
                     // Iterar sobre todas las propiedades del objeto data
                     for (let key in datosFormulario) {
                         if (datosFormulario.hasOwnProperty(key)) {

@@ -790,14 +790,19 @@ else if ($action === 'obtener_datos_filtrados') {
             if ($placeholder_count === 0) {
                 $stmt = $pdo->prepare($sql_consulta);
                 $stmt->execute();
-                $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
-                if (!$datos) {
+                if (empty($datos)) {
                     echo json_encode(['success' => false, 'error' => 'No se encontraron datos']);
                     exit;
                 }
                 
-                echo json_encode(['success' => true, 'data' => $datos]);
+                // Si es un solo registro, retornar como objeto. Si son varios, retornar como array
+                $respuesta = (count($datos) === 1 && !isset($datos[0]) || (is_array($datos[0]) && count($datos) > 1)) 
+                    ? $datos 
+                    : (count($datos) === 1 ? $datos[0] : $datos);
+                
+                echo json_encode(['success' => true, 'data' => $respuesta]);
                 exit;
             }
         }
@@ -812,14 +817,17 @@ else if ($action === 'obtener_datos_filtrados') {
         // Ejecutar query con parámetros
         $stmt = $pdo->prepare($sql_consulta);
         $stmt->execute($params);
-        $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        if (!$datos) {
+        if (empty($datos)) {
             echo json_encode(['success' => false, 'error' => 'No se encontraron datos con los filtros aplicados']);
             exit;
         }
         
-        echo json_encode(['success' => true, 'data' => $datos]);
+        // Si es un solo registro, retornar como objeto. Si son varios, retornar como array
+        $respuesta = (count($datos) === 1) ? $datos[0] : $datos;
+        
+        echo json_encode(['success' => true, 'data' => $respuesta]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
